@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const steps = [
   { id: 1, question: "What is your product name?", placeholder: "e.g. Notion, Stripe, Figma", field: "productName" },
@@ -10,12 +10,22 @@ const steps = [
   { id: 6, question: "What brand voice do you want?", placeholder: "e.g. Professional, Bold, Friendly, Witty", field: "brandVoice" },
 ];
 
+type Message = { role: "user" | "assistant"; content: string };
+
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState("");
+  const [brandStrategy, setBrandStrategy] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const step = steps[currentStep];
   const progress = (currentStep / steps.length) * 100;
@@ -35,23 +45,91 @@ export default function Onboarding() {
       body: JSON.stringify(answers),
     });
     const data = await res.json();
-    setResult(data.result);
+    setBrandStrategy(data.result);
+    setMessages([{ role: "assistant", content: data.result }]);
     setLoading(false);
   }
 
-  if (result) {
+  async function handleChat() {
+    if (!chatInput.trim()) return;
+    const userMessage = chatInput;
+    setChatInput("");
+    const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
+    setMessages(newMessages);
+    setChatLoading(true);
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: newMessages,
+        brandStrategy,
+        answers,
+      }),
+    });
+    const data = await res.json();
+    setMessages([...newMessages, { role: "assistant", content: data.result }]);
+    setChatLoading(false);
+  }
+
+  if (brandStrategy) {
     return (
-      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-16">
-        <div className="max-w-2xl w-full">
-          <div className="text-4xl mb-4 text-center">🎉</div>
-          <h2 className="text-3xl font-bold mb-8 text-center">Your Brand Strategy</h2>
-          <div className="bg-gray-900 rounded-xl p-8 whitespace-pre-wrap text-gray-300 leading-relaxed">
-            {result}
-          </div>
-          <button onClick={() => { setResult(""); setCurrentStep(0); setAnswers({}); }}
-            className="mt-6 w-full border border-gray-600 text-gray-300 font-semibold px-8 py-4 rounded-lg">
+      <main className="min-h-screen bg-black text-white flex flex-col" style={{ height: "100vh" }}>
+        <div className="border-b border-gray-800 px-6 py-4 flex items-center gap-3">
+          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+          <h1 className="font-semibold text-white">AI Marketing Co-Pilot</h1>
+          <span className="text-gray-500 text-sm">— {answers.productName}</span>
+          <button onClick={() => { setBrandStrategy(""); setCurrentStep(0); setAnswers({}); setMessages([]); }}
+            className="ml-auto text-gray-500 hover:text-gray-300 text-sm">
             Start Over
           </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-3xl mx-auto w-full">
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-2xl rounded-2xl px-5 py-4 text-sm leading-relaxed whitespace-pre-wrap ${
+                msg.role === "user"
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-900 text-gray-200"
+              }`}>
+                {msg.content}
+              </div>
+            </div>
+          ))}
+          {chatLoading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-900 rounded-2xl px-5 py-4 text-gray-400 text-sm">
+                Thinking...
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        <div className="border-t border-gray-800 px-4 py-4 max-w-3xl mx-auto w-full">
+          <div className="flex gap-3 mb-3 flex-wrap">
+            {["Write a LinkedIn post", "Create ad copy", "Write email subject lines", "Make tagline bolder"].map((suggestion) => (
+              <button key={suggestion} onClick={() => setChatInput(suggestion)}
+                className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-full">
+                {suggestion}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleChat()}
+              placeholder="Ask anything about your brand..."
+              className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500"
+            />
+            <button onClick={handleChat} disabled={!chatInput.trim() || chatLoading}
+              className="bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-5 py-3 rounded-xl">
+              Send
+            </button>
+          </div>
         </div>
       </main>
     );
