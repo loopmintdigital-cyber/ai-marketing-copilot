@@ -1,0 +1,115 @@
+"use client";
+import { useState } from "react";
+
+const steps = [
+  { id: 1, question: "What is your product name?", placeholder: "e.g. Notion, Stripe, Figma", field: "productName" },
+  { id: 2, question: "Describe your product in one sentence.", placeholder: "e.g. A project management tool for remote teams", field: "description" },
+  { id: 3, question: "Who is your target customer?", placeholder: "e.g. SaaS founders, marketing managers", field: "targetCustomer" },
+  { id: 4, question: "Who are your top 3 competitors?", placeholder: "e.g. Jasper, Copy.ai, HubSpot", field: "competitors" },
+  { id: 5, question: "What makes you different from them?", placeholder: "e.g. We focus only on SaaS, cheaper, faster", field: "differentiator" },
+  { id: 6, question: "What brand voice do you want?", placeholder: "e.g. Professional, Bold, Friendly, Witty", field: "brandVoice" },
+];
+
+export default function Onboarding() {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+
+  const step = steps[currentStep];
+  const progress = (currentStep / steps.length) * 100;
+
+  function handleNext() {
+    if (!input.trim()) return;
+    setAnswers({ ...answers, [step.field]: input });
+    setInput("");
+    setCurrentStep(currentStep + 1);
+  }
+
+  async function handleGenerate() {
+    setLoading(true);
+    const res = await fetch("/api/brand", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(answers),
+    });
+    const data = await res.json();
+    setResult(data.result);
+    setLoading(false);
+  }
+
+  if (result) {
+    return (
+      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 py-16">
+        <div className="max-w-2xl w-full">
+          <div className="text-4xl mb-4 text-center">🎉</div>
+          <h2 className="text-3xl font-bold mb-8 text-center">Your Brand Strategy</h2>
+          <div className="bg-gray-900 rounded-xl p-8 whitespace-pre-wrap text-gray-300 leading-relaxed">
+            {result}
+          </div>
+          <button
+            onClick={() => { setResult(""); setCurrentStep(0); setAnswers({}); }}
+            className="mt-6 w-full border border-gray-600 text-gray-300 font-semibold px-8 py-4 rounded-lg"
+          >
+            Start Over
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (currentStep >= steps.length) {
+    return (
+      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+        <div className="max-w-xl w-full text-center">
+          <div className="text-5xl mb-6">✅</div>
+          <h2 className="text-3xl font-bold mb-4">Ready to Generate!</h2>
+          <div className="bg-gray-900 rounded-xl p-6 text-left space-y-3 mb-8">
+            {steps.map((s) => (
+              <div key={s.field}>
+                <p className="text-purple-400 text-sm">{s.question}</p>
+                <p className="text-white">{answers[s.field]}</p>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleGenerate}
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-8 py-4 rounded-lg text-lg"
+          >
+            {loading ? "Generating your brand strategy..." : "Generate My Brand Strategy →"}
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+      <div className="max-w-xl w-full">
+        <div className="w-full bg-gray-800 rounded-full h-2 mb-10">
+          <div className="bg-purple-600 h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+        </div>
+        <p className="text-gray-500 text-sm mb-2">Step {currentStep + 1} of {steps.length}</p>
+        <h2 className="text-3xl font-bold mb-8">{step.question}</h2>
+        <input
+          autoFocus
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleNext()}
+          placeholder={step.placeholder}
+          className="w-full bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-600 focus:outline-none focus:border-purple-500 mb-6"
+        />
+        <button
+          onClick={handleNext}
+          disabled={!input.trim()}
+          className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-8 py-4 rounded-lg text-lg"
+        >
+          {currentStep === steps.length - 1 ? "Finish →" : "Next →"}
+        </button>
+      </div>
+    </main>
+  );
+}
