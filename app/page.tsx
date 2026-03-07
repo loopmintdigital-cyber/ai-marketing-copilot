@@ -1,5 +1,6 @@
-import { useRouter } from "next/navigation"
+// homepage redirect fix
+import { redirect } from "next/navigation";
 
-const router = useRouter()
-
-router.push("/chat")
+export default function Home() {
+  redirect("/onboarding");
+}
