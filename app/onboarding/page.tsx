@@ -53,8 +53,7 @@ export default function Onboarding() {
   async function handleChat() {
     if (!chatInput.trim()) return;
     const userMessage = chatInput;
-    setChatInput("");
-    const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
+  const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
     setMessages(newMessages);
     setChatInput("");
     setChatLoading(true);
