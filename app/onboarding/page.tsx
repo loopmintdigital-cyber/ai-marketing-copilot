@@ -134,7 +134,7 @@ return <p key={i} className="text-gray-300">{line.replace(/\*\*(.*?)\*\*/g, '$1'
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleChat()}
+             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleChat(); } }}
               placeholder="Ask anything about your brand..."
               className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500"
             />
