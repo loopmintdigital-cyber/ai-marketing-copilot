@@ -56,6 +56,7 @@ export default function Onboarding() {
     setChatInput("");
     const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
     setMessages(newMessages);
+    setChatInput("");
     setChatLoading(true);
 
     const res = await fetch("/api/chat", {
