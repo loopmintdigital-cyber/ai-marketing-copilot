@@ -101,7 +101,10 @@ export default function Onboarding() {
       if (line.startsWith('### ')) return <h3 key={i} className="text-base font-semibold text-purple-300 mt-2">{line.replace('### ', '')}</h3>;
       if (line.startsWith('---')) return <hr key={i} className="border-gray-700 my-3" />;
       if (line.trim() === '') return <div key={i} className="h-1" />;
-      return <p key={i}>{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
+      if (line.startsWith('> ')) return <blockquote key={i} className="border-l-2 border-purple-500 pl-4 text-purple-200 italic my-2">{line.replace('> ', '').replace(/\*/g, '')}</blockquote>;
+if (line.startsWith('| ')) return <p key={i} className="text-gray-400 text-xs font-mono">{line}</p>;
+if (line.startsWith('`')) return null;
+return <p key={i} className="text-gray-300">{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
     })}
   </div>
             </div>
