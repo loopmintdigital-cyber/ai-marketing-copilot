@@ -1,6 +1,5 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 const steps = [
   { id: 1, question: "What is your product name?", placeholder: "e.g. Notion, Stripe, Figma", field: "productName" },
@@ -22,7 +21,6 @@ export default function Onboarding() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,7 +39,6 @@ export default function Onboarding() {
 
   async function handleGenerate() {
     setLoading(true);
-    localStorage.setItem("answers", JSON.stringify(answers));
     const res = await fetch("/api/brand", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,7 +46,6 @@ export default function Onboarding() {
     });
     const data = await res.json();
     setBrandStrategy(data.result);
-    localStorage.setItem("brandStrategy", data.result);
     setMessages([{ role: "assistant", content: data.result }]);
     setLoading(false);
   }
@@ -57,7 +53,7 @@ export default function Onboarding() {
   async function handleChat() {
     if (!chatInput.trim() || chatLoading) return;
     const userMessage = chatInput;
-    const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
+  const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
     setMessages(newMessages);
     setChatInput("");
     setChatLoading(true);
@@ -65,30 +61,15 @@ export default function Onboarding() {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: newMessages, brandStrategy, answers }),
+      body: JSON.stringify({
+        messages: newMessages,
+        brandStrategy,
+        answers,
+      }),
     });
     const data = await res.json();
     setMessages([...newMessages, { role: "assistant", content: data.result }]);
     setChatLoading(false);
-    router.push("/dashboard");
-  }
-
-  function renderContent(content: string) {
-    return (
-      <div className="space-y-2">
-        {content.split('\n').map((line, i) => {
-          if (line.startsWith('# ')) return <h1 key={i} className="text-xl font-bold text-white mt-4">{line.replace('# ', '')}</h1>;
-          if (line.startsWith('## ')) return <h2 key={i} className="text-lg font-bold text-purple-400 mt-3">{line.replace('## ', '')}</h2>;
-          if (line.startsWith('### ')) return <h3 key={i} className="text-base font-semibold text-purple-300 mt-2">{line.replace('### ', '')}</h3>;
-          if (line.startsWith('---')) return <hr key={i} className="border-gray-700 my-3" />;
-          if (line.trim() === '') return <div key={i} className="h-1" />;
-          if (line.startsWith('> ')) return <blockquote key={i} className="border-l-2 border-purple-500 pl-4 text-purple-200 italic my-2">{line.replace('> ', '').replace(/\*/g, '')}</blockquote>;
-          if (line.startsWith('| ')) return <p key={i} className="text-gray-400 text-xs font-mono">{line}</p>;
-          if (line.startsWith('`')) return null;
-          return <p key={i} className="text-gray-300">{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
-        })}
-      </div>
-    );
   }
 
   if (brandStrategy) {
@@ -107,16 +88,33 @@ export default function Onboarding() {
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-3xl mx-auto w-full">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-2xl rounded-2xl px-5 py-4 text-sm leading-relaxed ${
-                msg.role === "user" ? "bg-purple-600 text-white" : "bg-gray-900 text-gray-200"
+              <div className={`max-w-2xl rounded-2xl px-5 py-4 text-sm leading-relaxed whitespace-pre-wrap ${
+                msg.role === "user"
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-900 text-gray-200"
               }`}>
-                {renderContent(msg.content)}
-              </div>
+                (<div className="space-y-2">{msg.content.split('\n').map((line, i) => { if (line.startsWith('# ')) return <h1 key={i} className="text-xl font-bold text-white mt-4">{line.replace('# ', '')}</h1>; if (line.startsWith('## ')) return <h2 key={i} className="text-lg font-bold text-purple-400 mt-3">{line.replace('## ', '')}</h2>; if (line.startsWith('### ')) return <h3 key={i} className="text-base font-semibold text-purple-300 mt-2">{line.replace('### ', '')}</h3>; if (line.startsWith('---')) return <hr key={i} className="border-gray-700 my-3" />; if (line.trim() === '') return <div key={i} className="h-1" />; return <p key={i}>{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>; })}</div>)
+  <div className="space-y-2">
+    {msg.content.split('\n').map((line, i) => {
+      if (line.startsWith('# ')) return <h1 key={i} className="text-xl font-bold text-white mt-4">{line.replace('# ', '')}</h1>;
+      if (line.startsWith('## ')) return <h2 key={i} className="text-lg font-bold text-purple-400 mt-3">{line.replace('## ', '')}</h2>;
+      if (line.startsWith('### ')) return <h3 key={i} className="text-base font-semibold text-purple-300 mt-2">{line.replace('### ', '')}</h3>;
+      if (line.startsWith('---')) return <hr key={i} className="border-gray-700 my-3" />;
+      if (line.trim() === '') return <div key={i} className="h-1" />;
+      if (line.startsWith('> ')) return <blockquote key={i} className="border-l-2 border-purple-500 pl-4 text-purple-200 italic my-2">{line.replace('> ', '').replace(/\*/g, '')}</blockquote>;
+if (line.startsWith('| ')) return <p key={i} className="text-gray-400 text-xs font-mono">{line}</p>;
+if (line.startsWith('`')) return null;
+return <p key={i} className="text-gray-300">{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
+    })}
+  </div>
+            </div>
             </div>
           ))}
           {chatLoading && (
             <div className="flex justify-start">
-              <div className="bg-gray-900 rounded-2xl px-5 py-4 text-gray-400 text-sm">Thinking...</div>
+              <div className="bg-gray-900 rounded-2xl px-5 py-4 text-gray-400 text-sm">
+                Thinking...
+              </div>
             </div>
           )}
           <div ref={bottomRef} />
@@ -132,10 +130,14 @@ export default function Onboarding() {
             ))}
           </div>
           <div className="flex gap-3">
-            <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleChat(); } }}
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleChat(); } }}
               placeholder="Ask anything about your brand..."
-              className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500" />
+              className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500"
+            />
             <button onClick={handleChat} disabled={!chatInput.trim() || chatLoading}
               className="bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-5 py-3 rounded-xl">
               Send
