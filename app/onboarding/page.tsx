@@ -48,11 +48,9 @@ export default function Onboarding() {
       body: JSON.stringify(answers),
     });
     const data = await res.json();
-    setBrandStrategy(data.result);
     localStorage.setItem("brandStrategy", data.result);
-    setMessages([{ role: "assistant", content: data.result }]);
     setLoading(false);
-  }
+   router.push("/dashboard");}
 
   async function handleChat() {
     if (!chatInput.trim() || chatLoading) return;
