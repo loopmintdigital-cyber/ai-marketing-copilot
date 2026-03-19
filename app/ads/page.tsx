@@ -24,6 +24,15 @@ export default function Ads() {
     });
     const data = await res.json();
     setResult(data.result);
+    const historyItem = {
+  id: Date.now().toString(),
+  module: "ads",
+  inputs: { campaignGoal, targetAudience, feature },
+  result: data.result,
+  createdAt: new Date().toISOString(),
+};
+const existing = JSON.parse(localStorage.getItem("contentHistory") || "[]");
+localStorage.setItem("contentHistory", JSON.stringify([historyItem, ...existing]));
     setLoading(false);
   }
 
