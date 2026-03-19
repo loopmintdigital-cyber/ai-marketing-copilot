@@ -23,6 +23,15 @@ export default function Content() {
     });
     const data = await res.json();
     setResult(data.result);
+    const historyItem = {
+  id: Date.now().toString(),
+  module: "content",
+  inputs: { pageType, benefit, persona },
+  result: data.result,
+  createdAt: new Date().toISOString(),
+};
+const existing = JSON.parse(localStorage.getItem("contentHistory") || "[]");
+localStorage.setItem("contentHistory", JSON.stringify([historyItem, ...existing]));
     setLoading(false);
   }
 

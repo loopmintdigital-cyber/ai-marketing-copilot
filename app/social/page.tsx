@@ -20,6 +20,15 @@ export default function Social() {
     });
     const data = await res.json();
     setResult(data.result);
+    const historyItem = {
+  id: Date.now().toString(),
+  module: "social",
+  inputs: { platform, goal, productNews },
+  result: data.result,
+  createdAt: new Date().toISOString(),
+};
+const existing = JSON.parse(localStorage.getItem("contentHistory") || "[]");
+localStorage.setItem("contentHistory", JSON.stringify([historyItem, ...existing]));
     setLoading(false);
   }
 
