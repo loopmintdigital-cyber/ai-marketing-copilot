@@ -31,6 +31,7 @@ export default function Dashboard() {
             </div>
             <p className="text-gray-500 text-sm">Welcome back, {answers.productName} 👋</p>
           </div>
+          <button onClick={() => router.push("/history")} className="text-gray-500 hover:text-gray-300 text-sm mr-4">History</button>
           <button onClick={() => { localStorage.clear(); router.push("/onboarding"); }}
             className="text-gray-500 hover:text-gray-300 text-sm">
             Start Over
