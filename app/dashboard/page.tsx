@@ -18,8 +18,7 @@ export default function Dashboard() {
     { title: "Email Marketing", description: "Onboarding sequences, newsletters & cold outreach", icon: "📧", href: "/email", ready: false },
     { title: "Ad Campaign Generator", description: "Google RSA + Meta ad copy with A/B variants", icon: "🎯", href: "/ads", ready: false },
     { title: "SEO & Blog Strategy", description: "Keyword clusters, blog calendars & full article drafts", icon: "🔍", href: "/seo", ready: false },
-    { title: "Brand Strategy Engine", description: "Your brand positioning, voice guide & ICP personas", icon: "🧠", href: "/onboarding", ready: true },
-  ];
+{ title: "Brand Strategy Engine", description: "Your brand positioning, voice guide & ICP personas", icon: "🧠", href: "/brand-strategy", ready: true },  ];
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-10">
