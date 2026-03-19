@@ -15,7 +15,7 @@ export default function Dashboard() {
   const modules = [
     { title: "Social Media Manager", description: "Generate a 7-day post calendar for LinkedIn, Twitter & Instagram", icon: "📱", href: "/social", ready: true },
     { title: "Content & Copywriting", description: "Landing pages, hero copy, feature copy & more", icon: "✍️", href: "/content", ready: false },
-    { title: "Email Marketing", description: "Onboarding sequences, newsletters & cold outreach", icon: "📧", href: "/email", ready: false },
+    { title: "Email Marketing", description: "Onboarding sequences, newsletters & cold outreach", icon: "📧", href: "/email", ready:  true},
     { title: "Ad Campaign Generator", description: "Google RSA + Meta ad copy with A/B variants", icon: "🎯", href: "/ads", ready: false },
     { title: "SEO & Blog Strategy", description: "Keyword clusters, blog calendars & full article drafts", icon: "🔍", href: "/seo", ready: false },
 { title: "Brand Strategy Engine", description: "Your brand positioning, voice guide & ICP personas", icon: "🧠", href: "/brand-strategy", ready: true },  ];
