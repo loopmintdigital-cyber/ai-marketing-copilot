@@ -28,22 +28,40 @@ export default function Dashboard() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selected, setSelected] = useState<HistoryItem | null>(null);
+  const [checking, setChecking] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    if (!user) { router.push("/sign-in"); return; }
-    const meta = user.publicMetadata as { onboardingComplete?: boolean; answers?: Record<string, string> };
-    if (!meta?.onboardingComplete) { router.push("/onboarding"); return; }
-    if (meta?.answers) {
-      setAnswers(meta.answers);
-      localStorage.setItem("answers", JSON.stringify(meta.answers));
-    } else {
-      const saved = localStorage.getItem("answers");
-      if (saved) setAnswers(JSON.parse(saved));
+    if (!isLoaded || !user) return;
+
+    async function loadData() {
+      // Reload user to get fresh metadata
+      await user!.reload();
+      
+      const meta = user!.publicMetadata as { onboardingComplete?: boolean; answers?: Record<string, string> };
+
+      // Check localStorage first as fallback
+      const localAnswers = localStorage.getItem("answers");
+      const hasLocalData = localAnswers && JSON.parse(localAnswers).productName;
+
+      if (!meta?.onboardingComplete && !hasLocalData) {
+        router.push("/onboarding");
+        return;
+      }
+
+      if (meta?.answers) {
+        setAnswers(meta.answers);
+        localStorage.setItem("answers", JSON.stringify(meta.answers));
+      } else if (localAnswers) {
+        setAnswers(JSON.parse(localAnswers));
+      }
+
+      const savedHistory = localStorage.getItem("contentHistory");
+      if (savedHistory) setHistory(JSON.parse(savedHistory));
+      setChecking(false);
     }
-    const savedHistory = localStorage.getItem("contentHistory");
-    if (savedHistory) setHistory(JSON.parse(savedHistory));
+
+    loadData();
   }, [isLoaded, user]);
 
   useEffect(() => {
@@ -70,7 +88,6 @@ export default function Dashboard() {
     function animate() {
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       particles.forEach((p) => {
         p.x += p.speedX;
         p.y += p.speedY;
@@ -78,13 +95,10 @@ export default function Dashboard() {
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
-
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(147, 51, 234, ${p.opacity})`;
         ctx.fill();
-
-        // Draw connections
         particles.forEach((p2) => {
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
           if (dist < 100) {
@@ -97,22 +111,13 @@ export default function Dashboard() {
           }
         });
       });
-
       animationId = requestAnimationFrame(animate);
     }
 
     animate();
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
+    const handleResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", handleResize); };
   }, []);
 
   const modules = [
@@ -146,18 +151,19 @@ export default function Dashboard() {
     );
   }
 
-  if (!isLoaded) return (
+  if (!isLoaded || checking) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
-      <div className="text-purple-400 text-sm animate-pulse">Loading...</div>
+      <div className="text-center">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <div className="text-purple-400 text-sm">Loading your workspace...</div>
+      </div>
     </div>
   );
 
   return (
     <main className="min-h-screen text-white relative" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
-      {/* Particles Canvas */}
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      {/* Header */}
       <div className="border-b border-purple-900 border-opacity-40 px-6 py-4 flex items-center justify-between sticky top-0 z-30" style={{ background: "rgba(10, 5, 20, 0.85)", backdropFilter: "blur(12px)" }}>
         <div className="flex items-center gap-3">
           <div className="w-2.5 h-2.5 bg-purple-500 rounded-full shadow-lg shadow-purple-500"></div>
@@ -170,9 +176,7 @@ export default function Dashboard() {
             className="flex items-center gap-2 text-sm border border-gray-700 hover:border-purple-500 px-4 py-2 rounded-lg transition-all"
             style={{ background: "rgba(26, 5, 51, 0.6)" }}>
             📚 History
-            {history.length > 0 && (
-              <span className="bg-purple-600 text-white text-xs px-1.5 py-0.5 rounded-full">{history.length}</span>
-            )}
+            {history.length > 0 && <span className="bg-purple-600 text-white text-xs px-1.5 py-0.5 rounded-full">{history.length}</span>}
           </button>
           <button onClick={() => { localStorage.clear(); router.push("/onboarding"); }}
             className="text-gray-500 hover:text-gray-300 text-sm transition-colors hidden md:block">
@@ -185,7 +189,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 pt-12 pb-8">
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 bg-purple-900 bg-opacity-40 border border-purple-700 border-opacity-40 rounded-full px-4 py-1.5 text-purple-300 text-xs mb-4">
@@ -198,7 +201,6 @@ export default function Dashboard() {
           <p className="text-gray-400 text-lg">Pick a module and let AI do the heavy lifting for your marketing.</p>
         </div>
 
-        {/* Stats Bar */}
         <div className="grid grid-cols-3 gap-4 mb-10">
           {[
             { label: "Modules Available", value: "6", icon: "⚡" },
@@ -213,7 +215,6 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Modules Grid */}
         <h3 className="text-sm text-gray-500 uppercase tracking-wider mb-4 font-medium">Your Marketing Modules</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((mod) => (
@@ -232,19 +233,13 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-40"
-          onClick={() => { setSidebarOpen(false); setSelected(null); }} />
-      )}
+      {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-60 z-40" onClick={() => { setSidebarOpen(false); setSelected(null); }} />}
 
-      {/* Sliding Sidebar */}
       <div className={`fixed top-0 right-0 h-full w-96 border-l border-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "translate-x-full"}`}
         style={{ background: "rgba(10, 5, 25, 0.97)", backdropFilter: "blur(20px)" }}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <h2 className="font-semibold text-white">Content History</h2>
-          <button onClick={() => { setSidebarOpen(false); setSelected(null); }}
-            className="text-gray-500 hover:text-white text-xl transition-colors">✕</button>
+          <button onClick={() => { setSidebarOpen(false); setSelected(null); }} className="text-gray-500 hover:text-white text-xl">✕</button>
         </div>
         {selected ? (
           <div className="flex flex-col h-full">
@@ -252,9 +247,7 @@ export default function Dashboard() {
               <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-white text-sm">← Back</button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4">
-              <span className={`text-xs px-2 py-1 rounded-full capitalize mb-4 inline-block ${moduleColors[selected.module] || "bg-purple-900 text-purple-300"}`}>
-                {selected.module}
-              </span>
+              <span className={`text-xs px-2 py-1 rounded-full capitalize mb-4 inline-block ${moduleColors[selected.module] || "bg-purple-900 text-purple-300"}`}>{selected.module}</span>
               <p className="text-gray-500 text-xs mb-4">{new Date(selected.createdAt).toLocaleString()}</p>
               {renderContent(selected.result)}
             </div>
@@ -273,9 +266,7 @@ export default function Dashboard() {
                   <button key={item.id} onClick={() => setSelected(item)}
                     className="w-full text-left px-6 py-4 hover:bg-purple-900 hover:bg-opacity-20 transition-all">
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${moduleColors[item.module] || "bg-purple-900 text-purple-300"}`}>
-                        {item.module}
-                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${moduleColors[item.module] || "bg-purple-900 text-purple-300"}`}>{item.module}</span>
                       <span className="text-gray-600 text-xs">{new Date(item.createdAt).toLocaleDateString()}</span>
                     </div>
                     <p className="text-gray-300 text-sm truncate">{item.result.slice(0, 80)}...</p>
