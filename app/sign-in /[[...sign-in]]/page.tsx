@@ -1,9 +1,19 @@
 import { SignIn } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 export default function SignInPage() {
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center">
-      <SignIn />
-    </main>
+    <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", background: "#000" }}>
+      <SignIn 
+        appearance={{
+          baseTheme: dark,
+          variables: {
+            colorPrimary: "#9333ea",
+            colorBackground: "#0a0a0a",
+            colorText: "white",
+          }
+        }}
+      />
+    </div>
   );
 }
