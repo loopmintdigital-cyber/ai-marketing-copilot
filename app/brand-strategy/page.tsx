@@ -83,8 +83,7 @@ export default function BrandStrategy() {
     let i = 0;
     while (i < lines.length) {
       const line = lines[i];
-      if (line.startsWith('| ') && !line.startsWith('|---')) {
-        const { jsx, endIndex } = renderTable(lines, i);
+if (line.startsWith('| ') && !line.startsWith('|---') && lines[i+1]?.startsWith('|---')) {        const { jsx, endIndex } = renderTable(lines, i);
         elements.push(<div key={i}>{jsx}</div>);
         i = endIndex;
         continue;
