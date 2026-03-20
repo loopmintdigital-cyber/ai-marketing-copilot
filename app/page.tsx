@@ -216,7 +216,7 @@ export default function Home() {
             </div>
 
             <div className="flex items-center gap-8">
-              {[{ v: "$49", l: "per month" }, { v: "10x", l: "faster" }, { v: "6", l: "AI modules" }, { v: "0", l: "agencies needed" }].map((s) => (
+              {[{ v: "$49", l: "per month" }, { v: "10x", l: "faster" }, { v: "6", l: "AI modules" }, { v: "24/7", l: "always on" }].map((s) => (
                 <div key={s.l}>
                   <div className="text-2xl font-black" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
                   <div className="text-gray-700 text-xs font-medium">{s.l}</div>
