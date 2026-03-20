@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 type HistoryItem = {
   id: string;
@@ -13,18 +13,35 @@ type HistoryItem = {
 export default function Dashboard() {
   const router = useRouter();
   const { signOut } = useClerk();
+  const { user, isLoaded } = useUser();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selected, setSelected] = useState<HistoryItem | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("answers");
-    if (!saved) router.push("/onboarding");
-    else setAnswers(JSON.parse(saved));
+    if (!isLoaded) return;
+    if (!user) { router.push("/sign-in"); return; }
+
+    const meta = user.publicMetadata as { onboardingComplete?: boolean; answers?: Record<string, string> };
+    
+    if (!meta?.onboardingComplete) {
+      router.push("/onboarding");
+      return;
+    }
+
+    // Load answers from Clerk metadata first, fallback to localStorage
+    if (meta?.answers) {
+      setAnswers(meta.answers);
+      localStorage.setItem("answers", JSON.stringify(meta.answers));
+    } else {
+      const saved = localStorage.getItem("answers");
+      if (saved) setAnswers(JSON.parse(saved));
+    }
+
     const savedHistory = localStorage.getItem("contentHistory");
     if (savedHistory) setHistory(JSON.parse(savedHistory));
-  }, []);
+  }, [isLoaded, user]);
 
   const modules = [
     { title: "Social Media Manager", description: "7-day post calendar for LinkedIn, Twitter & Instagram", icon: "📱", href: "/social" },
@@ -57,10 +74,16 @@ export default function Dashboard() {
     );
   }
 
+  if (!isLoaded) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
+      <div className="text-purple-400 text-sm animate-pulse">Loading...</div>
+    </div>
+  );
+
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen text-white" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
       {/* Header */}
-      <div className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-gray-800 px-6 py-4 flex items-center justify-between" style={{ background: "rgba(15, 15, 15, 0.8)", backdropFilter: "blur(10px)" }}>
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
           <h1 className="font-semibold text-white">AI Marketing Co-Pilot</h1>
@@ -93,7 +116,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((mod) => (
             <button key={mod.title} onClick={() => router.push(mod.href)}
-              className="text-left bg-gray-900 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all cursor-pointer group">
+              className="text-left rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all cursor-pointer group"
+              style={{ background: "rgba(26, 5, 51, 0.4)", backdropFilter: "blur(10px)" }}>
               <div className="text-3xl mb-4">{mod.icon}</div>
               <h3 className="font-semibold text-white mb-2">{mod.title}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">{mod.description}</p>
@@ -110,7 +134,8 @@ export default function Dashboard() {
       )}
 
       {/* Sliding Sidebar */}
-      <div className={`fixed top-0 right-0 h-full w-96 bg-gray-950 border-l border-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`fixed top-0 right-0 h-full w-96 border-l border-gray-800 z-50 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "translate-x-full"}`}
+        style={{ background: "rgba(15, 5, 25, 0.95)", backdropFilter: "blur(10px)" }}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <h2 className="font-semibold text-white">Content History</h2>
           <button onClick={() => { setSidebarOpen(false); setSelected(null); }}
