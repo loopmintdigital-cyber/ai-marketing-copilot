@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 
 type HistoryItem = {
   id: string;
@@ -11,6 +12,7 @@ type HistoryItem = {
 
 export default function Dashboard() {
   const router = useRouter();
+  const { signOut } = useClerk();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,6 +77,10 @@ export default function Dashboard() {
           <button onClick={() => { localStorage.clear(); router.push("/onboarding"); }}
             className="text-gray-500 hover:text-gray-300 text-sm">
             Start Over
+          </button>
+          <button onClick={() => signOut(() => router.push("/sign-in"))}
+            className="text-red-400 hover:text-red-300 text-sm border border-red-800 hover:border-red-600 px-3 py-1.5 rounded-lg transition-all">
+            Sign Out
           </button>
         </div>
       </div>
