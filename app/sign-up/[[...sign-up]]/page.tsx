@@ -16,6 +16,7 @@ export default function SignUpPage() {
           colorPrimary: "#9333ea", 
           colorBackground: "#1a0533",
           colorInputBackground: "#2d1054",
+          colorInputText: "#ffffff",
           colorText: "white",
           colorTextSecondary: "#c084fc",
           borderRadius: "12px"
