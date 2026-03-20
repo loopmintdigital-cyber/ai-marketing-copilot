@@ -1,8 +1,16 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 const WORDS = ["Brand Strategy.", "Social Content.", "Email Sequences.", "Ad Campaigns.", "SEO Articles.", "Landing Pages."];
+const TICKER_ITEMS = ["🧠 Brand Strategy", "📱 Social Media", "📧 Email Marketing", "🎯 Ad Campaigns", "🔍 SEO Strategy", "✍️ Copywriting", "⚡ 10x Faster", "💰 Save $10K/month", "🚀 Ship in Minutes", "🎨 Always On-Brand"];
+
+const LIVE_OUTPUTS = [
+  { module: "📱 Social Media", content: "LinkedIn Post — Day 1\n\"Most founders waste $10K/month on agencies that take 2 weeks to write a blog post. We built AI that does it in 10 seconds. Here's how →\"", color: "#3b82f6" },
+  { module: "📧 Email Subject Lines", content: "Subject: You're leaving $10K on the table\nSubject: Your competitors aren't waiting\nSubject: 10 seconds to your entire marketing strategy", color: "#10b981" },
+  { module: "🎯 Google Ad Copy", content: "Headline 1: AI Marketing in 10 Seconds\nHeadline 2: Replace Your $10K Agency\nDescription: Full brand strategy, social posts, ads & SEO — all trained on YOUR product.", color: "#f59e0b" },
+  { module: "🧠 Brand Tagline", content: "\"Ship Marketing. Not Excuses.\"\n\"Your Agency Is Sleeping. Your AI Isn't.\"\n\"From Brief to Campaign in 10 Seconds.\"", color: "#a855f7" },
+];
 
 export default function Home() {
   const router = useRouter();
@@ -13,15 +21,22 @@ export default function Home() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
   const [glitch, setGlitch] = useState(false);
+  const [liveCount, setLiveCount] = useState(2847);
+  const [outputIndex, setOutputIndex] = useState(0);
+  const [outputText, setOutputText] = useState("");
+  const [outputCharIndex, setOutputCharIndex] = useState(0);
+  const tickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    // Random glitch effect
     const glitchInterval = setInterval(() => {
       setGlitch(true);
-      setTimeout(() => setGlitch(false), 150);
-    }, 3000);
-    return () => clearInterval(glitchInterval);
+      setTimeout(() => setGlitch(false), 100);
+    }, 4000);
+    const countInterval = setInterval(() => {
+      setLiveCount(c => c + Math.floor(Math.random() * 3));
+    }, 2000);
+    return () => { clearInterval(glitchInterval); clearInterval(countInterval); };
   }, []);
 
   useEffect(() => {
@@ -30,7 +45,7 @@ export default function Home() {
     return () => window.removeEventListener("mousemove", handleMouse);
   }, []);
 
-  // Typewriter
+  // Typewriter for hero
   useEffect(() => {
     const word = WORDS[wordIndex];
     let timeout: NodeJS.Timeout;
@@ -47,7 +62,27 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [displayed, deleting, wordIndex]);
 
-  // Canvas particles
+  // Live output typewriter
+  useEffect(() => {
+    const output = LIVE_OUTPUTS[outputIndex];
+    const fullText = output.content;
+    if (outputCharIndex < fullText.length) {
+      const timeout = setTimeout(() => {
+        setOutputText(fullText.slice(0, outputCharIndex + 1));
+        setOutputCharIndex(i => i + 1);
+      }, 25);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setOutputIndex((i) => (i + 1) % LIVE_OUTPUTS.length);
+        setOutputText("");
+        setOutputCharIndex(0);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [outputCharIndex, outputIndex]);
+
+  // Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -113,16 +148,11 @@ export default function Home() {
     <main className="text-white overflow-x-hidden" style={{ background: "#010003", minHeight: "100vh" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      {/* Animated mesh background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-30">
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 80% 50% at 20% 40%, rgba(124,58,237,0.15) 0%, transparent 50%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(236,72,153,0.1) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(59,130,246,0.1) 0%, transparent 50%)"
-        }} />
-      </div>
+      {/* Mesh bg */}
+      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 20% 40%, rgba(124,58,237,0.12) 0%, transparent 50%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(236,72,153,0.08) 0%, transparent 50%)" }} />
 
-      {/* Cursor spotlight */}
-      <div className="fixed pointer-events-none z-10 transition-all duration-100"
-        style={{ width: 600, height: 600, borderRadius: "50%", left: mousePos.x - 300, top: mousePos.y - 300, background: "radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 60%)" }} />
+      {/* Cursor */}
+      <div className="fixed pointer-events-none z-10 transition-all duration-100" style={{ width: 500, height: 500, borderRadius: "50%", left: mousePos.x - 250, top: mousePos.y - 250, background: "radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 60%)" }} />
 
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(1,0,3,0.5)", backdropFilter: "blur(30px)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
@@ -134,16 +164,22 @@ export default function Home() {
           <span className="font-black text-white tracking-tight text-lg">AI Marketing Co-Pilot</span>
         </div>
         <div className="flex items-center gap-6">
+          {/* Live counter */}
+          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+            <span className="text-green-400 font-bold">{liveCount.toLocaleString()}</span>
+            <span className="text-gray-600">using now</span>
+          </div>
           <button onClick={() => router.push("/dashboard")} className="text-gray-600 hover:text-white text-sm transition-colors font-medium">Dashboard</button>
           <button onClick={() => router.push("/sign-up")}
-            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105 hover:shadow-lg"
+            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
             Get Started →
           </button>
         </div>
       </nav>
 
-      {/* HERO — Split layout */}
+      {/* HERO */}
       <section className="relative min-h-screen flex items-center z-10 px-8 pt-20">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
@@ -153,16 +189,16 @@ export default function Home() {
               Live · Replacing $10K/month agencies
             </div>
 
-            <h1 className="font-black leading-none tracking-tighter mb-2" style={{ fontSize: "clamp(44px, 7vw, 90px)" }}>
-              <span className={`block text-white transition-all duration-75 ${glitch ? "translate-x-1 opacity-80" : ""}`}>AI That</span>
-              <span className={`block text-white transition-all duration-75 ${glitch ? "-translate-x-1 opacity-80" : ""}`}>Writes Your</span>
+            <h1 className="font-black leading-none tracking-tighter mb-2" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
+              <span className={`block text-white transition-all duration-75 ${glitch ? "translate-x-0.5 opacity-90 text-purple-100" : ""}`}>AI That</span>
+              <span className={`block text-white transition-all duration-75 ${glitch ? "-translate-x-0.5 opacity-90" : ""}`}>Writes Your</span>
             </h1>
-            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 90px)", background: "linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", minHeight: "1.3em" }}>
+            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", background: "linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", minHeight: "1.3em" }}>
               {displayed}<span className="animate-pulse" style={{ WebkitTextFillColor: "#a855f7" }}>|</span>
             </h1>
 
             <p className="text-gray-500 mb-10 max-w-lg leading-relaxed" style={{ fontSize: "1.1rem" }}>
-              One AI. Six modules. Complete marketing output — brand strategy, social, email, ads, SEO & copy.
+              One AI. Six modules. Complete marketing output.
               <span className="text-gray-300 font-semibold"> Built for founders who move fast.</span>
             </p>
 
@@ -179,9 +215,8 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Mini stats */}
-            <div className="flex items-center gap-6">
-              {[{ v: "$49", l: "per month" }, { v: "10x", l: "faster" }, { v: "6", l: "AI modules" }].map((s) => (
+            <div className="flex items-center gap-8">
+              {[{ v: "$49", l: "per month" }, { v: "10x", l: "faster" }, { v: "6", l: "AI modules" }, { v: "0", l: "agencies needed" }].map((s) => (
                 <div key={s.l}>
                   <div className="text-2xl font-black" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
                   <div className="text-gray-700 text-xs font-medium">{s.l}</div>
@@ -190,66 +225,85 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right — Visual */}
+          {/* Right — Live AI Output */}
           <div className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}`}>
             <div className="relative">
-              {/* Floating cards */}
-              <div className="relative w-full h-96 lg:h-[520px]">
-                {/* Main card */}
-                <div className="absolute inset-0 rounded-3xl overflow-hidden" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)", backdropFilter: "blur(20px)" }}>
-                  <div className="p-8 h-full flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: "rgba(124,58,237,0.2)" }}>🧠</div>
-                        <div>
-                          <div className="text-white font-bold text-sm">Brand Strategy Engine</div>
-                          <div className="text-green-400 text-xs flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse inline-block"></span> Generating...</div>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        {["Brand Voice: Bold & Unapologetic", "Target ICP: Founders aged 25-40", "Key Differentiator: 10x faster than agencies", "Tagline: Ship marketing. Not excuses."].map((item, i) => (
-                          <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                            <div className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0"></div>
-                            <span className="text-gray-300 text-sm">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {["LinkedIn Post ✓", "Email Sequence ✓", "Ad Copy ✓", "SEO Blog ✓"].map((tag) => (
-                        <span key={tag} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: "rgba(124,58,237,0.2)", color: "#c084fc", border: "1px solid rgba(124,58,237,0.3)" }}>{tag}</span>
-                      ))}
-                    </div>
+              <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
+                {/* Terminal header */}
+                <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.1)", background: "rgba(0,0,0,0.3)" }}>
+                  <div className="w-3 h-3 rounded-full bg-red-500 opacity-70"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-70"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500 opacity-70"></div>
+                  <span className="ml-3 text-gray-600 text-xs font-mono">ai-marketing-copilot · live output</span>
+                  <div className="ml-auto flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                    <span className="text-green-400 text-xs font-bold">LIVE</span>
                   </div>
                 </div>
 
-                {/* Floating badge top right */}
-                <div className="absolute -top-4 -right-4 px-4 py-2 rounded-2xl text-sm font-bold text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.5)" }}>
-                  ⚡ 10 seconds
+                {/* Module tabs */}
+                <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
+                  {LIVE_OUTPUTS.map((o, i) => (
+                    <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
+                      className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium"
+                      style={{ background: i === outputIndex ? `${o.color}20` : "rgba(255,255,255,0.03)", color: i === outputIndex ? o.color : "#6b7280", border: `1px solid ${i === outputIndex ? o.color + "30" : "rgba(255,255,255,0.05)"}` }}>
+                      {o.module}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Floating badge bottom left */}
-                <div className="absolute -bottom-4 -left-4 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", backdropFilter: "blur(10px)" }}>
-                  <div className="text-green-400 font-bold text-sm">$9,951 saved</div>
-                  <div className="text-gray-500 text-xs">vs hiring an agency</div>
+                {/* Output */}
+                <div className="p-6 font-mono text-sm" style={{ minHeight: 200 }}>
+                  <pre className="whitespace-pre-wrap leading-relaxed" style={{ color: LIVE_OUTPUTS[outputIndex].color, fontSize: "0.85rem" }}>
+                    {outputText}<span className="animate-pulse text-white">█</span>
+                  </pre>
                 </div>
+
+                {/* Bottom bar */}
+                <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.2)" }}>
+                  <span className="text-gray-700 text-xs font-mono">Generated in 8.3s</span>
+                  <div className="flex gap-2">
+                    {["Copy", "Export", "Refine"].map((a) => (
+                      <button key={a} className="text-xs px-3 py-1 rounded-lg transition-all hover:scale-105 font-medium" style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}>{a}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating badges */}
+              <div className="absolute -top-5 -right-5 px-4 py-2 rounded-2xl text-sm font-bold text-white animate-bounce" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.6)", animationDuration: "3s" }}>
+                ⚡ 10 seconds
+              </div>
+              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)" }}>
+                <div className="text-green-400 font-bold text-sm">$9,951 saved</div>
+                <div className="text-gray-600 text-xs">vs hiring an agency</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Marquee ticker */}
+      <div className="relative z-10 py-6 overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", borderTop: "1px solid rgba(124,58,237,0.1)", borderBottom: "1px solid rgba(124,58,237,0.1)" }}>
+        <div className="flex gap-8 animate-marquee whitespace-nowrap" style={{ animation: "marquee 20s linear infinite" }}>
+          {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={i} className="text-sm font-bold px-4" style={{ color: "#6b21a8" }}>{item}</span>
+          ))}
+        </div>
+        <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-33.33%) } }`}</style>
+      </div>
+
       {/* Bold statement */}
-      <section className="relative z-10 px-8 py-32 overflow-hidden">
+      <section className="relative z-10 px-8 py-32">
         <div className="max-w-7xl mx-auto">
           <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
-            <span style={{ color: "rgba(255,255,255,0.15)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
+            <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
             {" "}<span className="text-white">Start shipping in minutes.</span>
           </p>
         </div>
       </section>
 
-      {/* Bento grid features */}
+      {/* Bento grid */}
       <section className="relative z-10 px-8 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
@@ -259,7 +313,6 @@ export default function Home() {
               <span style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> One system.</span>
             </h2>
           </div>
-
           <div className="grid grid-cols-3 gap-3">
             {features.map((f) => (
               <div key={f.title}
@@ -271,19 +324,42 @@ export default function Home() {
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block">{f.icon}</div>
                 <h3 className="text-white font-black text-xl mb-2">{f.title}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">{f.desc}</p>
-                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ color: f.glow }}>Open module →</div>
+                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all" style={{ color: f.glow }}>Open module →</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Social proof marquee */}
+      <div className="relative z-10 py-8 overflow-hidden">
+        <p className="text-center text-xs uppercase tracking-widest text-gray-700 font-bold mb-6">What founders are saying</p>
+        <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4 animate-marquee" style={{ animation: "marquee 30s linear infinite" }}>
+            {[
+              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
+              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
+              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
+              { text: "This is what I needed. Fast, on-brand, no agency BS.", name: "James L., Freelancer", color: "#10b981" },
+              { text: "The ad copy is better than what my agency produced.", name: "Alex R., D2C Brand", color: "#f59e0b" },
+              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
+              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
+              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
+            ].map((t, i) => (
+              <div key={i} className="flex-shrink-0 w-72 rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}>
+                <p className="text-gray-300 text-sm mb-3 leading-relaxed">"{t.text}"</p>
+                <p className="text-xs font-bold" style={{ color: t.color }}>— {t.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Final CTA */}
       <section className="relative z-10 px-8 py-32">
-        <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-[40px] p-20 text-center" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
-            {/* Grid lines */}
-            <div className="absolute inset-0 rounded-[40px] overflow-hidden opacity-20" style={{ backgroundImage: "linear-gradient(rgba(124,58,237,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.3) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="relative overflow-hidden rounded-[40px] p-20" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
+            <div className="absolute inset-0 rounded-[40px] overflow-hidden opacity-10" style={{ backgroundImage: "linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
             <div className="relative z-10">
               <div className="text-8xl mb-8">⚡</div>
               <h2 className="font-black tracking-tighter mb-4" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>
@@ -292,7 +368,11 @@ export default function Home() {
                   are already using AI.
                 </span>
               </h2>
-              <p className="text-gray-500 text-xl mb-12 max-w-lg mx-auto">Don't get left behind. Join founders saving $10K/month.</p>
+              <p className="text-gray-500 text-xl mb-4 max-w-lg mx-auto">Don't get left behind.</p>
+              <div className="flex items-center justify-center gap-2 mb-10">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span className="text-green-400 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
+              </div>
               <button onClick={() => router.push("/sign-up")}
                 className="text-white font-black px-16 py-6 rounded-2xl text-2xl transition-all hover:scale-105 active:scale-95 inline-block"
                 style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 60px rgba(124,58,237,0.6), 0 0 120px rgba(124,58,237,0.3)" }}>
