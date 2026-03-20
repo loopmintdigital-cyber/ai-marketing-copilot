@@ -1,19 +1,22 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 const steps = [
-  { id: 1, question: "What is your product name?", placeholder: "e.g. Notion, Stripe, Figma", field: "productName" },
-  { id: 2, question: "Describe your product in one sentence.", placeholder: "e.g. A project management tool for remote teams", field: "description" },
-  { id: 3, question: "Who is your target customer?", placeholder: "e.g. SaaS founders, marketing managers", field: "targetCustomer" },
-  { id: 4, question: "Who are your top 3 competitors?", placeholder: "e.g. Jasper, Copy.ai, HubSpot", field: "competitors" },
-  { id: 5, question: "What makes you different from them?", placeholder: "e.g. We focus only on SaaS, cheaper, faster", field: "differentiator" },
-  { id: 6, question: "What brand voice do you want?", placeholder: "e.g. Professional, Bold, Friendly, Witty", field: "brandVoice" },
+  { id: 1, question: "What is your product or business name?", placeholder: "e.g. ShopEasy, DesignPro Agency, CloudSync SaaS", field: "productName" },
+  { id: 2, question: "Describe your business in one sentence.", placeholder: "e.g. We help e-commerce stores grow with AI-powered ads", field: "description" },
+  { id: 3, question: "Who is your ideal customer?", placeholder: "e.g. Small business owners, D2C brands, startup founders", field: "targetCustomer" },
+  { id: 4, question: "Who are your top competitors?", placeholder: "e.g. Shopify, Webflow, Mailchimp, Fiverr, HubSpot", field: "competitors" },
+  { id: 5, question: "What makes you stand out from competitors?", placeholder: "e.g. We are 3x cheaper, fully automated, built for non-tech users", field: "differentiator" },
+  { id: 6, question: "What brand voice fits your business?", placeholder: "e.g. Bold & energetic, Friendly & approachable, Premium & professional", field: "brandVoice" },
 ];
 
 type Message = { role: "user" | "assistant"; content: string };
 
 export default function Onboarding() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [input, setInput] = useState("");
@@ -22,8 +25,16 @@ export default function Onboarding() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      const meta = user.publicMetadata as { onboardingComplete?: boolean };
+      if (meta?.onboardingComplete) {
+        router.push("/dashboard");
+      }
+    }
+  }, [isLoaded, user, router]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -49,8 +60,16 @@ export default function Onboarding() {
     });
     const data = await res.json();
     localStorage.setItem("brandStrategy", data.result);
+
+    await fetch("/api/save-onboarding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers, brandStrategy: data.result }),
+    });
+
     setLoading(false);
-   router.push("/dashboard");}
+    router.push("/dashboard");
+  }
 
   async function handleChat() {
     if (!chatInput.trim() || chatLoading) return;
@@ -70,6 +89,8 @@ export default function Onboarding() {
     setChatLoading(false);
     router.push("/dashboard");
   }
+
+  if (!isLoaded) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
 
   function renderContent(content: string) {
     return (
@@ -101,7 +122,6 @@ export default function Onboarding() {
             Start Over
           </button>
         </div>
-
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-3xl mx-auto w-full">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -119,7 +139,6 @@ export default function Onboarding() {
           )}
           <div ref={bottomRef} />
         </div>
-
         <div className="border-t border-gray-800 px-4 py-4 max-w-3xl mx-auto w-full">
           <div className="flex gap-3 mb-3 flex-wrap">
             {["Write a LinkedIn post", "Create ad copy", "Write email subject lines", "Make tagline bolder"].map((suggestion) => (
