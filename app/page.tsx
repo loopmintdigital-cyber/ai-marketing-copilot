@@ -211,7 +211,7 @@ export default function Home() {
               <button onClick={() => router.push("/dashboard")}
                 className="text-gray-400 font-semibold px-8 py-5 rounded-2xl text-lg transition-all hover:text-white hover:scale-105"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                View Demo
+                View Dashboard
               </button>
             </div>
 
@@ -346,8 +346,8 @@ export default function Home() {
               { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
               { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
             ].map((t, i) => (
-              <div key={i} className="flex-shrink-0 w-72 rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}>
-                <p className="text-gray-300 text-sm mb-3 leading-relaxed">"{t.text}"</p>
+              <div key={i} className="flex-shrink-0 w-96 rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}>
+                <p className="text-gray-200 text-base mb-4 leading-relaxed">"{t.text}"</p>
                 <p className="text-xs font-bold" style={{ color: t.color }}>— {t.name}</p>
               </div>
             ))}
