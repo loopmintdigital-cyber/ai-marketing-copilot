@@ -134,7 +134,7 @@ export default function BrandStrategy() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t border-gray-800 px-4 py-4 max-w-3xl mx-auto w-full" style={{ background: "rgba(15, 15, 15, 0.8)", backdropFilter: "blur(10px)" }}>
+      <div className="border-t border-gray-800 px-4 py-4 max-w-3xl mx-auto w-full" style={{ background: "rgba(26, 5, 51, 0.8)", backdropFilter: "blur(10px)" }}>
         <div className="flex gap-3 mb-3 flex-wrap">
           {["Make brand voice bolder", "Rewrite the tagline", "Add more ICP detail", "Make it more friendly"].map((s) => (
             <button key={s} onClick={() => setChatInput(s)}
