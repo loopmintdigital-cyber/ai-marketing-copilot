@@ -165,21 +165,30 @@ export default function Onboarding() {
 
   if (currentStep >= steps.length) {
     return (
-      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+      <main className="min-h-screen text-white flex flex-col items-center justify-center px-6"
+        style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
         <div className="max-w-xl w-full text-center">
-          <div className="text-5xl mb-6">✅</div>
-          <h2 className="text-3xl font-bold mb-4">Ready to Generate!</h2>
-          <div className="bg-gray-900 rounded-xl p-6 text-left space-y-3 mb-8">
+          <div className="text-6xl mb-4">🚀</div>
+          <h2 className="text-4xl font-bold mb-2">Buckle up, <span className="text-purple-400">{answers.productName}!</span></h2>
+          <p className="text-gray-400 mb-8">Our AI just read your answers and is ready to cook up something 🔥<br/>Here's what we're working with:</p>
+
+          <div className="bg-gray-900 bg-opacity-60 border border-gray-700 rounded-2xl p-6 text-left space-y-4 mb-8 backdrop-blur">
             {steps.map((s) => (
-              <div key={s.field}>
-                <p className="text-purple-400 text-sm">{s.question}</p>
-                <p className="text-white">{answers[s.field]}</p>
+              <div key={s.field} className="flex gap-3 items-start">
+                <span className="text-purple-400 text-lg mt-0.5">→</span>
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider">{s.question}</p>
+                  <p className="text-white font-medium mt-0.5">{answers[s.field]}</p>
+                </div>
               </div>
             ))}
           </div>
+
+          <p className="text-gray-500 text-sm mb-4">⚡ Takes about 10 seconds. No PhD required.</p>
+
           <button onClick={handleGenerate} disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-8 py-4 rounded-lg text-lg">
-            {loading ? "Generating your brand strategy..." : "Generate My Brand Strategy →"}
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all shadow-lg shadow-purple-900">
+            {loading ? "🧠 Cooking your brand strategy..." : "✨ Generate My Brand Strategy →"}
           </button>
         </div>
       </main>
@@ -187,7 +196,8 @@ export default function Onboarding() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+    <main className="min-h-screen text-white flex flex-col items-center justify-center px-6"
+      style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
       <div className="max-w-xl w-full">
         <div className="w-full bg-gray-800 rounded-full h-2 mb-10">
           <div className="bg-purple-600 h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
