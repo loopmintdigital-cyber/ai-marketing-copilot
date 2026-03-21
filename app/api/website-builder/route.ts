@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     modern: "Clean white/light background, minimal design, lots of whitespace, subtle shadows, rounded corners",
     bold: "Dark background (#0a0a0a), purple/pink gradients, glowing effects, dramatic typography, particle-like decorations",
     professional: "White background, blue/navy accents, corporate feel, trust-building design, clean grid layout",
-  }[style] || "modern";
+  }[style as "modern" | "bold" | "professional"] || "modern";
 
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
