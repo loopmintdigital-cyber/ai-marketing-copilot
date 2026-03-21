@@ -11,6 +11,7 @@ export default function WebsiteBuilder() {
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
+  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
@@ -37,6 +38,7 @@ export default function WebsiteBuilder() {
     });
     const data = await res.json();
     setGeneratedHTML(data.result);
+    setPreviewKey(k => k + 1);
     setLoading(false);
   }
 
@@ -148,7 +150,7 @@ export default function WebsiteBuilder() {
       ) : (
         <div className="h-[calc(100vh-65px)]">
           {activeTab === "preview" ? (
-            <iframe ref={iframeRef} className="w-full h-full border-0" title="Website Preview" sandbox="allow-scripts allow-same-origin" />
+            <iframe key={previewKey} srcDoc={generatedHTML} className="w-full h-full border-0" title="Website Preview" sandbox="allow-scripts" />
           ) : (
             <div className="h-full overflow-auto p-6">
               <pre className="text-green-400 text-xs font-mono leading-relaxed whitespace-pre-wrap">
