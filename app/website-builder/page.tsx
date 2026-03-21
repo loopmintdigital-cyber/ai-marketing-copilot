@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 export default function WebsiteBuilder() {
@@ -11,7 +11,6 @@ export default function WebsiteBuilder() {
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
@@ -21,15 +20,16 @@ export default function WebsiteBuilder() {
     setBrandStrategy(strategy || "");
   }, []);
 
-  useEffect(() => {
-    if (iframeRef.current && generatedHTML) {
-      const doc = iframeRef.current.contentDocument;
+  const iframeRef = useCallback((node: HTMLIFrameElement | null) => {
+    if (node && generatedHTML) {
+      const doc = node.contentDocument;
       if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
     }
-  }, [generatedHTML, activeTab]);
+  }, [generatedHTML]);
 
   async function handleGenerate() {
     setLoading(true);
+    setActiveTab("preview");
     const res = await fetch("/api/website-builder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -51,7 +51,6 @@ export default function WebsiteBuilder() {
 
   return (
     <main className="min-h-screen text-white" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
-      {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-purple-900 border-opacity-30 sticky top-0 z-30" style={{ background: "rgba(10,5,20,0.8)", backdropFilter: "blur(20px)" }}>
         <div className="flex items-center gap-3">
           <button onClick={() => router.push("/dashboard")} className="text-gray-500 hover:text-white text-sm transition-colors">← Dashboard</button>
@@ -88,14 +87,12 @@ export default function WebsiteBuilder() {
       </div>
 
       {!generatedHTML ? (
-        /* Setup Form */
         <div className="max-w-2xl mx-auto px-6 py-16">
           <div className="text-center mb-12">
             <div className="text-6xl mb-4">🌐</div>
             <h1 className="text-4xl font-black mb-3">Build Your Website</h1>
             <p className="text-gray-400 text-lg">AI generates a complete branded website for <span className="text-purple-400">{answers.productName}</span> in seconds</p>
           </div>
-
           <div className="space-y-6 rounded-2xl p-8 border border-purple-900 border-opacity-30" style={{ background: "rgba(26,5,51,0.5)", backdropFilter: "blur(10px)" }}>
             <div>
               <label className="text-sm text-purple-400 mb-3 block font-medium uppercase tracking-wider">Website Style</label>
@@ -114,7 +111,6 @@ export default function WebsiteBuilder() {
                 ))}
               </div>
             </div>
-
             <div>
               <label className="text-sm text-purple-400 mb-3 block font-medium uppercase tracking-wider">Page Type</label>
               <div className="grid grid-cols-2 gap-3">
@@ -133,7 +129,6 @@ export default function WebsiteBuilder() {
                 ))}
               </div>
             </div>
-
             <div className="rounded-xl p-4 border border-purple-900 border-opacity-30" style={{ background: "rgba(124,58,237,0.08)" }}>
               <p className="text-purple-300 text-sm font-medium mb-2">✨ AI will use your brand data:</p>
               <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
@@ -143,7 +138,6 @@ export default function WebsiteBuilder() {
                 <span>• Edge: {answers.differentiator}</span>
               </div>
             </div>
-
             <button onClick={handleGenerate} disabled={loading}
               className="w-full text-white font-black py-5 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-40"
               style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
@@ -152,10 +146,9 @@ export default function WebsiteBuilder() {
           </div>
         </div>
       ) : (
-        /* Preview / Code */
         <div className="h-[calc(100vh-65px)]">
           {activeTab === "preview" ? (
-            <iframe ref={iframeRef} className="w-full h-full border-0" title="Website Preview" />
+            <iframe ref={iframeRef} className="w-full h-full border-0" title="Website Preview" sandbox="allow-scripts allow-same-origin" />
           ) : (
             <div className="h-full overflow-auto p-6">
               <pre className="text-green-400 text-xs font-mono leading-relaxed whitespace-pre-wrap">
