@@ -178,10 +178,11 @@ export default function Dashboard() {
             📚 History
             {history.length > 0 && <span className="bg-purple-600 text-white text-xs px-1.5 py-0.5 rounded-full">{history.length}</span>}
           </button>
-          <button onClick={() => { localStorage.clear(); router.push("/onboarding"); }}
-            className="text-gray-500 hover:text-gray-300 text-sm transition-colors hidden md:block">
-            Start Over
-          </button>
+          <button onClick={() => router.push("/chat")}
+  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition-all font-bold"
+  style={{ background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.3)", color: "#c084fc" }}>
+  💬 AI Chat
+</button>
           <button onClick={() => signOut(() => router.push("/sign-in"))}
             className="text-red-400 hover:text-red-300 text-sm border border-red-900 hover:border-red-600 px-3 py-1.5 rounded-lg transition-all">
             Sign Out
