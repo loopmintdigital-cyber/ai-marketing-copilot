@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function WebsiteBuilder() {
@@ -11,7 +11,6 @@ export default function WebsiteBuilder() {
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
-  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
@@ -21,12 +20,13 @@ export default function WebsiteBuilder() {
     setBrandStrategy(strategy || "");
   }, []);
 
-  const iframeRef = useCallback((node: HTMLIFrameElement | null) => {
-    if (node && generatedHTML) {
-      const doc = node.contentDocument;
-      if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
-    }
-  }, [generatedHTML]);
+  useEffect(() => {
+    if (!generatedHTML) return;
+    const iframe = document.getElementById("preview-iframe") as HTMLIFrameElement;
+    if (!iframe) return;
+    const doc = iframe.contentDocument;
+    if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
+  }, [generatedHTML, activeTab]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -38,8 +38,6 @@ export default function WebsiteBuilder() {
     });
     const data = await res.json();
     setGeneratedHTML(data.result);
-    setPreviewKey(k => k + 1);
-    setPreviewKey(k => k + 1);
     setLoading(false);
   }
 
@@ -132,15 +130,6 @@ export default function WebsiteBuilder() {
                 ))}
               </div>
             </div>
-            <div className="rounded-xl p-4 border border-purple-900 border-opacity-30" style={{ background: "rgba(124,58,237,0.08)" }}>
-              <p className="text-purple-300 text-sm font-medium mb-2">✨ AI will use your brand data:</p>
-              <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
-                <span>• Product: {answers.productName}</span>
-                <span>• Voice: {answers.brandVoice}</span>
-                <span>• Target: {answers.targetCustomer}</span>
-                <span>• Edge: {answers.differentiator}</span>
-              </div>
-            </div>
             <button onClick={handleGenerate} disabled={loading}
               className="w-full text-white font-black py-5 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-40"
               style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
@@ -151,7 +140,7 @@ export default function WebsiteBuilder() {
       ) : (
         <div className="h-[calc(100vh-65px)]">
           {activeTab === "preview" ? (
-            <iframe key={previewKey} srcDoc={generatedHTML} className="w-full h-full border-0" title="Website Preview" sandbox="allow-scripts" />
+            <iframe id="preview-iframe" className="w-full h-full border-0" title="Website Preview" />
           ) : (
             <div className="h-full overflow-auto p-6">
               <pre className="text-green-400 text-xs font-mono leading-relaxed whitespace-pre-wrap">
