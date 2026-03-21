@@ -127,6 +127,7 @@ export default function Dashboard() {
     { title: "Ad Campaign Generator", description: "Google RSA + Meta ad copy with A/B variants", icon: "🎯", href: "/ads", color: "from-yellow-900 to-yellow-950", border: "hover:border-yellow-500", tag: "bg-yellow-900 text-yellow-300" },
     { title: "SEO & Blog Strategy", description: "Keyword clusters, blog calendars & full article drafts", icon: "🔍", href: "/seo", color: "from-orange-900 to-orange-950", border: "hover:border-orange-500", tag: "bg-orange-900 text-orange-300" },
     { title: "Brand Strategy Engine", description: "Your brand positioning, voice guide & ICP personas", icon: "🧠", href: "/brand-strategy", color: "from-purple-900 to-purple-950", border: "hover:border-purple-400", tag: "bg-purple-900 text-purple-300" },
+    { title: "Website Builder", description: "Generate a complete branded website in seconds", icon: "🌐", href: "/website-builder", color: "from-cyan-900 to-cyan-950", border: "hover:border-cyan-500", tag: "bg-cyan-900 text-cyan-300" },
   ];
 
   const moduleColors: Record<string, string> = {
