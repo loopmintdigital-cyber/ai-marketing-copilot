@@ -22,6 +22,7 @@ export default function WebsiteBuilder() {
 
   useEffect(() => {
     if (!generatedHTML) return;
+    await new Promise(r => setTimeout(r, 100));
     const iframe = document.getElementById("preview-iframe") as HTMLIFrameElement;
     if (!iframe) return;
     const doc = iframe.contentDocument;
