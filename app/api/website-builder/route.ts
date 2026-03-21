@@ -59,5 +59,4 @@ IMPORTANT: Return ONLY the complete HTML code starting with <!DOCTYPE html> — 
   return NextResponse.json({ result: cleanHTML });
 }
 
-git add .git commit -m "fix typescript style index error"git push
 
