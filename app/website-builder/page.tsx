@@ -31,7 +31,6 @@ export default function WebsiteBuilder() {
 
   async function handleGenerate() {
     setLoading(true);
-    setActiveTab("preview");
     const res = await fetch("/api/website-builder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,11 +63,14 @@ export default function WebsiteBuilder() {
         {generatedHTML && (
           <div className="flex items-center gap-3">
             <div className="flex rounded-xl overflow-hidden border border-purple-900 border-opacity-30">
-              <button onClick={() => setActiveTab("preview")}
-                className={`px-4 py-2 text-sm font-medium transition-all ${activeTab === "preview" ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
-                style={{ background: activeTab === "preview" ? "rgba(124,58,237,0.4)" : "transparent" }}>
-                👁 Preview
-              </button>
+              <button onClick={() => {
+  const blob = new Blob([generatedHTML], { type: "text/html" });
+  window.open(URL.createObjectURL(blob));
+}}
+  className={`px-4 py-2 text-sm font-medium transition-all text-white`}
+  style={{ background: "rgba(124,58,237,0.4)" }}>
+  👁 Preview
+</button>
               <button onClick={() => setActiveTab("code")}
                 className={`px-4 py-2 text-sm font-medium transition-all ${activeTab === "code" ? "text-white" : "text-gray-500 hover:text-gray-300"}`}
                 style={{ background: activeTab === "code" ? "rgba(124,58,237,0.4)" : "transparent" }}>
