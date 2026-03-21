@@ -22,11 +22,12 @@ export default function WebsiteBuilder() {
 
   useEffect(() => {
     if (!generatedHTML) return;
-    await new Promise(r => setTimeout(r, 100));
-    const iframe = document.getElementById("preview-iframe") as HTMLIFrameElement;
-    if (!iframe) return;
-    const doc = iframe.contentDocument;
-    if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
+    setTimeout(() => {
+      const iframe = document.getElementById("preview-iframe") as HTMLIFrameElement;
+      if (!iframe) return;
+      const doc = iframe.contentDocument;
+      if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
+    }, 100);
   }, [generatedHTML, activeTab]);
 
   async function handleGenerate() {
