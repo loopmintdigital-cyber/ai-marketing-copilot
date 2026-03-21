@@ -12,6 +12,7 @@ export default function WebsiteBuilder() {
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
   const [previewKey, setPreviewKey] = useState(0);
+  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
@@ -38,6 +39,7 @@ export default function WebsiteBuilder() {
     });
     const data = await res.json();
     setGeneratedHTML(data.result);
+    setPreviewKey(k => k + 1);
     setPreviewKey(k => k + 1);
     setLoading(false);
   }
