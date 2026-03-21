@@ -29,8 +29,7 @@ export default function WebsiteBuilder() {
     const data = await res.json();
     setGeneratedHTML(data.result);
     setLoading(false);
-    const newWindow = window.open("", "_blank");
-    if (newWindow) { newWindow.document.write(data.result); newWindow.document.close(); }
+    localStorage.setItem("previewHTML", data.result);
   }
 
   function downloadHTML() {
@@ -54,7 +53,7 @@ export default function WebsiteBuilder() {
         </div>
         {generatedHTML && (
           <div className="flex items-center gap-3">
-            <button onClick={() => { const w = window.open("", "_blank"); if (w) { w.document.write(generatedHTML); w.document.close(); }}}
+            <button onClick={() => { localStorage.setItem("previewHTML", generatedHTML); window.open("/preview", "_blank");}}
               className="text-white font-bold px-5 py-2 rounded-xl text-sm transition-all hover:scale-105"
               style={{ background: "rgba(124,58,237,0.4)" }}>
               👁 Preview
