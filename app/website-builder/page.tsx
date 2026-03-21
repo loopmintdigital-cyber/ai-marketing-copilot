@@ -25,8 +25,7 @@ export default function WebsiteBuilder() {
     setTimeout(() => {
       const iframe = document.getElementById("preview-iframe") as HTMLIFrameElement;
       if (!iframe) return;
-      const doc = iframe.contentDocument;
-      if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
+      iframe.srcdoc = generatedHTML;
     }, 200);
   }, [generatedHTML, activeTab]);
 
