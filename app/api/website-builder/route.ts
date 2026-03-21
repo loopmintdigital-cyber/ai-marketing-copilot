@@ -58,9 +58,6 @@ IMPORTANT: Return ONLY the complete HTML code starting with <!DOCTYPE html> — 
   const cleanHTML = result.replace(/```html\n?/g, "").replace(/```\n?/g, "").trim();
   return NextResponse.json({ result: cleanHTML });
 }
-git add .
-git commit -m "fix typescript style index error"
-git push
 
 git add .git commit -m "fix typescript style index error"git push
 
