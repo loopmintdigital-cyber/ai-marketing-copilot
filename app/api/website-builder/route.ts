@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 const client = new Anthropic();
 export async function POST(req: NextRequest) {
   const { answers, brandStrategy, style, pages } = await req.json();
-  const styleGuide = {
+  const styleGuide: Record<string, string> = {
     modern: "Clean white/light background, minimal design, lots of whitespace, subtle shadows, rounded corners",
     bold: "Dark background (#0a0a0a), purple/pink gradients, glowing effects, dramatic typography, particle-like decorations",
     professional: "White background, blue/navy accents, corporate feel, trust-building design, clean grid layout",
