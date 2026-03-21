@@ -151,6 +151,7 @@ export default function WebsiteBuilder() {
               srcDoc={generatedHTML}
               className="w-full h-full border-0"
               title="Website Preview"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
             />
           ) : (
             <div className="h-full overflow-auto p-6">
