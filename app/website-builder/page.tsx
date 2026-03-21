@@ -12,7 +12,6 @@ export default function WebsiteBuilder() {
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const iframeRef = require("react").useRef(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
