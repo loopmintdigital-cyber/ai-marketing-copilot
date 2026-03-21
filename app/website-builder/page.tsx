@@ -11,6 +11,7 @@ export default function WebsiteBuilder() {
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
+  const iframeRef = require("react").useRef(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
@@ -148,7 +149,8 @@ export default function WebsiteBuilder() {
         <div className="h-[calc(100vh-65px)]">
           {activeTab === "preview" ? (
             <iframe
-              src={URL.createObjectURL(new Blob([generatedHTML], {type: "text/html"}))}
+              ref={iframeRef}
+              srcDoc={generatedHTML}
               className="w-full h-full border-0"
               title="Website Preview"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
