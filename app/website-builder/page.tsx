@@ -148,7 +148,7 @@ export default function WebsiteBuilder() {
         <div className="h-[calc(100vh-65px)]">
           {activeTab === "preview" ? (
             <iframe
-              srcDoc={generatedHTML}
+              src={URL.createObjectURL(new Blob([generatedHTML], {type: "text/html"}))}
               className="w-full h-full border-0"
               title="Website Preview"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
