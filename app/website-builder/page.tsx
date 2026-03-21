@@ -37,6 +37,7 @@ export default function WebsiteBuilder() {
       body: JSON.stringify({ answers, brandStrategy, style, pages }),
     });
     const data = await res.json();
+    console.log("HTML received:", data.result?.slice(0,100));
     setGeneratedHTML(data.result);
     setLoading(false);
   }
