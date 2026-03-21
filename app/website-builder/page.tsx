@@ -12,7 +12,6 @@ export default function WebsiteBuilder() {
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
   const [previewKey, setPreviewKey] = useState(0);
-  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
