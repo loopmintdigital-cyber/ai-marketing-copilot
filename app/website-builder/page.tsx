@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export default function WebsiteBuilder() {
@@ -11,6 +11,7 @@ export default function WebsiteBuilder() {
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [style, setStyle] = useState("modern");
   const [pages, setPages] = useState("landing");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeRef = require("react").useRef(null);
 
   useEffect(() => {
@@ -20,6 +21,13 @@ export default function WebsiteBuilder() {
     setAnswers(JSON.parse(saved));
     setBrandStrategy(strategy || "");
   }, []);
+
+  useEffect(() => {
+    if (iframeRef.current && generatedHTML) {
+      const doc = iframeRef.current.contentDocument;
+      if (doc) { doc.open(); doc.write(generatedHTML); doc.close(); }
+    }
+  }, [generatedHTML, activeTab]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -148,13 +156,7 @@ export default function WebsiteBuilder() {
         /* Preview / Code */
         <div className="h-[calc(100vh-65px)]">
           {activeTab === "preview" ? (
-            <iframe
-              ref={iframeRef}
-              srcDoc={generatedHTML}
-              className="w-full h-full border-0"
-              title="Website Preview"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-            />
+            <iframe ref={iframeRef} className="w-full h-full border-0" title="Website Preview" />
           ) : (
             <div className="h-full overflow-auto p-6">
               <pre className="text-green-400 text-xs font-mono leading-relaxed whitespace-pre-wrap">
