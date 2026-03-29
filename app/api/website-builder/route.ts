@@ -1,52 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 const client = new Anthropic();
+
 export async function POST(req: NextRequest) {
   const { answers, brandStrategy, style, pages } = await req.json();
-  const styleGuides: { [key: string]: string } = {
-    modern: "Clean white/light background, minimal design, lots of whitespace, subtle shadows, rounded corners",
-    bold: "Dark background (#0a0a0a), purple/pink gradients, glowing effects, dramatic typography, particle-like decorations",
-    professional: "White background, blue/navy accents, corporate feel, trust-building design, clean grid layout",
+
+  const styleGuide: Record<string, string> = {
+    modern: "Clean white background, minimal design, lots of whitespace, subtle shadows, rounded corners, blue/purple accents",
+    bold: "Dark background #0a0a0a, purple and pink gradients, glowing effects, dramatic typography",
+    professional: "White background, navy blue accents, corporate feel, trust-building design, clean grid layout",
   };
-  const styleGuide = styleGuides[style] || styleGuides["modern"];
+
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 8000,
     messages: [
       {
         role: "user",
-        content: `You are an expert web designer. Create a complete, beautiful, production-ready HTML website.
+        content: `Create a complete single-file HTML website for ${answers.productName}.
+
 BRAND INFO:
-- Product Name: ${answers.productName}
+- Product: ${answers.productName}
 - Description: ${answers.description}
 - Target Customer: ${answers.targetCustomer}
-- Competitors: ${answers.competitors}
 - Differentiator: ${answers.differentiator}
 - Brand Voice: ${answers.brandVoice}
-BRAND STRATEGY:
-${brandStrategy}
-STYLE: ${styleGuide}
+- Competitors: ${answers.competitors}
+
+STYLE: ${styleGuide[style] || styleGuide.modern}
 PAGE TYPE: ${pages}
-REQUIREMENTS:
-- Write COMPLETE HTML in a single file with inline CSS and vanilla JS
-- Include a navigation bar with logo and CTA button
-- Include a hero section with headline, subheadline and CTA buttons
-- Include a features/benefits section with icons (use emojis)
-- Include a social proof / stats section
-- Include a CTA section at the bottom
-- Include a footer
-- Make it fully responsive with mobile support
-- Use Google Fonts (import from googleapis)
-- Make it visually stunning and professional
-- Use the brand voice throughout all copy
-- All copy must be specific to ${answers.productName} — no placeholder text
-- Include smooth scroll behavior
-- Add subtle hover animations on buttons and cards
-IMPORTANT: Return ONLY the complete HTML code starting with <!DOCTYPE html> — no explanation, no markdown, no backticks.`,
+
+Write a complete HTML file with:
+1. Navigation bar with logo and CTA button
+2. Hero section with big headline and subheadline
+3. Features section with 3-6 features using emojis as icons
+4. Stats/social proof section
+5. CTA section
+6. Footer
+
+Rules:
+- Use inline CSS only (no external stylesheets except Google Fonts)
+- Import Google Fonts at the top
+- Make it mobile responsive
+- All text must be specific to ${answers.productName} — NO placeholder text
+- Use the brand voice: ${answers.brandVoice}
+- Make it visually stunning
+
+VERY IMPORTANT: Reply with ONLY the raw HTML starting with <!DOCTYPE html>
+Do not include any explanation, markdown, or code blocks.
+Start your response with exactly: <!DOCTYPE html>`,
       },
     ],
   });
-  const result = (response.content[0] as { text: string }).text;
-  const cleanHTML = result.replace(/```html\n?/g, "").replace(/```\n?/g, "").trim();
-  return NextResponse.json({ result: cleanHTML });
+
+  let result = (response.content[0] as { text: string }).text;
+  // Clean any accidental markdown
+  result = result.replace(/^```html\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
+  
+  if (!result.startsWith("<!DOCTYPE") && !result.startsWith("<html")) {
+    const htmlStart = result.indexOf("<!DOCTYPE");
+    if (htmlStart > -1) result = result.substring(htmlStart);
+  }
+
+  return NextResponse.json({ result });
 }
