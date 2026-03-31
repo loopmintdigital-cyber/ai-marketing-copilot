@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@clerk/nextjs": "^4.29.12",
     "@clerk/themes": "^2.4.57",
+    "@supabase/supabase-js": "^2.101.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
