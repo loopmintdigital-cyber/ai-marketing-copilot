@@ -16,7 +16,9 @@ export default function WebsiteBuilder() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [step, setStep] = useState<"setup" | "editor">("setup");
   const chatBottomRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("answers");
@@ -30,6 +32,60 @@ export default function WebsiteBuilder() {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
+  // Inject click-to-edit into iframe
+  useEffect(() => {
+    if (!generatedHTML || !iframeRef.current) return;
+    const iframe = iframeRef.current;
+    const injectEditScript = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc) return;
+        const script = doc.createElement("script");
+        script.textContent = `
+          document.querySelectorAll('h1,h2,h3,h4,p,button,a,span,li').forEach(el => {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              const current = this.innerText;
+              const newText = prompt('Edit this text:', current);
+              if (newText && newText !== current) {
+                this.innerText = newText;
+                window.parent.postMessage({ type: 'TEXT_EDIT', old: current, new: newText }, '*');
+              }
+            });
+            el.addEventListener('mouseover', function() {
+              this.style.outline = '2px dashed rgba(124,58,237,0.6)';
+              this.style.outlineOffset = '2px';
+            });
+            el.addEventListener('mouseout', function() {
+              this.style.outline = '';
+              this.style.outlineOffset = '';
+            });
+          });
+        `;
+        doc.body.appendChild(script);
+      } catch(e) {}
+    };
+    iframe.addEventListener('load', injectEditScript);
+    return () => iframe.removeEventListener('load', injectEditScript);
+  }, [generatedHTML]);
+
+  // Listen for text edits from iframe
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'TEXT_EDIT') {
+        setGeneratedHTML(prev => prev.replace(e.data.old, e.data.new));
+        setChatMessages(prev => [...prev, {
+          role: "assistant",
+          content: `✅ Text updated: "${e.data.old}" → "${e.data.new}"`
+        }]);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   async function handleGenerate() {
     setLoading(true);
     setGeneratedHTML("");
@@ -42,9 +98,10 @@ export default function WebsiteBuilder() {
       });
       const data = await res.json();
       setGeneratedHTML(data.result);
+      setStep("editor");
       setChatMessages([{
         role: "assistant",
-        content: `✅ Your website is ready! You can now edit it by telling me what to change.\n\nTry saying:\n• "Make the headline bigger"\n• "Change to dark theme"\n• "Add a pricing section"\n• "Make the button red"`
+        content: `✅ Website ready!\n\nYou can:\n• Click any text on the website to edit it directly\n• Type changes in this chat\n• Use quick edit buttons below`
       }]);
     } catch (e) {
       console.error(e);
@@ -68,18 +125,15 @@ export default function WebsiteBuilder() {
           currentHTML: generatedHTML,
           editRequest: userMessage,
           answers,
-          chatHistory: newMessages,
         }),
       });
       const data = await res.json();
       if (data.html) {
         setGeneratedHTML(data.html);
-        setChatMessages([...newMessages, { role: "assistant", content: data.message || "✅ Done! I've updated your website." }]);
-      } else {
-        setChatMessages([...newMessages, { role: "assistant", content: data.message || "I couldn't make that change. Try describing it differently." }]);
+        setChatMessages([...newMessages, { role: "assistant", content: data.message || "✅ Done!" }]);
       }
     } catch (e) {
-      setChatMessages([...newMessages, { role: "assistant", content: "Something went wrong. Please try again." }]);
+      setChatMessages([...newMessages, { role: "assistant", content: "Something went wrong. Try again." }]);
     }
     setChatLoading(false);
   }
@@ -95,18 +149,13 @@ export default function WebsiteBuilder() {
   }
 
   const QUICK_EDITS = [
-    "Make it dark theme",
-    "Make headline bigger",
-    "Add pricing section",
-    "Change CTA button color to red",
-    "Add testimonials section",
-    "Make it more minimal",
-    "Add FAQ section",
-    "Make fonts bolder",
+    "Make it dark theme", "Make headline bigger", "Add pricing section",
+    "Change button to red", "Add testimonials", "Make it more minimal",
+    "Add FAQ section", "Make fonts bolder",
   ];
 
   return (
-    <main className="min-h-screen text-white flex flex-col" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)", height: "100vh" }}>
+    <main className="text-white flex flex-col" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)", height: "100vh", overflow: "hidden" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-purple-900 border-opacity-30 flex-shrink-0" style={{ background: "rgba(10,5,20,0.8)", backdropFilter: "blur(20px)" }}>
         <div className="flex items-center gap-3">
@@ -116,7 +165,7 @@ export default function WebsiteBuilder() {
           <span className="font-bold text-white">Website Builder</span>
           <span className="text-gray-600 text-sm">— {answers.productName}</span>
         </div>
-        {generatedHTML && (
+        {step === "editor" && (
           <div className="flex items-center gap-3">
             <div className="flex rounded-xl overflow-hidden border border-purple-900 border-opacity-30">
               <button onClick={() => setActiveTab("preview")}
@@ -135,9 +184,9 @@ export default function WebsiteBuilder() {
               style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
               ⬇ Download
             </button>
-            <button onClick={handleGenerate}
+            <button onClick={() => { setStep("setup"); setGeneratedHTML(""); setChatMessages([]); }}
               className="text-gray-300 font-medium px-4 py-2 rounded-xl text-sm border border-gray-700 hover:border-purple-500 transition-all">
-              🔄 Regenerate
+              🔄 Rebuild
             </button>
           </div>
         )}
@@ -161,8 +210,7 @@ export default function WebsiteBuilder() {
         </div>
       )}
 
-      {!generatedHTML && !loading ? (
-        /* Setup Form */
+      {step === "setup" ? (
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto px-6 py-16">
             <div className="text-center mb-12">
@@ -170,7 +218,6 @@ export default function WebsiteBuilder() {
               <h1 className="text-4xl font-black mb-3">Build Your Website</h1>
               <p className="text-gray-400 text-lg">AI generates a complete branded website for <span className="text-purple-400">{answers.productName}</span> in seconds</p>
             </div>
-
             <div className="space-y-6 rounded-2xl p-8 border border-purple-900 border-opacity-30" style={{ background: "rgba(26,5,51,0.5)", backdropFilter: "blur(10px)" }}>
               <div>
                 <label className="text-sm text-purple-400 mb-3 block font-medium uppercase tracking-wider">Website Style</label>
@@ -189,7 +236,6 @@ export default function WebsiteBuilder() {
                   ))}
                 </div>
               </div>
-
               <div>
                 <label className="text-sm text-purple-400 mb-3 block font-medium uppercase tracking-wider">Page Type</label>
                 <div className="grid grid-cols-2 gap-3">
@@ -208,7 +254,6 @@ export default function WebsiteBuilder() {
                   ))}
                 </div>
               </div>
-
               <button onClick={handleGenerate} disabled={loading}
                 className="w-full text-white font-black py-5 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-40"
                 style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
@@ -217,19 +262,24 @@ export default function WebsiteBuilder() {
             </div>
           </div>
         </div>
-      ) : generatedHTML && (
-        /* Split view — Preview + Chat */
+      ) : (
         <div className="flex-1 flex overflow-hidden">
           {/* Website Preview */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden relative">
             {activeTab === "preview" ? (
-              <iframe
-                key={generatedHTML}
-                srcDoc={generatedHTML}
-                className="w-full h-full border-0"
-                title="Website Preview"
-                sandbox="allow-scripts allow-same-origin"
-              />
+              <>
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 text-xs px-3 py-1.5 rounded-full font-medium pointer-events-none" style={{ background: "rgba(124,58,237,0.2)", color: "#c084fc", border: "1px solid rgba(124,58,237,0.3)" }}>
+                  ✏️ Click any text to edit it directly
+                </div>
+                <iframe
+                  ref={iframeRef}
+                  key={generatedHTML.length}
+                  srcDoc={generatedHTML}
+                  className="w-full h-full border-0"
+                  title="Website Preview"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              </>
             ) : (
               <div className="h-full overflow-auto p-6" style={{ background: "#0d0d0d" }}>
                 <pre className="text-green-400 text-xs font-mono leading-relaxed whitespace-pre-wrap">{generatedHTML}</pre>
@@ -238,8 +288,7 @@ export default function WebsiteBuilder() {
           </div>
 
           {/* Edit Chat Panel */}
-          <div className="w-80 flex flex-col border-l border-purple-900 border-opacity-30 flex-shrink-0" style={{ background: "rgba(10,5,20,0.95)", backdropFilter: "blur(20px)" }}>
-            {/* Chat Header */}
+          <div className="w-80 flex flex-col border-l border-purple-900 border-opacity-30 flex-shrink-0" style={{ background: "rgba(10,5,20,0.95)" }}>
             <div className="px-4 py-3 border-b border-purple-900 border-opacity-20">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -248,10 +297,9 @@ export default function WebsiteBuilder() {
               <p className="text-gray-600 text-xs mt-0.5">Tell me what to change</p>
             </div>
 
-            {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] rounded-2xl px-3 py-2.5 text-xs leading-relaxed ${
                     msg.role === "user" ? "text-white rounded-tr-sm" : "text-gray-300 rounded-tl-sm"
                   }`} style={msg.role === "user"
@@ -275,7 +323,6 @@ export default function WebsiteBuilder() {
               <div ref={chatBottomRef} />
             </div>
 
-            {/* Quick edits */}
             <div className="px-4 py-2 border-t border-purple-900 border-opacity-20">
               <p className="text-gray-600 text-xs mb-2 font-medium">Quick edits:</p>
               <div className="flex flex-wrap gap-1.5">
@@ -289,7 +336,6 @@ export default function WebsiteBuilder() {
               </div>
             </div>
 
-            {/* Chat Input */}
             <div className="p-4 border-t border-purple-900 border-opacity-20">
               <div className="flex gap-2">
                 <input
@@ -312,3 +358,5 @@ export default function WebsiteBuilder() {
     </main>
   );
 }
+
+
