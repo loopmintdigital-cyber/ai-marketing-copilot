@@ -13,12 +13,11 @@ export async function POST(req: Request) {
 
   const { answers, brandStrategy } = await req.json();
 
-  // Save to Clerk metadata
-  await clerkClient().users.updateUserMetadata(userId, {
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(userId, {
     publicMetadata: { answers, brandStrategy, onboardingComplete: true },
   });
 
-  // Save to Supabase
   await supabase.from('brand_profiles').upsert({
     user_id: userId,
     answers,
