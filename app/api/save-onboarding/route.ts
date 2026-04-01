@@ -1,6 +1,7 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createClient } from '@supabase/supabase-js';
+import Anthropic from "@anthropic-ai/sdk";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,11 +14,7 @@ export async function POST(req: Request) {
 
   const { answers, brandStrategy } = await req.json();
 
-  const client = await clerkClient();
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: { answers, brandStrategy, onboardingComplete: true },
-  });
-
+  // Save to Supabase only
   await supabase.from('brand_profiles').upsert({
     user_id: userId,
     answers,
