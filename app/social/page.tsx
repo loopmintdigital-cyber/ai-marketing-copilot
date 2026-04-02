@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import ExportButtons from "@/components/ExportButtons";
 import { useRouter } from "next/navigation";
 
 export default function Social() {
@@ -102,11 +103,9 @@ export default function Social() {
         {result && (
           <div className="rounded-2xl p-6 border border-purple-900 border-opacity-30" style={{ background: "rgba(26, 5, 51, 0.4)", backdropFilter: "blur(10px)" }}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-purple-400 font-medium text-sm uppercase tracking-wider">Generated Content</h3>
-              <button onClick={copyToClipboard} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-all">
-                {copied ? "✅ Copied!" : "📋 Copy"}
-              </button>
-            </div>
+  <h3 className="text-purple-400 font-medium text-sm uppercase tracking-wider">Generated Content</h3>
+  <ExportButtons content={result} filename={`${answers.productName}-social-media`} productName={answers.productName} />
+</div>
             {renderContent(result)}
           </div>
         )}
