@@ -14,7 +14,6 @@ export default function Email() {
   const [tone, setTone] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
-  const [copied, setCopied] = useState(false);
 
   async function handleGenerate() {
     setLoading(true);
@@ -31,12 +30,6 @@ export default function Email() {
     const existing = JSON.parse(localStorage.getItem("contentHistory") || "[]");
     localStorage.setItem("contentHistory", JSON.stringify([historyItem, ...existing]));
     setLoading(false);
-  }
-
-  function copyToClipboard() {
-    navigator.clipboard.writeText(result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   }
 
   function renderContent(content: string) {
@@ -57,107 +50,51 @@ export default function Email() {
     <main className="min-h-screen text-white px-6 py-10" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
       <div className="max-w-3xl mx-auto">
         <button onClick={() => router.push("/dashboard")} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors mb-8">← Dashboard</button>
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-4xl">📧</span>
-          <h1 className="text-3xl font-bold">Email Marketing</h1>
-        </div>
+        <div className="flex items-center gap-3 mb-2"><span className="text-4xl">📧</span><h1 className="text-3xl font-bold">Email Marketing</h1></div>
         <p className="text-gray-400 mb-8 ml-14">Generate email sequences for onboarding, nurture & cold outreach</p>
-
         <div className="space-y-6 rounded-2xl p-6 mb-6 border border-purple-900 border-opacity-50" style={{ background: "rgba(26, 5, 51, 0.6)", backdropFilter: "blur(10px)", boxShadow: "0 0 40px rgba(147, 51, 234, 0.1)" }}>
           <div>
             <label className="text-sm text-purple-400 mb-2 block font-medium">Sequence Type</label>
             <div className="flex gap-3 flex-wrap">
               {["onboarding", "nurture", "cold outreach", "product update"].map((t) => (
-                <button key={t} onClick={() => setSequenceType(t)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${sequenceType === t ? "bg-purple-600 text-white shadow-lg shadow-purple-900" : "bg-gray-800 bg-opacity-60 text-gray-300 hover:bg-gray-700"}`}>
-                  {t}
-                </button>
+                <button key={t} onClick={() => setSequenceType(t)} className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${sequenceType === t ? "bg-purple-600 text-white shadow-lg shadow-purple-900" : "bg-gray-800 bg-opacity-60 text-gray-300 hover:bg-gray-700"}`}>{t}</button>
               ))}
             </div>
           </div>
           <div>
             <label className="text-sm text-purple-400 mb-2 block font-medium">Target Persona</label>
-            <input type="text" value={persona} onChange={(e) => setPersona(e.target.value)}
-              placeholder="e.g. SaaS founders, new signups, trial users"
-              className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
+            <input type="text" value={persona} onChange={(e) => setPersona(e.target.value)} placeholder="e.g. SaaS founders, new signups, trial users" className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
           </div>
           <div>
             <label className="text-sm text-purple-400 mb-2 block font-medium">Feature to Highlight</label>
-            <input type="text" value={feature} onChange={(e) => setFeature(e.target.value)}
-              placeholder="e.g. AI content generation, social scheduling"
-              className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
+            <input type="text" value={feature} onChange={(e) => setFeature(e.target.value)} placeholder="e.g. AI content generation, social scheduling" className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
           </div>
           <div>
             <label className="text-sm text-purple-400 mb-2 block font-medium">Number of Emails</label>
             <div className="flex gap-3">
               {["3", "5", "7"].map((n) => (
-                <button key={n} onClick={() => setSequenceLength(n)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${sequenceLength === n ? "bg-purple-600 text-white shadow-lg shadow-purple-900" : "bg-gray-800 bg-opacity-60 text-gray-300 hover:bg-gray-700"}`}>
-                  {n} emails
-                </button>
+                <button key={n} onClick={() => setSequenceLength(n)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${sequenceLength === n ? "bg-purple-600 text-white shadow-lg shadow-purple-900" : "bg-gray-800 bg-opacity-60 text-gray-300 hover:bg-gray-700"}`}>{n} emails</button>
               ))}
             </div>
           </div>
           <div>
             <label className="text-sm text-purple-400 mb-2 block font-medium">Tone Override <span className="text-gray-600">(optional)</span></label>
-            <input type="text" value={tone} onChange={(e) => setTone(e.target.value)}
-              placeholder="e.g. More casual, very formal, witty"
-              className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
+            <input type="text" value={tone} onChange={(e) => setTone(e.target.value)} placeholder="e.g. More casual, very formal, witty" className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
           </div>
-
-          {/* ✅ ANIMATED GENERATE BUTTON */}
-          <button
-            onClick={handleGenerate}
-            disabled={loading || !persona.trim() || !feature.trim()}
-            className="w-full relative overflow-hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg shadow-purple-900"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-3">
-                <svg className="animate-spin h-5 w-5 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                <span className="animate-pulse">✨ Thinking & Generating</span>
-                <span className="flex gap-1 items-center">
-                  <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                </span>
-              </span>
-            ) : (
-              "Generate Email Sequence →"
-            )}
-            {loading && (
-              <span
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
-                  animation: "shimmer 1.5s infinite linear",
-                }}
-              />
-            )}
+          <button onClick={handleGenerate} disabled={loading || !persona.trim() || !feature.trim()} className="w-full relative overflow-hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg shadow-purple-900">
+            {loading ? (<span className="flex items-center justify-center gap-3"><svg className="animate-spin h-5 w-5 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg><span className="animate-pulse">✨ Thinking & Generating</span><span className="flex gap-1 items-center"><span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0ms" }} /><span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "150ms" }} /><span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "300ms" }} /></span></span>) : "Generate Email Sequence →"}
           </button>
         </div>
-
         {result && (
           <div className="rounded-2xl p-6 border border-purple-900 border-opacity-30" style={{ background: "rgba(26, 5, 51, 0.4)", backdropFilter: "blur(10px)" }}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-purple-400 font-medium text-sm uppercase tracking-wider">Generated Content</h3>
-              <button onClick={copyToClipboard} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-all">
-                {copied ? "✅ Copied!" : "📋 Copy"}
-              </button>
+              <ExportButtons content={result} filename="email-sequence" productName={persona} />
             </div>
             {renderContent(result)}
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-      `}</style>
     </main>
   );
 }
