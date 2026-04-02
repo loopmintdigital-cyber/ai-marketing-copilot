@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export default function SEO() {
   const router = useRouter();
+  const { user } = useUser();
   const [productCategory, setProductCategory] = useState("");
   const [targetKeywords, setTargetKeywords] = useState("");
   const [competitorDomains, setCompetitorDomains] = useState("");

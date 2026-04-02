@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export default function Ads() {
   const router = useRouter();
+  const { user } = useUser();
   const [campaignGoal, setCampaignGoal] = useState("conversions");
   const [targetAudience, setTargetAudience] = useState("");
   const [budget, setBudget] = useState("$500-$1000/month");

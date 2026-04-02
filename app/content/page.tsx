@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export default function Content() {
   const router = useRouter();
+  const { user } = useUser();
   const [pageType, setPageType] = useState("landing");
   const [benefit, setBenefit] = useState("");
   const [persona, setPersona] = useState("");
