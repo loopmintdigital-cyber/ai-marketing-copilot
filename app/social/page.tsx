@@ -104,7 +104,7 @@ export default function Social() {
           <div className="rounded-2xl p-6 border border-purple-900 border-opacity-30" style={{ background: "rgba(26, 5, 51, 0.4)", backdropFilter: "blur(10px)" }}>
             <div className="flex justify-between items-center mb-4">
   <h3 className="text-purple-400 font-medium text-sm uppercase tracking-wider">Generated Content</h3>
-  <ExportButtons content={result} filename={`${answers.productName}-social-media`} productName={answers.productName} />
+<ExportButtons content={result} filename="social-media-calendar" productName="" />
 </div>
             {renderContent(result)}
           </div>
