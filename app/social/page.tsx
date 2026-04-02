@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export default function Social() {
   const router = useRouter();
+  const { user } = useUser();
   const [platform, setPlatform] = useState("LinkedIn");
   const [goal, setGoal] = useState("awareness");
   const [productNews, setProductNews] = useState("");
@@ -18,7 +20,7 @@ export default function Social() {
     const res = await fetch("/api/social", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ platform, goal, productNews, brandStrategy, answers }),
+      body: JSON.stringify({ platform, goal, productNews, brandStrategy, answers, userId: user?.id }),
     });
     const data = await res.json();
     setResult(data.result);
