@@ -22,7 +22,7 @@ export default function Ads() {
     const res = await fetch("/api/ads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ campaignGoal, targetAudience, budget, feature, destinationURL, brandStrategy, answers }),
+      body: JSON.stringify({ campaignGoal, targetAudience, budget, feature, destinationURL, brandStrategy, answers, userId: user?.id }),
     });
     const data = await res.json();
     setResult(data.result);

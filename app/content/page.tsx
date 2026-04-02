@@ -21,7 +21,7 @@ export default function Content() {
     const res = await fetch("/api/content", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pageType, benefit, persona, ctaGoal, brandStrategy, answers }),
+      body: JSON.stringify({ pageType, benefit, persona, ctaGoal, brandStrategy, answers, userId: user?.id }),
     });
     const data = await res.json();
     setResult(data.result);

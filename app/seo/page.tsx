@@ -21,7 +21,7 @@ export default function SEO() {
     const res = await fetch("/api/seo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productCategory, targetKeywords, competitorDomains, articleTopic, brandStrategy, answers }),
+      body: JSON.stringify({ productCategory, targetKeywords, competitorDomains, articleTopic, brandStrategy, answers, userId: user?.id }),
     });
     const data = await res.json();
     setResult(data.result);

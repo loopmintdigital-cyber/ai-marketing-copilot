@@ -22,7 +22,7 @@ export default function Email() {
     const res = await fetch("/api/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sequenceType, persona, feature, sequenceLength, tone, brandStrategy, answers }),
+      body: JSON.stringify({ sequenceType, persona, feature, sequenceLength, tone, brandStrategy, answers, userId: user?.id }),
     });
     const data = await res.json();
     setResult(data.result);
