@@ -128,6 +128,7 @@ export default function Dashboard() {
     { title: "SEO & Blog Strategy", description: "Keyword clusters, blog calendars & full article drafts", icon: "🔍", href: "/seo", color: "from-orange-900 to-orange-950", border: "hover:border-orange-500", tag: "bg-orange-900 text-orange-300" },
     { title: "Brand Strategy Engine", description: "Your brand positioning, voice guide & ICP personas", icon: "🧠", href: "/brand-strategy", color: "from-purple-900 to-purple-950", border: "hover:border-purple-400", tag: "bg-purple-900 text-purple-300" },
     { title: "Brand Profile", description: "View and edit your brand data & strategy", icon: "🧠", href: "/brand-profile", color: "from-violet-900 to-violet-950", border: "hover:border-violet-500", tag: "bg-violet-900 text-violet-300" },
+    { title: "Content Calendar", description: "View all your generated content history", icon: "📅", href: "/content-calendar", color: "from-indigo-900 to-indigo-950", border: "hover:border-indigo-500", tag: "bg-indigo-900 text-indigo-300" },
     { title: "Website Builder", description: "Generate a complete branded website in seconds", icon: "🌐", href: "/website-builder", color: "from-cyan-900 to-cyan-950", border: "hover:border-cyan-500", tag: "bg-cyan-900 text-cyan-300" },
   ];
 
