@@ -104,9 +104,38 @@ export default function Email() {
               placeholder="e.g. More casual, very formal, witty"
               className="w-full border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
           </div>
-          <button onClick={handleGenerate} disabled={loading || !persona.trim() || !feature.trim()}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg shadow-purple-900">
-            {loading ? "✨ Generating your email sequence..." : "Generate Email Sequence →"}
+
+          {/* ✅ ANIMATED GENERATE BUTTON */}
+          <button
+            onClick={handleGenerate}
+            disabled={loading || !persona.trim() || !feature.trim()}
+            className="w-full relative overflow-hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg shadow-purple-900"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-3">
+                <svg className="animate-spin h-5 w-5 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="animate-pulse">✨ Thinking & Generating</span>
+                <span className="flex gap-1 items-center">
+                  <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </span>
+              </span>
+            ) : (
+              "Generate Email Sequence →"
+            )}
+            {loading && (
+              <span
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
+                  animation: "shimmer 1.5s infinite linear",
+                }}
+              />
+            )}
           </button>
         </div>
 
@@ -122,6 +151,13 @@ export default function Email() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+      `}</style>
     </main>
   );
 }

@@ -34,14 +34,17 @@ export default function ContentCalendar() {
   const [selected, setSelected] = useState<ContentItem | null>(null);
   const [filter, setFilter] = useState("all");
   const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!isLoaded || !user) return;
     fetchContent();
   }, [isLoaded, user]);
 
-  async function fetchContent() {
-    setLoading(true);
+  async function fetchContent(isRefresh = false) {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+
     const { data, error } = await supabase
       .from("content_history")
       .select("*")
@@ -50,6 +53,7 @@ export default function ContentCalendar() {
 
     if (!error && data) setContent(data);
     setLoading(false);
+    setRefreshing(false);
   }
 
   async function deleteItem(id: string) {
@@ -94,7 +98,23 @@ export default function ContentCalendar() {
             {content.length} items
           </span>
         </div>
-        <button onClick={fetchContent} className="text-gray-500 hover:text-white text-sm transition-colors">🔄 Refresh</button>
+
+        {/* ✅ ANIMATED REFRESH BUTTON */}
+        <button
+          onClick={() => fetchContent(true)}
+          disabled={refreshing}
+          className="flex items-center gap-2 text-gray-500 hover:text-white text-sm transition-colors disabled:opacity-60"
+        >
+          {refreshing ? (
+            <>
+              <svg className="animate-spin h-4 w-4 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              <span className="animate-pulse text-purple-400">Refreshing</span>
+            </>
+          ) : "🔄 Refresh"}
+        </button>
       </div>
 
       {/* Filter tabs */}
@@ -119,8 +139,20 @@ export default function ContentCalendar() {
         {/* Content List */}
         <div className="w-96 flex-shrink-0 overflow-y-auto border-r border-purple-900 border-opacity-20">
           {loading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="text-purple-400 animate-pulse text-sm">Loading content...</div>
+            <div className="flex flex-col items-center justify-center h-40 gap-3">
+              {/* ✅ ANIMATED LOADING STATE */}
+              <span className="flex items-center gap-3 text-purple-300 text-sm">
+                <svg className="animate-spin h-5 w-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="animate-pulse">Loading content</span>
+                <span className="flex gap-1 items-center">
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </span>
+              </span>
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-60 px-6 text-center">

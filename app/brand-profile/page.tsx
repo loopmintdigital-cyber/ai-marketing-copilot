@@ -85,14 +85,38 @@ export default function BrandProfile() {
           <span className="text-gray-600 text-sm">— {answers.productName}</span>
         </div>
         <div className="flex items-center gap-3">
+          {/* ✅ ANIMATED REGENERATE BUTTON */}
           <button onClick={handleRegenerate} disabled={regenerating}
-            className="text-gray-300 font-medium px-4 py-2 rounded-xl text-sm border border-gray-700 hover:border-purple-500 transition-all disabled:opacity-40">
-            {regenerating ? "🔄 Regenerating..." : "🔄 Regenerate Strategy"}
+            className="relative overflow-hidden text-gray-300 font-medium px-4 py-2 rounded-xl text-sm border border-gray-700 hover:border-purple-500 transition-all disabled:opacity-60">
+            {regenerating ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-purple-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="animate-pulse">Regenerating</span>
+                <span className="flex gap-0.5 items-center">
+                  <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </span>
+              </span>
+            ) : "🔄 Regenerate Strategy"}
           </button>
+
+          {/* ✅ ANIMATED SAVE BUTTON */}
           <button onClick={handleSave} disabled={saving}
-            className="text-white font-bold px-5 py-2 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-40"
+            className="relative overflow-hidden text-white font-bold px-5 py-2 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
             style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-            {saving ? "Saving..." : saved ? "✅ Saved!" : "Save Changes"}
+            {saving ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="animate-pulse">Saving</span>
+              </span>
+            ) : saved ? "✅ Saved!" : "Save Changes"}
           </button>
         </div>
       </div>
@@ -151,10 +175,24 @@ export default function BrandProfile() {
               </div>
             ))}
 
+            {/* ✅ ANIMATED SAVE ALL BUTTON */}
             <button onClick={handleSave} disabled={saving}
-              className="w-full text-white font-black py-4 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-40 mt-6"
+              className="relative overflow-hidden w-full text-white font-black py-4 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-60 mt-6"
               style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.3)" }}>
-              {saving ? "Saving..." : saved ? "✅ Saved!" : "💾 Save All Changes"}
+              {saving ? (
+                <span className="flex items-center justify-center gap-3">
+                  <svg className="animate-spin h-5 w-5 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  <span className="animate-pulse">Saving Changes</span>
+                  <span className="flex gap-1 items-center">
+                    <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </span>
+                </span>
+              ) : saved ? "✅ Saved!" : "💾 Save All Changes"}
             </button>
           </div>
         ) : (
@@ -165,9 +203,17 @@ export default function BrandProfile() {
                 <p className="text-gray-500 text-sm">AI-generated strategy based on your brand profile.</p>
               </div>
               <button onClick={handleRegenerate} disabled={regenerating}
-                className="text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-40"
+                className="relative overflow-hidden text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
                 style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-                {regenerating ? "🔄 Regenerating..." : "🔄 Regenerate"}
+                {regenerating ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    <span className="animate-pulse">Regenerating</span>
+                  </span>
+                ) : "🔄 Regenerate"}
               </button>
             </div>
 
@@ -182,9 +228,17 @@ export default function BrandProfile() {
                 <div className="text-5xl mb-4">🧠</div>
                 <p className="text-gray-500 mb-4">No brand strategy yet</p>
                 <button onClick={handleRegenerate} disabled={regenerating}
-                  className="text-white font-bold px-8 py-3 rounded-xl transition-all hover:scale-105"
+                  className="relative overflow-hidden text-white font-bold px-8 py-3 rounded-xl transition-all hover:scale-105 disabled:opacity-60"
                   style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-                  Generate Brand Strategy
+                  {regenerating ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      <span className="animate-pulse">Generating</span>
+                    </span>
+                  ) : "Generate Brand Strategy"}
                 </button>
               </div>
             )}

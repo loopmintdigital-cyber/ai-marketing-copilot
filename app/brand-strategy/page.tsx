@@ -83,7 +83,8 @@ export default function BrandStrategy() {
     let i = 0;
     while (i < lines.length) {
       const line = lines[i];
-if (line.startsWith('| ') && !line.startsWith('|---') && lines[i+1]?.startsWith('|---')) {        const { jsx, endIndex } = renderTable(lines, i);
+      if (line.startsWith('| ') && !line.startsWith('|---') && lines[i+1]?.startsWith('|---')) {
+        const { jsx, endIndex } = renderTable(lines, i);
         elements.push(<div key={i}>{jsx}</div>);
         i = endIndex;
         continue;
@@ -125,9 +126,24 @@ if (line.startsWith('| ') && !line.startsWith('|---') && lines[i+1]?.startsWith(
             </div>
           </div>
         ))}
+
+        {/* ✅ ANIMATED THINKING STATE */}
         {chatLoading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl px-5 py-4 text-gray-400 text-sm" style={{ background: "rgba(26, 5, 51, 0.6)" }}>✨ Thinking...</div>
+            <div className="rounded-2xl px-5 py-4 text-sm border border-purple-900 border-opacity-40" style={{ background: "rgba(26, 5, 51, 0.6)" }}>
+              <span className="flex items-center gap-3 text-purple-300">
+                <svg className="animate-spin h-4 w-4 text-purple-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="animate-pulse">✨ Thinking & Generating</span>
+                <span className="flex gap-1 items-center">
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </span>
+              </span>
+            </div>
           </div>
         )}
         <div ref={bottomRef} />
@@ -147,9 +163,21 @@ if (line.startsWith('| ') && !line.startsWith('|---') && lines[i+1]?.startsWith(
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleChat(); } }}
             placeholder="Ask to refine your brand strategy..."
             className="flex-1 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors" style={{ background: "rgba(17, 24, 39, 0.8)" }} />
-          <button onClick={handleChat} disabled={!chatInput.trim() || chatLoading}
-            className="bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-purple-900">
-            Send
+
+          {/* ✅ ANIMATED SEND BUTTON */}
+          <button
+            onClick={handleChat}
+            disabled={!chatInput.trim() || chatLoading}
+            className="relative overflow-hidden bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-semibold px-5 py-3 rounded-xl transition-all shadow-lg shadow-purple-900"
+          >
+            {chatLoading ? (
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+            ) : (
+              "Send"
+            )}
           </button>
         </div>
       </div>

@@ -41,7 +41,6 @@ export default function WebsiteBuilder() {
         const doc = iframe.contentDocument;
         if (!doc) return;
 
-        // Remove existing editor script if any
         const existing = doc.getElementById("wix-editor-script");
         if (existing) existing.remove();
 
@@ -280,12 +279,24 @@ export default function WebsiteBuilder() {
         )}
       </div>
 
+      {/* ✅ ANIMATED FULL-SCREEN LOADING OVERLAY */}
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(10px)" }}>
           <div className="text-center">
             <div className="text-6xl mb-6 animate-bounce">🌐</div>
-            <div className="text-white font-black text-2xl mb-3">Building Your Website...</div>
-            <div className="text-gray-400 text-sm mb-6">AI is crafting your site</div>
+            <div className="text-white font-black text-2xl mb-3">Building Your Website</div>
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <svg className="animate-spin h-5 w-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              <span className="text-purple-300 animate-pulse">✨ Thinking & Generating</span>
+              <span className="flex gap-1 items-center">
+                <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              </span>
+            </div>
             <div className="flex gap-2 justify-center flex-wrap">
               {["Writing HTML", "Styling CSS", "Adding Copy", "Making it ✨"].map((s, i) => (
                 <div key={s} className="text-xs px-3 py-1.5 rounded-full font-medium animate-pulse"
@@ -342,10 +353,28 @@ export default function WebsiteBuilder() {
                   ))}
                 </div>
               </div>
-              <button onClick={handleGenerate} disabled={loading}
-                className="w-full text-white font-black py-5 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-40"
-                style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
-                🌐 Generate My Website →
+
+              {/* ✅ ANIMATED GENERATE BUTTON */}
+              <button
+                onClick={handleGenerate}
+                disabled={loading}
+                className="relative overflow-hidden w-full text-white font-black py-5 rounded-2xl text-lg transition-all hover:scale-105 disabled:opacity-60"
+                style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-3">
+                    <svg className="animate-spin h-5 w-5 text-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    <span className="animate-pulse">✨ Thinking & Generating</span>
+                    <span className="flex gap-1 items-center">
+                      <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </span>
+                  </span>
+                ) : "🌐 Generate My Website →"}
               </button>
             </div>
           </div>
@@ -387,12 +416,23 @@ export default function WebsiteBuilder() {
                   </div>
                 </div>
               ))}
+
+              {/* ✅ ANIMATED CHAT THINKING STATE */}
               {chatLoading && (
                 <div className="flex justify-start">
                   <div className="rounded-2xl px-3 py-2.5" style={{ background: "rgba(26,5,51,0.8)", border: "1px solid rgba(124,58,237,0.15)" }}>
-                    <div className="flex gap-1 items-center">
-                      {[0,150,300].map(d => <div key={d} className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: `${d}ms` }}></div>)}
-                    </div>
+                    <span className="flex items-center gap-2 text-purple-300 text-xs">
+                      <svg className="animate-spin h-3 w-3 text-purple-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      <span className="animate-pulse">Thinking & editing</span>
+                      <span className="flex gap-1 items-center">
+                        <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1 h-1 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </span>
+                    </span>
                   </div>
                 </div>
               )}
@@ -421,10 +461,19 @@ export default function WebsiteBuilder() {
                   placeholder="e.g. Make it dark theme..."
                   className="flex-1 bg-transparent text-white text-xs placeholder-gray-600 focus:outline-none rounded-xl px-3 py-2.5 border border-gray-700 focus:border-purple-500 transition-colors"
                 />
-                <button onClick={handleChatEdit} disabled={!chatInput.trim() || chatLoading}
-                  className="text-white font-bold px-3 py-2.5 rounded-xl text-xs transition-all hover:scale-105 disabled:opacity-40"
-                  style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-                  →
+                {/* ✅ ANIMATED SEND BUTTON */}
+                <button
+                  onClick={handleChatEdit}
+                  disabled={!chatInput.trim() || chatLoading}
+                  className="relative overflow-hidden text-white font-bold px-3 py-2.5 rounded-xl text-xs transition-all hover:scale-105 disabled:opacity-60"
+                  style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}
+                >
+                  {chatLoading ? (
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  ) : "→"}
                 </button>
               </div>
             </div>
