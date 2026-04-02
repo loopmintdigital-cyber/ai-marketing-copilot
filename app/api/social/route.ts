@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from '@supabase/supabase-js';
-import { auth } from "@clerk/nextjs/server";
 
 const client = new Anthropic();
 const supabase = createClient(
@@ -10,8 +9,7 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  const { platform, goal, productNews, brandStrategy, answers } = await req.json();
+  const { platform, goal, productNews, brandStrategy, answers, userId } = await req.json();
   
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -43,7 +41,6 @@ IMPORTANT FORMATTING RULES:
   
   const result = (response.content[0] as { text: string }).text;
   
-  // Save to Supabase
   if (userId) {
     await supabase.from('content_history').insert({
       user_id: userId,
