@@ -35,12 +35,8 @@ export default function Dashboard() {
     if (!isLoaded || !user) return;
 
     async function loadData() {
-      // Reload user to get fresh metadata
       await user!.reload();
-      
       const meta = user!.publicMetadata as { onboardingComplete?: boolean; answers?: Record<string, string> };
-
-      // Check localStorage first as fallback
       const localAnswers = localStorage.getItem("answers");
       const hasLocalData = localAnswers && JSON.parse(localAnswers).productName;
 
@@ -130,6 +126,8 @@ export default function Dashboard() {
     { title: "Brand Profile", description: "View and edit your brand data & strategy", icon: "🧠", href: "/brand-profile", color: "from-violet-900 to-violet-950", border: "hover:border-violet-500", tag: "bg-violet-900 text-violet-300" },
     { title: "Content Calendar", description: "View all your generated content history", icon: "📅", href: "/content-calendar", color: "from-indigo-900 to-indigo-950", border: "hover:border-indigo-500", tag: "bg-indigo-900 text-indigo-300" },
     { title: "Website Builder", description: "Generate a complete branded website in seconds", icon: "🌐", href: "/website-builder", color: "from-cyan-900 to-cyan-950", border: "hover:border-cyan-500", tag: "bg-cyan-900 text-cyan-300" },
+    // ✅ NEW — Poster Maker
+    { title: "AI Poster Maker", description: "Generate stunning social media posters with captions, hashtags & keywords", icon: "🖼️", href: "/poster", color: "from-rose-900 to-rose-950", border: "hover:border-rose-500", tag: "bg-rose-900 text-rose-300" },
   ];
 
   const moduleColors: Record<string, string> = {
@@ -138,6 +136,7 @@ export default function Dashboard() {
     ads: "bg-yellow-900 text-yellow-300",
     content: "bg-pink-900 text-pink-300",
     seo: "bg-orange-900 text-orange-300",
+    poster: "bg-rose-900 text-rose-300",
   };
 
   function renderContent(content: string) {
@@ -182,10 +181,10 @@ export default function Dashboard() {
             {history.length > 0 && <span className="bg-purple-600 text-white text-xs px-1.5 py-0.5 rounded-full">{history.length}</span>}
           </button>
           <button onClick={() => router.push("/chat")}
-  className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition-all font-bold"
-  style={{ background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.3)", color: "#c084fc" }}>
-  💬 AI Chat
-</button>
+            className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition-all font-bold"
+            style={{ background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.3)", color: "#c084fc" }}>
+            💬 AI Chat
+          </button>
           <button onClick={() => signOut(() => router.push("/sign-in"))}
             className="text-red-400 hover:text-red-300 text-sm border border-red-900 hover:border-red-600 px-3 py-1.5 rounded-lg transition-all">
             Sign Out
@@ -207,7 +206,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-3 gap-4 mb-10">
           {[
-            { label: "Modules Available", value: "6", icon: "⚡" },
+            { label: "Modules Available", value: "10", icon: "⚡" },
             { label: "Content Generated", value: history.length.toString(), icon: "📄" },
             { label: "Brand Voice", value: answers.brandVoice || "Set", icon: "🎨" },
           ].map((stat) => (
