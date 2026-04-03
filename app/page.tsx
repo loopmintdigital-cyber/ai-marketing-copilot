@@ -234,35 +234,35 @@ export default function Home() {
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Aurora wave 1 — purple */}
         <div style={{
-          position: "absolute", width: "140%", height: "60%",
+          position: "absolute", width: "180%", height: "60%",
           top: "-10%", left: "-20%",
-          background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.18) 0%, rgba(88,28,220,0.08) 40%, transparent 70%)",
+          background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.55) 0%, rgba(88,28,220,0.25) 40%, transparent 70%)",
           animation: "aurora1 12s ease-in-out infinite alternate",
-          filter: "blur(40px)",
+          filter: "blur(70px)",
         }} />
         {/* Aurora wave 2 — green */}
         <div style={{
-          position: "absolute", width: "120%", height: "50%",
+          position: "absolute", width: "150%", height: "50%",
           top: "20%", left: "-10%",
-          background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 40%, transparent 70%)",
+          background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.20) 40%, transparent 70%)",
           animation: "aurora2 16s ease-in-out infinite alternate",
-          filter: "blur(50px)",
+          filter: "blur(80px)",
         }} />
         {/* Aurora wave 3 — pink */}
         <div style={{
-          position: "absolute", width: "100%", height: "60%",
+          position: "absolute", width: "130%", height: "70%",
           top: "40%", right: "-10%",
-          background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.10) 0%, rgba(190,24,93,0.05) 40%, transparent 70%)",
+          background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.40) 0%, rgba(190,24,93,0.18) 40%, transparent 70%)",
           animation: "aurora3 14s ease-in-out infinite alternate",
-          filter: "blur(45px)",
+          filter: "blur(75px)",
         }} />
         {/* Aurora wave 4 — blue */}
         <div style={{
           position: "absolute", width: "80%", height: "40%",
           bottom: "0%", left: "10%",
-          background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.35) 0%, transparent 70%)",
           animation: "aurora4 18s ease-in-out infinite alternate",
-          filter: "blur(60px)",
+          filter: "blur(90px)",
         }} />
         {/* Top shimmer line */}
         <div style={{
@@ -433,7 +433,7 @@ export default function Home() {
               <div className="absolute -top-5 -right-5 px-4 py-2 rounded-2xl text-sm font-bold text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.6)", animation: "float 3s ease-in-out infinite alternate" }}>
                 ⚡ 10 seconds
               </div>
-              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)", animation: "float 4s ease-in-out infinite alternate-reverse" }}>
+              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.45)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)", animation: "float 4s ease-in-out infinite alternate-reverse" }}>
                 <div className="text-green-400 font-bold text-sm">${savedCount.toLocaleString()} saved</div>
                 <div className="text-gray-600 text-xs">vs hiring an agency</div>
               </div>
