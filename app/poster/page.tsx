@@ -1,12 +1,11 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 
 const SIZES = [
-  { id: "instagram-post", label: "Instagram Post", icon: "📸", w: 1080, h: 1080, preview: { w: 320, h: 320 }, aspect: "1/1" },
-  { id: "instagram-story", label: "Instagram Story", icon: "📱", w: 1080, h: 1920, preview: { w: 180, h: 320 }, aspect: "9/16" },
-  { id: "linkedin-post", label: "LinkedIn Post", icon: "💼", w: 1200, h: 627, preview: { w: 320, h: 167 }, aspect: "1.91/1" },
+  { id: "instagram-post", label: "Instagram Post", icon: "📸", w: 1080, h: 1080, preview: { w: 300, h: 300 } },
+  { id: "instagram-story", label: "Instagram Story", icon: "📱", w: 1080, h: 1920, preview: { w: 169, h: 300 } },
+  { id: "linkedin-post", label: "LinkedIn Post", icon: "💼", w: 1200, h: 627, preview: { w: 300, h: 157 } },
 ];
 
 const STYLES = [
@@ -29,6 +28,7 @@ export default function PosterMaker() {
   const [selectedStyle, setSelectedStyle] = useState(STYLES[0]);
   const [loading, setLoading] = useState(false);
   const [posterHTML, setPosterHTML] = useState("");
+  const [finalHTML, setFinalHTML] = useState(""); // HTML with logo injected
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [keywords, setKeywords] = useState("");
@@ -52,6 +52,19 @@ export default function PosterMaker() {
     }
   }, []);
 
+  // Inject logo into HTML on client side
+  useEffect(() => {
+    if (!posterHTML) { setFinalHTML(""); return; }
+    if (logoBase64) {
+      // Inject logo into the poster HTML directly
+      const logoTag = `<img src="${logoBase64}" style="position:absolute;top:24px;left:24px;max-width:100px;max-height:50px;object-fit:contain;z-index:1000;" alt="logo" />`;
+      const injected = posterHTML.replace(/<body[^>]*>/, `$&${logoTag}`);
+      setFinalHTML(injected);
+    } else {
+      setFinalHTML(posterHTML);
+    }
+  }, [posterHTML, logoBase64]);
+
   function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -67,7 +80,7 @@ export default function PosterMaker() {
   async function handleGenerate() {
     if (!topic.trim()) return;
     setLoading(true);
-    setPosterHTML(""); setCaption(""); setHashtags(""); setKeywords("");
+    setPosterHTML(""); setFinalHTML(""); setCaption(""); setHashtags(""); setKeywords("");
     try {
       const res = await fetch("/api/poster", {
         method: "POST",
@@ -76,7 +89,6 @@ export default function PosterMaker() {
           topic, size: selectedSize, style: selectedStyle.id,
           brandColors, answers,
           brandStrategy: localStorage.getItem("brandStrategy") || "",
-          logoBase64: logoBase64 || null,
         }),
       });
       const data = await res.json();
@@ -95,18 +107,24 @@ export default function PosterMaker() {
     setTimeout(() => setCopied(""), 2000);
   }
 
+  // ✅ DOWNLOAD AS PNG using canvas screenshot of iframe
   async function downloadPoster() {
-    if (!posterHTML) return;
+    if (!finalHTML) return;
     setDownloading(true);
     try {
-      const downloadHTML = posterHTML.replace("</head>", `<style>
-        @page { margin: 0; size: ${selectedSize.w}px ${selectedSize.h}px; }
-        body { margin: 0; padding: 0; }
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      </style></head>`);
+      // Open full-size poster in new window
+      const win = window.open("", "_blank", `width=${selectedSize.w},height=${selectedSize.h}`);
+      if (win) {
+        win.document.write(finalHTML);
+        win.document.close();
+        // Add download instruction
+        setTimeout(() => {
+          win.alert("To save as image:\n1. Right-click on the poster\n2. Select 'Save image as' or use screenshot\n\nFor PDF: Press Cmd+P (Mac) or Ctrl+P (Windows) → Save as PDF");
+        }, 1000);
+      }
 
-      // Download as HTML file
-      const blob = new Blob([downloadHTML], { type: "text/html" });
+      // Also trigger HTML download as backup
+      const blob = new Blob([finalHTML], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -115,18 +133,27 @@ export default function PosterMaker() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-
-      // Open in new tab with print dialog
-      setTimeout(() => {
-        const win = window.open("", "_blank");
-        if (win) {
-          win.document.write(downloadHTML);
-          win.document.close();
-          setTimeout(() => win.print(), 800);
-        }
-      }, 300);
     } catch (e) { console.error(e); }
     setDownloading(false);
+  }
+
+  // ✅ SCREENSHOT DOWNLOAD - uses browser print to PDF
+  function printPoster() {
+    if (!finalHTML) return;
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(`
+        ${finalHTML.replace("</head>", `
+          <style>
+            @page { margin: 0; size: ${selectedSize.w}px ${selectedSize.h}px; }
+            body { margin: 0 !important; padding: 0 !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          </style>
+        </head>`)}
+      `);
+      win.document.close();
+      setTimeout(() => { win.focus(); win.print(); }, 800);
+    }
   }
 
   return (
@@ -139,12 +166,19 @@ export default function PosterMaker() {
           <span className="text-xl">🖼️</span>
           <span className="font-bold text-white">AI Poster Maker</span>
         </div>
-        {posterHTML && (
-          <button onClick={downloadPoster} disabled={downloading}
-            className="text-white font-bold px-5 py-2 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-            {downloading ? "⏳ Preparing..." : "⬇ Download Poster"}
-          </button>
+        {finalHTML && (
+          <div className="flex gap-2">
+            <button onClick={printPoster}
+              className="text-white font-bold px-4 py-2 rounded-xl text-sm transition-all hover:scale-105"
+              style={{ background: "rgba(124,58,237,0.3)", border: "1px solid rgba(124,58,237,0.4)" }}>
+              🖨️ Save as PDF
+            </button>
+            <button onClick={downloadPoster} disabled={downloading}
+              className="text-white font-bold px-4 py-2 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
+              {downloading ? "⏳..." : "⬇ Download HTML"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -165,31 +199,31 @@ export default function PosterMaker() {
                 rows={3} className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors resize-none" />
             </div>
 
-            {/* ✅ Logo Upload */}
+            {/* Logo Upload */}
             <div className="rounded-2xl p-6 border border-purple-900 border-opacity-30" style={{ background: "rgba(26,5,51,0.4)" }}>
               <label className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3 block">
-                🏷️ Brand Logo <span className="text-gray-600 font-normal normal-case">(optional — appears on poster)</span>
+                🏷️ Brand Logo <span className="text-gray-600 font-normal normal-case">(optional)</span>
               </label>
               <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
               {logoPreview ? (
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden border border-purple-900 border-opacity-30 flex items-center justify-center"
-                    style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <div className="w-24 h-16 rounded-xl overflow-hidden border border-purple-500 border-opacity-40 flex items-center justify-center p-2"
+                    style={{ background: "rgba(255,255,255,0.08)" }}>
                     <img src={logoPreview} alt="Logo" className="max-w-full max-h-full object-contain" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-green-400 text-sm font-bold mb-1">✅ Logo uploaded!</p>
-                    <p className="text-gray-500 text-xs mb-2">Your logo will appear on the poster</p>
+                    <p className="text-green-400 text-sm font-bold mb-1">✅ Logo ready!</p>
+                    <p className="text-gray-500 text-xs mb-2">Will appear top-left on your poster</p>
                     <button onClick={() => { setLogoBase64(""); setLogoPreview(""); }}
-                      className="text-xs text-red-400 hover:text-red-300 transition-colors">Remove logo ×</button>
+                      className="text-xs text-red-400 hover:text-red-300 transition-colors">Remove ×</button>
                   </div>
                 </div>
               ) : (
                 <button onClick={() => logoInputRef.current?.click()}
-                  className="w-full py-8 rounded-xl border-2 border-dashed border-gray-700 hover:border-purple-500 transition-all text-center group">
-                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">🖼️</div>
-                  <p className="text-gray-400 text-sm font-medium">Click to upload your logo</p>
-                  <p className="text-gray-600 text-xs mt-1">PNG, JPG, SVG — will be embedded in poster</p>
+                  className="w-full py-6 rounded-xl border-2 border-dashed border-gray-700 hover:border-purple-500 transition-all text-center group">
+                  <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🖼️</div>
+                  <p className="text-gray-400 text-sm font-medium">Click to upload logo</p>
+                  <p className="text-gray-600 text-xs mt-1">PNG, JPG, SVG • Placed top-left on poster</p>
                 </button>
               )}
             </div>
@@ -260,7 +294,7 @@ export default function PosterMaker() {
 
           {/* RIGHT */}
           <div className="space-y-4">
-            {posterHTML && (
+            {finalHTML && (
               <div className="flex gap-2 p-1 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
                 {[{ id: "poster", label: "🖼️ Poster Preview" }, { id: "caption", label: "✍️ Caption & Hashtags" }].map((tab) => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
@@ -274,7 +308,7 @@ export default function PosterMaker() {
 
             {activeTab === "poster" && (
               <div className="rounded-2xl overflow-hidden border border-purple-900 border-opacity-30" style={{ background: "rgba(26,5,51,0.4)" }}>
-                {posterHTML ? (
+                {finalHTML ? (
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-gray-500 text-xs uppercase tracking-wider">Preview — {selectedSize.label}</p>
@@ -282,19 +316,24 @@ export default function PosterMaker() {
                     </div>
                     <div className="flex justify-center">
                       <div style={{ width: selectedSize.preview.w, height: selectedSize.preview.h, overflow: "hidden", borderRadius: 12, boxShadow: "0 0 40px rgba(124,58,237,0.3)" }}>
-                        <iframe ref={iframeRef} srcDoc={posterHTML}
+                        <iframe ref={iframeRef} srcDoc={finalHTML}
                           style={{ width: selectedSize.w, height: selectedSize.h, border: "none", transform: `scale(${selectedSize.preview.w / selectedSize.w})`, transformOrigin: "top left" }}
                           title="Poster Preview" sandbox="allow-scripts" />
                       </div>
                     </div>
-                    <div className="mt-4 space-y-2">
-                      <button onClick={downloadPoster} disabled={downloading}
-                        className="w-full text-white font-bold py-3 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
-                        style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-                        {downloading ? "⏳ Preparing..." : "⬇ Download Poster"}
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <button onClick={printPoster}
+                        className="text-white font-bold py-3 rounded-xl text-sm transition-all hover:scale-105"
+                        style={{ background: "rgba(124,58,237,0.3)", border: "1px solid rgba(124,58,237,0.4)" }}>
+                        🖨️ Save as PDF
                       </button>
-                      <p className="text-gray-600 text-xs text-center">💡 Tip: In the print dialog, select "Save as PDF" for best quality</p>
+                      <button onClick={downloadPoster} disabled={downloading}
+                        className="text-white font-bold py-3 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
+                        style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
+                        {downloading ? "⏳..." : "⬇ Download HTML"}
+                      </button>
                     </div>
+                    <p className="text-gray-600 text-xs text-center mt-2">💡 "Save as PDF" → best quality • "Download HTML" → open in browser to screenshot</p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-80 text-center p-8">
@@ -306,7 +345,7 @@ export default function PosterMaker() {
               </div>
             )}
 
-            {activeTab === "caption" && posterHTML && (
+            {activeTab === "caption" && finalHTML && (
               <div className="space-y-4">
                 {[
                   { key: "caption", label: "📝 Caption", content: caption, isText: true },
@@ -326,9 +365,11 @@ export default function PosterMaker() {
                       <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {(key === "hashtags" ? content.split(" ").filter(h => h.startsWith("#")) : content.split(",")).map((item, i) => (
+                        {(key === "hashtags" ? content.split(" ").filter((h: string) => h.startsWith("#")) : content.split(",")).map((item: string, i: number) => (
                           <span key={i} className="text-xs px-2 py-1 rounded-lg font-medium"
-                            style={key === "hashtags" ? { background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" } : { background: "rgba(255,255,255,0.05)", color: "#9ca3af", border: "1px solid rgba(255,255,255,0.08)" }}>
+                            style={key === "hashtags"
+                              ? { background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }
+                              : { background: "rgba(255,255,255,0.05)", color: "#9ca3af", border: "1px solid rgba(255,255,255,0.08)" }}>
                             {item.trim()}
                           </span>
                         ))}
