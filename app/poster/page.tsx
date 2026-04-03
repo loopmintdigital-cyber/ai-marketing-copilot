@@ -113,6 +113,38 @@ export default function PosterMaker() {
       setCaption(data.caption || "");
       setHashtags(data.hashtags || "");
       setKeywords(data.keywords || "");
+
+      // Auto-create text layers from AI response
+      if (data.layers) {
+        const l = data.layers;
+        const w = selectedSize.w;
+        const h = selectedSize.h;
+        const autoLayers: Layer[] = [];
+        let z = 1;
+
+        if (l.headline) autoLayers.push({
+          id: `hl-${Date.now()}`, type: "text", text: l.headline,
+          x: w * 0.08, y: h * 0.3, w: w * 0.85, h: 120,
+          fontSize: Math.round(w * 0.075), fontFamily: "Oswald", color: "#ffffff", bold: true, italic: false, zIndex: z++
+        });
+        if (l.subheadline) autoLayers.push({
+          id: `sh-${Date.now()+1}`, type: "text", text: l.subheadline,
+          x: w * 0.08, y: h * 0.52, w: w * 0.85, h: 80,
+          fontSize: Math.round(w * 0.04), fontFamily: "Montserrat", color: "#ffffff", bold: false, italic: false, zIndex: z++
+        });
+        if (l.body) autoLayers.push({
+          id: `bd-${Date.now()+2}`, type: "text", text: l.body,
+          x: w * 0.08, y: h * 0.62, w: w * 0.75, h: 70,
+          fontSize: Math.round(w * 0.025), fontFamily: "Montserrat", color: "rgba(255,255,255,0.8)", bold: false, italic: false, zIndex: z++
+        });
+        if (l.cta) autoLayers.push({
+          id: `cta-${Date.now()+3}`, type: "text", text: l.cta,
+          x: w * 0.08, y: h * 0.75, w: w * 0.4, h: 70,
+          fontSize: Math.round(w * 0.028), fontFamily: "Oswald", color: brandColors[0] || "#7c3aed", bold: true, italic: false, zIndex: z++
+        });
+        setLayers(autoLayers);
+      }
+
       setStep("editor");
     } catch (e) { console.error(e); }
     setLoading(false);

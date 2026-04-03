@@ -12,88 +12,89 @@ export async function POST(req: NextRequest) {
     const accent = brandColors[2] || "#3b82f6";
 
     const styleGuides: Record<string, string> = {
-      bold: "Bold typography with large impactful text, strong contrast, geometric shapes as decorative elements",
-      minimal: "Clean white space, thin elegant fonts, minimal elements, sophisticated layout",
-      gradient: "Beautiful gradient background using brand colors smoothly blended",
-      dark: "Very dark background (#111 or #0a0a0a), light text, luxury premium feel",
-      simple: "Flat design, simple shapes, clear hierarchy, clean and easy to read",
+      bold: "Bold dramatic background with geometric shapes, strong gradients, NO text at all",
+      minimal: "Clean minimal background, subtle texture or gradient, very simple, NO text",
+      gradient: "Beautiful smooth gradient background using brand colors, NO text",
+      dark: "Dark luxury background (#111 or darker), subtle geometric elements, NO text",
+      neon: "Dark background with neon glow effects using brand colors, electric feel, NO text",
+      magazine: "Magazine-style background layout with color blocks and lines, NO text",
     };
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
+      max_tokens: 3000,
       messages: [{
         role: "user",
-        content: `Create a stunning social media poster as a complete self-contained HTML file.
+        content: `Create a social media poster BACKGROUND as a complete HTML file.
+
+IMPORTANT: Generate ONLY the visual background design — NO TEXT ELEMENTS AT ALL.
+The text will be added separately as overlay layers.
 
 POSTER DETAILS:
-- Topic: ${topic}
-- Brand Name: ${answers.productName || "Brand"}
+- Topic/Theme: ${topic}
+- Brand: ${answers.productName || "Brand"}
 - Size: ${size.w}x${size.h}px
 - Style: ${styleGuides[style] || styleGuides.bold}
 - Primary Color: ${primary}
 - Secondary Color: ${secondary}
 - Accent Color: ${accent}
-- Brand Voice: ${answers.brandVoice || "Professional"}
 
-CRITICAL RULES FOR PDF COMPATIBILITY:
-1. NEVER use text-shadow CSS property - it causes doubled text in PDF
-2. NEVER use -webkit-text-stroke or text-stroke
-3. NEVER use mix-blend-mode
-4. NEVER duplicate text elements to create effects
-5. Use solid colors only for text (no gradients on text via background-clip)
-6. Use background gradients on divs/containers ONLY, not on text
-7. Keep all text as plain colored text - use font-weight and font-size for impact instead
+STRICT REQUIREMENTS:
+1. NO <p>, <h1>, <h2>, <h3>, <span>, <button>, <a> tags with text content
+2. ONLY visual elements: backgrounds, gradients, geometric shapes (div elements), lines, circles
+3. Complete HTML file with <!DOCTYPE html><html><head><body>
+4. body { margin: 0; padding: 0; width: ${size.w}px; height: ${size.h}px; overflow: hidden; }
+5. Use brand colors for backgrounds and shapes
+6. Add decorative geometric div elements (circles, rectangles, diagonal lines)
+7. Make it look like a PREMIUM poster background
+8. NO text-shadow, NO text effects, NO font imports needed
 
-DESIGN REQUIREMENTS:
-- Complete HTML file with <!DOCTYPE html><html><head><body> tags
-- Body exactly ${size.w}px wide and ${size.h}px tall, overflow:hidden, margin:0
-- Import ONE Google Font using @import url() in <style> tag
-- Use brand colors for backgrounds, borders, buttons, accents
-- Create decorative elements using CSS (circles, rectangles, lines) as div elements
-- Leave space in top-left corner (60x60px) for logo placeholder with id="logo-area"
-- The poster MUST look professional and print-clean
-- Use position:absolute for layout elements
-- Add a subtle geometric pattern or shapes using CSS
-
-LOGO PLACEHOLDER:
-Add this exactly in your HTML where the logo should appear:
-<div id="logo-area" style="position:absolute;top:24px;left:24px;width:120px;height:60px;display:flex;align-items:center;"></div>
-
-After the complete HTML, write exactly "---CAPTION---" then write a compelling 2-3 sentence social media caption.
-Then write "---HASHTAGS---" followed by 15-20 relevant hashtags starting with #.
-Then write "---KEYWORDS---" followed by 8-10 SEO keywords separated by commas.`,
+After the complete HTML background, write "---LAYERS---" then provide the text content as JSON:
+{
+  "headline": "Main bold headline text (2-4 words)",
+  "subheadline": "Secondary line (4-6 words)", 
+  "body": "Short body text (8-12 words)",
+  "cta": "Call to action button text (2-3 words)",
+  "caption": "Full social media caption 2-3 sentences",
+  "hashtags": "15-20 hashtags starting with #",
+  "keywords": "8-10 SEO keywords comma separated"
+}`,
       }],
     });
 
     const fullText = message.content[0].type === "text" ? message.content[0].text : "";
+    const parts = fullText.split("---LAYERS---");
 
-    const parts = fullText.split("---CAPTION---");
     let html = parts[0].trim();
-
-    // Clean markdown code fences if present
+    // Clean markdown fences
     const htmlMatch = html.match(/```html\n?([\s\S]*?)\n?```/);
     if (htmlMatch) html = htmlMatch[1].trim();
 
-    let caption = "";
-    let hashtags = "";
-    let keywords = "";
-
+    // Parse layers JSON
+    let layersData = { headline: "", subheadline: "", body: "", cta: "", caption: "", hashtags: "", keywords: "" };
     if (parts[1]) {
-      const afterCaption = parts[1].split("---HASHTAGS---");
-      caption = afterCaption[0].trim();
-      if (afterCaption[1]) {
-        const afterHashtags = afterCaption[1].split("---KEYWORDS---");
-        hashtags = afterHashtags[0].trim();
-        keywords = afterHashtags[1]?.trim() || "";
+      const jsonMatch = parts[1].match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try { layersData = { ...layersData, ...JSON.parse(jsonMatch[0]) }; } catch {}
       }
     }
 
-    if (!caption) caption = `${topic} — ${answers.productName || "Our Brand"} is making waves. Don't miss out! 🚀`;
-    if (!hashtags) hashtags = `#${answers.productName?.replace(/\s/g, "") || "Brand"} #Marketing #Business #Growth #Fashion #Style`;
-    if (!keywords) keywords = `${topic}, ${answers.productName || "brand"}, marketing, social media, business`;
+    // Fallback content if AI didn't generate
+    if (!layersData.headline) layersData.headline = topic.split(" ").slice(0, 3).join(" ").toUpperCase();
+    if (!layersData.subheadline) layersData.subheadline = answers.productName || "Your Brand";
+    if (!layersData.body) layersData.body = "Experience the difference today";
+    if (!layersData.cta) layersData.cta = "DISCOVER NOW";
+    if (!layersData.caption) layersData.caption = `${topic} — ${answers.productName || "Our Brand"} is here. Don't miss out! 🚀`;
+    if (!layersData.hashtags) layersData.hashtags = `#${answers.productName?.replace(/\s/g, "") || "Brand"} #Marketing #Business`;
+    if (!layersData.keywords) layersData.keywords = `${topic}, marketing, brand`;
 
-    return NextResponse.json({ html, caption, hashtags, keywords });
+    return NextResponse.json({
+      html,
+      layers: layersData,
+      caption: layersData.caption,
+      hashtags: layersData.hashtags,
+      keywords: layersData.keywords,
+    });
   } catch (error) {
     console.error("Poster generation error:", error);
     return NextResponse.json({ error: "Failed to generate poster" }, { status: 500 });
