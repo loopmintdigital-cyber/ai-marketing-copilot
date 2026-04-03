@@ -28,7 +28,7 @@ export default function PosterMaker() {
   const [selectedStyle, setSelectedStyle] = useState(STYLES[0]);
   const [loading, setLoading] = useState(false);
   const [posterHTML, setPosterHTML] = useState("");
-  const [finalHTML, setFinalHTML] = useState(""); // HTML with logo injected
+  const [finalHTML, setFinalHTML] = useState("");
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [keywords, setKeywords] = useState("");
@@ -52,13 +52,20 @@ export default function PosterMaker() {
     }
   }, []);
 
-  // Inject logo into HTML on client side
+  // Inject logo client-side with BIGGER size
   useEffect(() => {
     if (!posterHTML) { setFinalHTML(""); return; }
     if (logoBase64) {
-      // Inject logo into the poster HTML directly
-      const logoImg = `<img src="${logoBase64}" style="max-width:110px;max-height:55px;object-fit:contain;" alt="logo" />`; let logoTag = `<img src="${logoBase64}" style="position:absolute;top:24px;left:24px;max-width:110px;max-height:55px;object-fit:contain;z-index:1000;" alt="logo" />`;
-      const injected = posterHTML.replace(/<body[^>]*>/, `$&${logoTag}`);
+      // Make logo BIG and visible - 180px wide
+      const logoImg = `<img src="${logoBase64}" style="max-width:180px;max-height:90px;object-fit:contain;display:block;" alt="logo" />`;
+      let injected = posterHTML;
+      if (posterHTML.includes('id="logo-area"')) {
+        injected = posterHTML.replace(/<div id="logo-area"([^>]*)><\/div>/g, `<div id="logo-area"$1>${logoImg}</div>`);
+      } else {
+        // Fallback: inject as big absolutely positioned element
+        const logoTag = `<img src="${logoBase64}" style="position:absolute;top:30px;left:30px;max-width:180px;max-height:90px;object-fit:contain;z-index:9999;" alt="logo" />`;
+        injected = posterHTML.replace(/<body[^>]*>/, `$&${logoTag}`);
+      }
       setFinalHTML(injected);
     } else {
       setFinalHTML(posterHTML);
@@ -107,50 +114,56 @@ export default function PosterMaker() {
     setTimeout(() => setCopied(""), 2000);
   }
 
-  // ✅ DOWNLOAD AS PNG using canvas screenshot of iframe
-  async function downloadPoster() {
+  // ✅ DOWNLOAD AS PNG using html2canvas in a new window
+  async function downloadAsPNG() {
     if (!finalHTML) return;
     setDownloading(true);
     try {
-      // Open full-size poster in new window
-      const win = window.open("", "_blank", `width=${selectedSize.w},height=${selectedSize.h}`);
+      // Inject html2canvas + auto-download script into the poster HTML
+      const downloadScript = `
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              html2canvas(document.body, {
+                width: ${selectedSize.w},
+                height: ${selectedSize.h},
+                scale: 1,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                logging: false
+              }).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = '${answers.productName || "poster"}-${selectedSize.id}.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                document.body.innerHTML = '<div style="font-family:sans-serif;text-align:center;padding:40px;color:#333;"><h2>✅ PNG Downloaded!</h2><p>Check your Downloads folder</p><button onclick="window.close()" style="background:#7c3aed;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:16px;">Close Window</button></div>';
+              });
+            }, 500);
+          };
+        <\/script>
+      `;
+      const htmlWithScript = finalHTML.replace("</body>", `${downloadScript}</body>`);
+      const win = window.open("", "_blank", `width=${Math.min(selectedSize.w, 1200)},height=${Math.min(selectedSize.h, 900)}`);
       if (win) {
-        win.document.write(finalHTML);
+        win.document.write(htmlWithScript);
         win.document.close();
-        // Add download instruction
-        setTimeout(() => {
-          win.alert("To save as image:\n1. Right-click on the poster\n2. Select 'Save image as' or use screenshot\n\nFor PDF: Press Cmd+P (Mac) or Ctrl+P (Windows) → Save as PDF");
-        }, 1000);
       }
-
-      // Also trigger HTML download as backup
-      const blob = new Blob([finalHTML], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${answers.productName || "poster"}-${selectedSize.id}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
     } catch (e) { console.error(e); }
     setDownloading(false);
   }
 
-  // ✅ SCREENSHOT DOWNLOAD - uses browser print to PDF
-  function printPoster() {
+  // Save as PDF via print
+  function saveAsPDF() {
     if (!finalHTML) return;
     const win = window.open("", "_blank");
     if (win) {
-      win.document.write(`
-        ${finalHTML.replace("</head>", `
-          <style>
-            @page { margin: 0; size: ${selectedSize.w}px ${selectedSize.h}px; }
-            body { margin: 0 !important; padding: 0 !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          </style>
-        </head>`)}
-      `);
+      win.document.write(finalHTML.replace("</head>", `<style>
+        @page { margin: 0; size: ${selectedSize.w}px ${selectedSize.h}px; }
+        body { margin: 0 !important; padding: 0 !important; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      </style></head>`));
       win.document.close();
       setTimeout(() => { win.focus(); win.print(); }, 800);
     }
@@ -168,15 +181,15 @@ export default function PosterMaker() {
         </div>
         {finalHTML && (
           <div className="flex gap-2">
-            <button onClick={printPoster}
-              className="text-white font-bold px-4 py-2 rounded-xl text-sm transition-all hover:scale-105"
-              style={{ background: "rgba(124,58,237,0.3)", border: "1px solid rgba(124,58,237,0.4)" }}>
-              🖨️ Save as PDF
-            </button>
-            <button onClick={downloadPoster} disabled={downloading}
+            <button onClick={downloadAsPNG} disabled={downloading}
               className="text-white font-bold px-4 py-2 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+              {downloading ? "⏳..." : "⬇ Download PNG"}
+            </button>
+            <button onClick={saveAsPDF}
+              className="text-white font-bold px-4 py-2 rounded-xl text-sm transition-all hover:scale-105"
               style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-              {downloading ? "⏳..." : "⬇ Download HTML"}
+              🖨️ Save as PDF
             </button>
           </div>
         )}
@@ -202,19 +215,19 @@ export default function PosterMaker() {
             {/* Logo Upload */}
             <div className="rounded-2xl p-6 border border-purple-900 border-opacity-30" style={{ background: "rgba(26,5,51,0.4)" }}>
               <label className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3 block">
-                🏷️ Brand Logo <span className="text-gray-600 font-normal normal-case">(optional)</span>
+                🏷️ Brand Logo <span className="text-gray-600 font-normal normal-case">(optional — appears big on poster)</span>
               </label>
               <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
               {logoPreview ? (
                 <div className="flex items-center gap-4">
-                  <div className="w-24 h-16 rounded-xl overflow-hidden border border-purple-500 border-opacity-40 flex items-center justify-center p-2"
+                  <div className="w-32 h-20 rounded-xl overflow-hidden border-2 border-purple-500 border-opacity-40 flex items-center justify-center p-2"
                     style={{ background: "rgba(255,255,255,0.08)" }}>
                     <img src={logoPreview} alt="Logo" className="max-w-full max-h-full object-contain" />
                   </div>
                   <div className="flex-1">
                     <p className="text-green-400 text-sm font-bold mb-1">✅ Logo ready!</p>
-                    <p className="text-gray-500 text-xs mb-2">Will appear top-left on your poster</p>
-                    <button onClick={() => { setLogoBase64(""); setLogoPreview(""); }}
+                    <p className="text-gray-500 text-xs mb-1">Shows 180×90px on poster (top-left)</p>
+                    <button onClick={() => { setLogoBase64(""); setLogoPreview(""); if (logoInputRef.current) logoInputRef.current.value = ""; }}
                       className="text-xs text-red-400 hover:text-red-300 transition-colors">Remove ×</button>
                   </div>
                 </div>
@@ -223,7 +236,7 @@ export default function PosterMaker() {
                   className="w-full py-6 rounded-xl border-2 border-dashed border-gray-700 hover:border-purple-500 transition-all text-center group">
                   <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🖼️</div>
                   <p className="text-gray-400 text-sm font-medium">Click to upload logo</p>
-                  <p className="text-gray-600 text-xs mt-1">PNG, JPG, SVG • Placed top-left on poster</p>
+                  <p className="text-gray-600 text-xs mt-1">PNG, JPG, SVG • Shows big on poster</p>
                 </button>
               )}
             </div>
@@ -322,18 +335,18 @@ export default function PosterMaker() {
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2">
-                      <button onClick={printPoster}
+                      <button onClick={downloadAsPNG} disabled={downloading}
+                        className="text-white font-bold py-3 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
+                        style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
+                        {downloading ? "⏳ Please wait..." : "⬇ Download PNG"}
+                      </button>
+                      <button onClick={saveAsPDF}
                         className="text-white font-bold py-3 rounded-xl text-sm transition-all hover:scale-105"
-                        style={{ background: "rgba(124,58,237,0.3)", border: "1px solid rgba(124,58,237,0.4)" }}>
+                        style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
                         🖨️ Save as PDF
                       </button>
-                      <button onClick={downloadPoster} disabled={downloading}
-                        className="text-white font-bold py-3 rounded-xl text-sm transition-all hover:scale-105 disabled:opacity-60"
-                        style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}>
-                        {downloading ? "⏳..." : "⬇ Download HTML"}
-                      </button>
                     </div>
-                    <p className="text-gray-600 text-xs text-center mt-2">💡 "Save as PDF" → best quality • "Download HTML" → open in browser to screenshot</p>
+                    <p className="text-gray-600 text-xs text-center mt-2">PNG opens in new tab → auto downloads • PDF uses print dialog</p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-80 text-center p-8">
