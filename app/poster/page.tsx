@@ -324,7 +324,7 @@ export default function PosterMaker() {
                       <div style={{ width: selectedSize.preview.w, height: selectedSize.preview.h, overflow: "hidden", borderRadius: 12, boxShadow: "0 0 40px rgba(124,58,237,0.3)" }}>
                         <iframe ref={iframeRef} srcDoc={finalHTML}
                           style={{ width: selectedSize.w, height: selectedSize.h, border: "none", transform: `scale(${selectedSize.preview.w / selectedSize.w})`, transformOrigin: "top left" }}
-                          title="Poster Preview" sandbox="allow-scripts" />
+                          title="Poster Preview" />
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2">
