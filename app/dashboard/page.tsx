@@ -207,7 +207,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-3 gap-4 mb-10">
           {[
-            { label: "Modules Available", value: "10", icon: "⚡" },
+            { label: "Modules Available", value: "11", icon: "⚡" },
             { label: "Content Generated", value: history.length.toString(), icon: "📄" },
             { label: "Brand Voice", value: answers.brandVoice || "Set", icon: "🎨" },
           ].map((stat) => (
