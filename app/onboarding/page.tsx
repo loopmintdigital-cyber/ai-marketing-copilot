@@ -90,10 +90,9 @@ export default function Onboarding() {
       if (data.colors && data.colors.length > 0) {
         setExtractedColors(data.colors);
       } else {
-        setExtractError("Could not extract colors. Try a different URL or use presets.");
-      }
-    } catch (e) {
-      setExtractError("Failed to fetch website. Try another URL.");
+setExtractError(data.error || "Could not extract colors. Try Presets.");      }
+        } catch (e) {
+      setExtractError("Could not connect. Try Presets or Custom tab.");
     }
     setExtracting(false);
   }
