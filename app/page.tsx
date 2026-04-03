@@ -12,6 +12,44 @@ const LIVE_OUTPUTS = [
   { module: "🧠 Brand Tagline", content: "\"Ship Marketing. Not Excuses.\"\n\"Your Agency Is Sleeping. Your AI Isn't.\"\n\"From Brief to Campaign in 10 Seconds.\"", color: "#a855f7" },
 ];
 
+// Hook for scroll-triggered animations
+function useScrollAnimation() {
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+    document.querySelectorAll("[data-animate]").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+  return visibleSections;
+}
+
+// Animated counter hook
+function useCounter(target: number, duration: number = 2000, start: boolean = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number;
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [start, target, duration]);
+  return count;
+}
+
 export default function Home() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -25,7 +63,16 @@ export default function Home() {
   const [outputIndex, setOutputIndex] = useState(0);
   const [outputText, setOutputText] = useState("");
   const [outputCharIndex, setOutputCharIndex] = useState(0);
-  const tickerRef = useRef<HTMLDivElement>(null);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [tiltCards, setTiltCards] = useState<Record<string, { x: number; y: number }>>({});
+  const [cursorTrail, setCursorTrail] = useState<{ x: number; y: number; id: number }[]>([]);
+  const trailIdRef = useRef(0);
+  const statsRef = useRef<HTMLDivElement>(null);
+
+  // Counters
+  const savedCount = useCounter(9951, 2000, statsVisible);
+  const speedCount = useCounter(10, 1500, statsVisible);
+  const foundersCount = useCounter(2858, 2500, statsVisible);
 
   useEffect(() => {
     setMounted(true);
@@ -39,10 +86,33 @@ export default function Home() {
     return () => { clearInterval(glitchInterval); clearInterval(countInterval); };
   }, []);
 
+  // Stats observer
   useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    if (!statsRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setStatsVisible(true);
+    }, { threshold: 0.3 });
+    observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Cursor trail
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      const id = trailIdRef.current++;
+      setCursorTrail(prev => [...prev.slice(-12), { x: e.clientX, y: e.clientY, id }]);
+    };
     window.addEventListener("mousemove", handleMouse);
     return () => window.removeEventListener("mousemove", handleMouse);
+  }, []);
+
+  // Clean trail
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCursorTrail(prev => prev.slice(-8));
+    }, 50);
+    return () => clearInterval(interval);
   }, []);
 
   // Typewriter for hero
@@ -82,7 +152,7 @@ export default function Home() {
     }
   }, [outputCharIndex, outputIndex]);
 
-  // Canvas
+  // Canvas particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -135,6 +205,18 @@ export default function Home() {
     return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", onResize); };
   }, []);
 
+  // 3D tilt handler
+  const handleTilt = useCallback((e: React.MouseEvent<HTMLDivElement>, key: string) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
+    const y = -((e.clientX - rect.left) / rect.width - 0.5) * 20;
+    setTiltCards(prev => ({ ...prev, [key]: { x, y } }));
+  }, []);
+
+  const resetTilt = useCallback((key: string) => {
+    setTiltCards(prev => ({ ...prev, [key]: { x: 0, y: 0 } }));
+  }, []);
+
   const features = [
     { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-2" },
     { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1" },
@@ -151,8 +233,39 @@ export default function Home() {
       {/* Mesh bg */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 20% 40%, rgba(124,58,237,0.12) 0%, transparent 50%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(236,72,153,0.08) 0%, transparent 50%)" }} />
 
-      {/* Cursor */}
+      {/* Floating orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {[
+          { w: 600, h: 600, top: "10%", left: "5%", color: "124,58,237", dur: "8s" },
+          { w: 400, h: 400, top: "60%", right: "10%", color: "236,72,153", dur: "12s" },
+          { w: 300, h: 300, top: "30%", right: "30%", color: "59,130,246", dur: "10s" },
+          { w: 200, h: 200, top: "80%", left: "20%", color: "16,185,129", dur: "14s" },
+        ].map((orb, i) => (
+          <div key={i} className="absolute rounded-full" style={{
+            width: orb.w, height: orb.h,
+            top: orb.top, left: (orb as any).left, right: (orb as any).right,
+            background: `radial-gradient(circle, rgba(${orb.color},0.06) 0%, transparent 70%)`,
+            animation: `float ${orb.dur} ease-in-out infinite alternate`,
+            animationDelay: `${i * 2}s`,
+          }} />
+        ))}
+      </div>
+
+      {/* Cursor glow */}
       <div className="fixed pointer-events-none z-10 transition-all duration-100" style={{ width: 500, height: 500, borderRadius: "50%", left: mousePos.x - 250, top: mousePos.y - 250, background: "radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 60%)" }} />
+
+      {/* Cursor trail */}
+      {cursorTrail.map((dot, i) => (
+        <div key={dot.id} className="fixed pointer-events-none z-20 rounded-full" style={{
+          width: Math.max(2, (i / cursorTrail.length) * 10),
+          height: Math.max(2, (i / cursorTrail.length) * 10),
+          left: dot.x - 5, top: dot.y - 5,
+          background: `rgba(168,85,247,${(i / cursorTrail.length) * 0.6})`,
+          boxShadow: `0 0 ${i * 2}px rgba(168,85,247,0.4)`,
+          transform: "translate(-50%,-50%)",
+          transition: "all 0.05s linear",
+        }} />
+      ))}
 
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(1,0,3,0.5)", backdropFilter: "blur(30px)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
@@ -164,7 +277,6 @@ export default function Home() {
           <span className="font-black text-white tracking-tight text-lg">AI Marketing Co-Pilot</span>
         </div>
         <div className="flex items-center gap-6">
-          {/* Live counter */}
           <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
             <span className="text-green-400 font-bold">{liveCount.toLocaleString()}</span>
@@ -172,9 +284,10 @@ export default function Home() {
           </div>
           <button onClick={() => router.push("/dashboard")} className="text-gray-600 hover:text-white text-sm transition-colors font-medium">Dashboard</button>
           <button onClick={() => router.push("/sign-up")}
-            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
+            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105 relative overflow-hidden group"
             style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
-            Get Started →
+            <span className="relative z-10">Get Started →</span>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "linear-gradient(135deg, #9333ea, #f472b6)" }} />
           </button>
         </div>
       </nav>
@@ -204,9 +317,11 @@ export default function Home() {
 
             <div className="flex items-center gap-4 mb-12">
               <button onClick={() => router.push("/sign-up")}
-                className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95"
+                className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95 relative overflow-hidden group"
                 style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2)" }}>
-                Start for Free →
+                <span className="relative z-10">Start for Free →</span>
+                {/* Shimmer */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
               </button>
               <button onClick={() => router.push("/dashboard")}
                 className="text-gray-400 font-semibold px-8 py-5 rounded-2xl text-lg transition-all hover:text-white hover:scale-105"
@@ -215,10 +330,16 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex items-center gap-8">
-              {[{ v: "$49", l: "per month" }, { v: "10x", l: "faster" }, { v: "6", l: "AI modules" }, { v: "24/7", l: "always on" }].map((s) => (
-                <div key={s.l}>
-                  <div className="text-2xl font-black" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
+            {/* Animated stats */}
+            <div ref={statsRef} className="flex items-center gap-8">
+              {[
+                { v: "$49", l: "per month", static: true },
+                { v: "10x", l: "faster", static: true },
+                { v: "6", l: "AI modules", static: true },
+                { v: "24/7", l: "always on", static: true }
+              ].map((s) => (
+                <div key={s.l} className="group cursor-default">
+                  <div className="text-2xl font-black transition-transform duration-300 group-hover:scale-110" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
                   <div className="text-gray-700 text-xs font-medium">{s.l}</div>
                 </div>
               ))}
@@ -227,9 +348,14 @@ export default function Home() {
 
           {/* Right — Live AI Output */}
           <div className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}`}>
-            <div className="relative">
+            <div className="relative"
+              onMouseMove={(e) => handleTilt(e, "hero-card")}
+              onMouseLeave={() => resetTilt("hero-card")}
+              style={{
+                transform: `perspective(1000px) rotateX(${tiltCards["hero-card"]?.x || 0}deg) rotateY(${tiltCards["hero-card"]?.y || 0}deg)`,
+                transition: "transform 0.1s ease",
+              }}>
               <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
-                {/* Terminal header */}
                 <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.1)", background: "rgba(0,0,0,0.3)" }}>
                   <div className="w-3 h-3 rounded-full bg-red-500 opacity-70"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-70"></div>
@@ -240,26 +366,20 @@ export default function Home() {
                     <span className="text-green-400 text-xs font-bold">LIVE</span>
                   </div>
                 </div>
-
-                {/* Module tabs */}
                 <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
                   {LIVE_OUTPUTS.map((o, i) => (
                     <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
-                      className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium"
+                      className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium hover:scale-105"
                       style={{ background: i === outputIndex ? `${o.color}20` : "rgba(255,255,255,0.03)", color: i === outputIndex ? o.color : "#6b7280", border: `1px solid ${i === outputIndex ? o.color + "30" : "rgba(255,255,255,0.05)"}` }}>
                       {o.module}
                     </button>
                   ))}
                 </div>
-
-                {/* Output */}
                 <div className="p-6 font-mono text-sm" style={{ minHeight: 200 }}>
                   <pre className="whitespace-pre-wrap leading-relaxed" style={{ color: LIVE_OUTPUTS[outputIndex].color, fontSize: "0.85rem" }}>
                     {outputText}<span className="animate-pulse text-white">█</span>
                   </pre>
                 </div>
-
-                {/* Bottom bar */}
                 <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.2)" }}>
                   <span className="text-gray-700 text-xs font-mono">Generated in 8.3s</span>
                   <div className="flex gap-2">
@@ -269,13 +389,11 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
-              {/* Floating badges */}
-              <div className="absolute -top-5 -right-5 px-4 py-2 rounded-2xl text-sm font-bold text-white animate-bounce" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.6)", animationDuration: "3s" }}>
+              <div className="absolute -top-5 -right-5 px-4 py-2 rounded-2xl text-sm font-bold text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.6)", animation: "float 3s ease-in-out infinite alternate" }}>
                 ⚡ 10 seconds
               </div>
-              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)" }}>
-                <div className="text-green-400 font-bold text-sm">$9,951 saved</div>
+              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)", animation: "float 4s ease-in-out infinite alternate-reverse" }}>
+                <div className="text-green-400 font-bold text-sm">${savedCount.toLocaleString()} saved</div>
                 <div className="text-gray-600 text-xs">vs hiring an agency</div>
               </div>
             </div>
@@ -285,25 +403,52 @@ export default function Home() {
 
       {/* Marquee ticker */}
       <div className="relative z-10 py-6 overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", borderTop: "1px solid rgba(124,58,237,0.1)", borderBottom: "1px solid rgba(124,58,237,0.1)" }}>
-        <div className="flex gap-8 animate-marquee whitespace-nowrap" style={{ animation: "marquee 20s linear infinite" }}>
+        <div className="flex gap-8 whitespace-nowrap" style={{ animation: "marquee 20s linear infinite" }}>
           {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
             <span key={i} className="text-sm font-bold px-4" style={{ color: "#6b21a8" }}>{item}</span>
           ))}
         </div>
-        <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-33.33%) } }`}</style>
       </div>
 
-      {/* Bold statement */}
-      <section className="relative z-10 px-8 py-32">
+      {/* Bold statement — scroll animated */}
+      <section className="relative z-10 px-8 py-32 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
-            <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
-            {" "}<span className="text-white">Start shipping in minutes.</span>
-          </p>
+          <div data-animate id="bold-statement" style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? "translateY(0)" : "translateY(40px)",
+            transition: "all 1s ease",
+          }}>
+            <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
+              <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
+              {" "}<span className="text-white">Start shipping in minutes.</span>
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Bento grid */}
+      {/* Animated counters section */}
+      <section className="relative z-10 px-8 py-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-3 gap-6">
+            {[
+              { value: `$${savedCount.toLocaleString()}`, label: "Saved vs agencies", color: "#10b981", icon: "💰" },
+              { value: `${speedCount}s`, label: "To full strategy", color: "#a855f7", icon: "⚡" },
+              { value: foundersCount.toLocaleString(), label: "Founders using now", color: "#3b82f6", icon: "🚀" },
+            ].map((stat, i) => (
+              <div key={i} className="rounded-3xl p-8 text-center group hover:scale-105 transition-all duration-300 cursor-default"
+                style={{ background: `${stat.color}08`, border: `1px solid ${stat.color}20`, boxShadow: `0 0 40px ${stat.color}10` }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 60px ${stat.color}30`; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${stat.color}10`; }}>
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{stat.icon}</div>
+                <div className="font-black text-5xl mb-2" style={{ color: stat.color }}>{stat.value}</div>
+                <div className="text-gray-600 text-sm font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bento grid with 3D tilt */}
       <section className="relative z-10 px-8 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
@@ -314,17 +459,37 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            {features.map((f) => (
+            {features.map((f, i) => (
               <div key={f.title}
-                className={`group relative overflow-hidden rounded-3xl p-8 cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 ${f.span}`}
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", minHeight: 200 }}
+                className={`group relative overflow-hidden rounded-3xl p-8 cursor-pointer ${f.span}`}
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                  minHeight: 200,
+                  transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`,
+                  transition: "transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease",
+                }}
                 onClick={() => router.push("/sign-up")}
-                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.boxShadow = `0 0 50px ${f.glow}25`; el.style.borderColor = `${f.glow}30`; el.style.background = `${f.glow}08`; }}
-                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.boxShadow = "none"; el.style.borderColor = "rgba(255,255,255,0.05)"; el.style.background = "rgba(255,255,255,0.02)"; }}>
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block">{f.icon}</div>
-                <h3 className="text-white font-black text-xl mb-2">{f.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{f.desc}</p>
-                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all" style={{ color: f.glow }}>Open module →</div>
+                onMouseMove={(e) => handleTilt(e, f.title)}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.boxShadow = `0 0 60px ${f.glow}30`;
+                  el.style.borderColor = `${f.glow}40`;
+                  el.style.background = `${f.glow}08`;
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.boxShadow = "none";
+                  el.style.borderColor = "rgba(255,255,255,0.05)";
+                  el.style.background = "rgba(255,255,255,0.02)";
+                  resetTilt(f.title);
+                }}>
+                {/* Glow orb inside card */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}20 0%, transparent 70%)` }} />
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10">{f.icon}</div>
+                <h3 className="text-white font-black text-xl mb-2 relative z-10">{f.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed relative z-10">{f.desc}</p>
+                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 relative z-10" style={{ color: f.glow }}>Open module →</div>
               </div>
             ))}
           </div>
@@ -335,7 +500,7 @@ export default function Home() {
       <div className="relative z-10 py-8 overflow-hidden">
         <p className="text-center text-xs uppercase tracking-widest text-gray-700 font-bold mb-6">What founders are saying</p>
         <div className="flex gap-4 overflow-hidden">
-          <div className="flex gap-4 animate-marquee" style={{ animation: "marquee 30s linear infinite" }}>
+          <div className="flex gap-4" style={{ animation: "marquee 30s linear infinite" }}>
             {[
               { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
               { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
@@ -346,7 +511,10 @@ export default function Home() {
               { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
               { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
             ].map((t, i) => (
-              <div key={i} className="flex-shrink-0 w-96 rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}>
+              <div key={i} className="flex-shrink-0 w-96 rounded-2xl p-6 hover:scale-105 transition-all duration-300 cursor-default"
+                style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${t.color}40`; (e.currentTarget as HTMLElement).style.background = `${t.color}08`; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${t.color}20`; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)"; }}>
                 <p className="text-gray-200 text-base mb-6 leading-relaxed">"{t.text}"</p>
                 <p className="text-xs font-bold" style={{ color: t.color }}>— {t.name}</p>
               </div>
@@ -358,10 +526,13 @@ export default function Home() {
       {/* Final CTA */}
       <section className="relative z-10 px-8 py-32">
         <div className="max-w-5xl mx-auto text-center">
-          <div className="relative overflow-hidden rounded-[40px] p-20" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
+          <div className="relative overflow-hidden rounded-[40px] p-20 group"
+            style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
             <div className="absolute inset-0 rounded-[40px] overflow-hidden opacity-10" style={{ backgroundImage: "linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+            {/* Animated border glow */}
+            <div className="absolute inset-0 rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" style={{ boxShadow: "inset 0 0 80px rgba(124,58,237,0.1)" }} />
             <div className="relative z-10">
-              <div className="text-8xl mb-8">⚡</div>
+              <div className="text-8xl mb-8" style={{ animation: "float 3s ease-in-out infinite alternate" }}>⚡</div>
               <h2 className="font-black tracking-tighter mb-4" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>
                 Your competitors
                 <span className="block" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
@@ -374,9 +545,10 @@ export default function Home() {
                 <span className="text-green-400 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
               </div>
               <button onClick={() => router.push("/sign-up")}
-                className="text-white font-black px-16 py-6 rounded-2xl text-2xl transition-all hover:scale-105 active:scale-95 inline-block"
+                className="text-white font-black px-16 py-6 rounded-2xl text-2xl transition-all hover:scale-105 active:scale-95 inline-block relative overflow-hidden group"
                 style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 60px rgba(124,58,237,0.6), 0 0 120px rgba(124,58,237,0.3)" }}>
-                Get Started Free →
+                <span className="relative z-10">Get Started Free →</span>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
               </button>
               <p className="text-gray-700 text-sm mt-6">$49/month · No credit card · Cancel anytime</p>
             </div>
@@ -387,6 +559,13 @@ export default function Home() {
       <footer className="relative z-10 px-8 py-10 text-center" style={{ borderTop: "1px solid rgba(124,58,237,0.06)" }}>
         <p className="text-gray-800 text-sm font-medium">© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
       </footer>
+
+      <style>{`
+        @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        @keyframes float { from { transform: translateY(0px) } to { transform: translateY(-20px) } }
+        @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(200%) } }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.3) } 50% { box-shadow: 0 0 60px rgba(124,58,237,0.8) } }
+      `}</style>
     </main>
   );
 }
