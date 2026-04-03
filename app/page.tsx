@@ -227,11 +227,52 @@ export default function Home() {
   ];
 
   return (
-    <main className="text-white overflow-x-hidden" style={{ background: "#010003", minHeight: "100vh" }}>
+    <main className="text-white overflow-x-hidden" style={{ background: "#020008", minHeight: "100vh" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      {/* Mesh bg */}
-      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 20% 40%, rgba(124,58,237,0.12) 0%, transparent 50%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(236,72,153,0.08) 0%, transparent 50%)" }} />
+      {/* Aurora background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Aurora wave 1 — purple */}
+        <div style={{
+          position: "absolute", width: "140%", height: "60%",
+          top: "-10%", left: "-20%",
+          background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.18) 0%, rgba(88,28,220,0.08) 40%, transparent 70%)",
+          animation: "aurora1 12s ease-in-out infinite alternate",
+          filter: "blur(40px)",
+        }} />
+        {/* Aurora wave 2 — green */}
+        <div style={{
+          position: "absolute", width: "120%", height: "50%",
+          top: "20%", left: "-10%",
+          background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 40%, transparent 70%)",
+          animation: "aurora2 16s ease-in-out infinite alternate",
+          filter: "blur(50px)",
+        }} />
+        {/* Aurora wave 3 — pink */}
+        <div style={{
+          position: "absolute", width: "100%", height: "60%",
+          top: "40%", right: "-10%",
+          background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.10) 0%, rgba(190,24,93,0.05) 40%, transparent 70%)",
+          animation: "aurora3 14s ease-in-out infinite alternate",
+          filter: "blur(45px)",
+        }} />
+        {/* Aurora wave 4 — blue */}
+        <div style={{
+          position: "absolute", width: "80%", height: "40%",
+          bottom: "0%", left: "10%",
+          background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 70%)",
+          animation: "aurora4 18s ease-in-out infinite alternate",
+          filter: "blur(60px)",
+        }} />
+        {/* Top shimmer line */}
+        <div style={{
+          position: "absolute", width: "100%", height: "1px",
+          top: "35%",
+          background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(16,185,129,0.3), rgba(236,72,153,0.3), transparent)",
+          animation: "aurora-line 8s ease-in-out infinite alternate",
+          filter: "blur(2px)",
+        }} />
+      </div>
 
       {/* Floating orbs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -565,6 +606,30 @@ export default function Home() {
         @keyframes float { from { transform: translateY(0px) } to { transform: translateY(-20px) } }
         @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(200%) } }
         @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.3) } 50% { box-shadow: 0 0 60px rgba(124,58,237,0.8) } }
+        @keyframes aurora1 {
+          0% { transform: translateX(-5%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.8; }
+          50% { transform: translateX(5%) translateY(5%) scaleX(1.1) scaleY(0.9); opacity: 1; }
+          100% { transform: translateX(2%) translateY(-5%) scaleX(0.95) scaleY(1.1); opacity: 0.7; }
+        }
+        @keyframes aurora2 {
+          0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.6; }
+          50% { transform: translateX(-8%) translateY(-3%) scaleX(1.15) scaleY(0.85); opacity: 0.9; }
+          100% { transform: translateX(5%) translateY(8%) scaleX(0.9) scaleY(1.2); opacity: 0.5; }
+        }
+        @keyframes aurora3 {
+          0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.7; }
+          50% { transform: translateX(6%) translateY(-6%) scaleX(0.9) scaleY(1.15); opacity: 1; }
+          100% { transform: translateX(-4%) translateY(4%) scaleX(1.1) scaleY(0.9); opacity: 0.6; }
+        }
+        @keyframes aurora4 {
+          0% { transform: translateX(0%) scaleX(1); opacity: 0.5; }
+          100% { transform: translateX(10%) scaleX(1.2); opacity: 0.8; }
+        }
+        @keyframes aurora-line {
+          0% { transform: translateX(-10%) scaleX(0.8); opacity: 0.3; }
+          50% { opacity: 0.8; }
+          100% { transform: translateX(10%) scaleX(1.2); opacity: 0.3; }
+        }
       `}</style>
     </main>
   );
