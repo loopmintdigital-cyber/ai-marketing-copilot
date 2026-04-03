@@ -52,20 +52,13 @@ export default function PosterMaker() {
     }
   }, []);
 
-  // Inject logo client-side with BIGGER size
+  // Inject logo - always as absolutely positioned element
   useEffect(() => {
     if (!posterHTML) { setFinalHTML(""); return; }
     if (logoBase64) {
-      // Make logo BIG and visible - 180px wide
-      const logoImg = `<img src="${logoBase64}" style="max-width:180px;max-height:90px;object-fit:contain;display:block;" alt="logo" />`;
-      let injected = posterHTML;
-      if (posterHTML.includes('id="logo-area"')) {
-        injected = posterHTML.replace(/<div id="logo-area"([^>]*)><\/div>/g, `<div id="logo-area"$1>${logoImg}</div>`);
-      } else {
-        // Fallback: inject as big absolutely positioned element
-        const logoTag = `<img src="${logoBase64}" style="position:absolute;top:30px;left:30px;max-width:180px;max-height:90px;object-fit:contain;z-index:9999;" alt="logo" />`;
-        injected = posterHTML.replace(/<body[^>]*>/, `$&${logoTag}`);
-      }
+      const logoTag = `<img src="${logoBase64}" style="position:absolute;top:28px;left:28px;width:auto;height:70px;max-width:160px;object-fit:contain;z-index:99999;display:block;" alt="brand-logo" />`;
+      let injected = posterHTML.replace(/<div id="logo-area"[^>]*><\/div>/g, "");
+      injected = injected.replace(/<body([^>]*)>/, `<body$1>${logoTag}`);
       setFinalHTML(injected);
     } else {
       setFinalHTML(posterHTML);
