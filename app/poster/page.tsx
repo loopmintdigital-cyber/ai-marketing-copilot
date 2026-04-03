@@ -80,6 +80,16 @@ export default function PosterMaker() {
   const [editingText, setEditingText] = useState<string | null>(null);
   const scale = selectedSize.preview.w / selectedSize.w;
 
+  // Load all Google Fonts into the page so text layers render correctly
+  useEffect(() => {
+    const fontUrl = `https://fonts.googleapis.com/css2?${GOOGLE_FONTS.map(f => `family=${f.replace(/ /g, "+")}:wght@400;700&`).join("")}display=swap`;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = fontUrl;
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, []);
+
   useEffect(() => {
     const saved = localStorage.getItem("answers");
     if (saved) {
