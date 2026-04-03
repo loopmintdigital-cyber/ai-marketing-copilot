@@ -57,7 +57,7 @@ export default function PosterMaker() {
     if (!posterHTML) { setFinalHTML(""); return; }
     if (logoBase64) {
       // Inject logo into the poster HTML directly
-      const logoTag = `<img src="${logoBase64}" style="position:absolute;top:24px;left:24px;max-width:100px;max-height:50px;object-fit:contain;z-index:1000;" alt="logo" />`;
+      const logoImg = `<img src="${logoBase64}" style="max-width:110px;max-height:55px;object-fit:contain;" alt="logo" />`; let logoTag = `<img src="${logoBase64}" style="position:absolute;top:24px;left:24px;max-width:110px;max-height:55px;object-fit:contain;z-index:1000;" alt="logo" />`;
       const injected = posterHTML.replace(/<body[^>]*>/, `$&${logoTag}`);
       setFinalHTML(injected);
     } else {
