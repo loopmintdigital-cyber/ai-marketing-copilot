@@ -32,7 +32,7 @@ export default function Dashboard() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!isLoaded || !user) return;
+    if (!isLoaded) return; if (!user) { router.push("/sign-in"); return; }
 
     async function loadData() {
       await user!.reload();
