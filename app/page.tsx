@@ -426,7 +426,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float1 { from { transform: translateY(0) translateX(0); } to { transform: translateY(30px) translateX(20px); } }
         @keyframes float2 { from { transform: translateY(0) translateX(0); } to { transform: translateY(-20px) translateX(-30px); } }
       `}</style>
