@@ -188,17 +188,17 @@ export default function Home() {
 
   // ✅ ALL 11 MODULES
   const features = [
-    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-2" },
-    { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1" },
-    { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert.", glow: "#10b981", span: "col-span-1" },
-    { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants.", glow: "#f59e0b", span: "col-span-1" },
-    { icon: "🔍", title: "SEO Strategy", desc: "Keywords, blogs & full article drafts.", glow: "#f97316", span: "col-span-1" },
-    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product.", glow: "#ec4899", span: "col-span-1" },
-    { icon: "🖼️", title: "AI Poster Maker", desc: "Generate & design stunning posters with AI.", glow: "#f43f5e", span: "col-span-1" },
-    { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1" },
-    { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
-    { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
-    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-2" },
+    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-2", bg: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(88,28,220,0.1))", border: "rgba(124,58,237,0.3)", tag: "BRAND DNA" },
+    { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1", bg: "linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))", border: "rgba(59,130,246,0.3)", tag: "7-DAY PLAN" },
+    { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert.", glow: "#10b981", span: "col-span-1", bg: "linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1))", border: "rgba(16,185,129,0.3)", tag: "CONVERT" },
+    { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants.", glow: "#f59e0b", span: "col-span-1", bg: "linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1))", border: "rgba(245,158,11,0.3)", tag: "GOOGLE + META" },
+    { icon: "🔍", title: "SEO Strategy", desc: "Keywords, blogs & full article drafts.", glow: "#f97316", span: "col-span-1", bg: "linear-gradient(135deg, rgba(249,115,22,0.2), rgba(234,88,12,0.1))", border: "rgba(249,115,22,0.3)", tag: "SEO POWER" },
+    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product.", glow: "#ec4899", span: "col-span-1", bg: "linear-gradient(135deg, rgba(236,72,153,0.2), rgba(190,24,93,0.1))", border: "rgba(236,72,153,0.3)", tag: "COPY ENGINE" },
+    { icon: "🖼️", title: "AI Poster Maker", desc: "Generate & design stunning posters with AI.", glow: "#f43f5e", span: "col-span-1", bg: "linear-gradient(135deg, rgba(244,63,94,0.2), rgba(190,18,60,0.1))", border: "rgba(244,63,94,0.3)", tag: "POSTER AI" },
+    { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1", bg: "linear-gradient(135deg, rgba(20,184,166,0.2), rgba(13,148,136,0.1))", border: "rgba(20,184,166,0.3)", tag: "SCHEDULE" },
+    { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1", bg: "linear-gradient(135deg, rgba(6,182,212,0.2), rgba(8,145,178,0.1))", border: "rgba(6,182,212,0.3)", tag: "FULL SITE" },
+    { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1", bg: "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(109,40,217,0.1))", border: "rgba(139,92,246,0.3)", tag: "BRAND HQ" },
+    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-2", bg: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(79,70,229,0.1))", border: "rgba(99,102,241,0.3)", tag: "HISTORY" },
   ];
 
   return (
@@ -407,31 +407,50 @@ export default function Home() {
               <span style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> One system.</span>
             </h2>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            {features.map((f, i) => (
+          <div className="grid grid-cols-3 gap-4">
+            {features.map((f: any, i: number) => (
               <div key={f.title}
-                className={`group relative overflow-hidden rounded-3xl p-8 cursor-pointer ${f.span}`}
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", minHeight: 180, transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`, transition: "transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease" }}
+                className={`group relative overflow-hidden rounded-3xl p-7 cursor-pointer ${f.span} transition-all duration-300 hover:-translate-y-1`}
+                style={{
+                  background: f.bg,
+                  border: `1px solid ${f.border}`,
+                  minHeight: 190,
+                  boxShadow: `0 0 30px ${f.glow}15, inset 0 1px 0 rgba(255,255,255,0.05)`,
+                  transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`,
+                }}
                 onClick={() => router.push("/sign-up")}
                 onMouseMove={(e) => handleTilt(e, f.title)}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.boxShadow = `0 0 60px ${f.glow}30`;
-                  el.style.borderColor = `${f.glow}40`;
-                  el.style.background = `${f.glow}08`;
+                  el.style.boxShadow = `0 0 60px ${f.glow}40, 0 20px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)`;
+                  el.style.borderColor = `${f.glow}60`;
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.boxShadow = "none";
-                  el.style.borderColor = "rgba(255,255,255,0.05)";
-                  el.style.background = "rgba(255,255,255,0.02)";
+                  el.style.boxShadow = `0 0 30px ${f.glow}15, inset 0 1px 0 rgba(255,255,255,0.05)`;
+                  el.style.borderColor = f.border;
                   resetTilt(f.title);
                 }}>
-                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}20 0%, transparent 70%)` }} />
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10">{f.icon}</div>
-                <h3 className="text-white font-black text-xl mb-2 relative z-10">{f.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed relative z-10">{f.desc}</p>
-                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 relative z-10" style={{ color: f.glow }}>Open module →</div>
+                {/* Always visible glow orb top-right */}
+                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}25 0%, transparent 70%)` }} />
+                {/* Bottom glow */}
+                <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${f.glow}40, transparent)` }} />
+
+                {/* Tag */}
+                <div className="flex items-center justify-between mb-5 relative z-10">
+                  <span className="text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-widest"
+                    style={{ background: `${f.glow}20`, color: f.glow, border: `1px solid ${f.glow}30` }}>
+                    {f.tag}
+                  </span>
+                  <span className="text-xs opacity-0 group-hover:opacity-100 transition-all duration-300 font-bold" style={{ color: f.glow }}>→</span>
+                </div>
+
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10"
+                  style={{ filter: `drop-shadow(0 0 8px ${f.glow}60)` }}>
+                  {f.icon}
+                </div>
+                <h3 className="text-white font-black text-lg mb-2 relative z-10">{f.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed relative z-10 group-hover:text-gray-400 transition-colors">{f.desc}</p>
               </div>
             ))}
           </div>
