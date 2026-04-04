@@ -35,7 +35,6 @@ const reviews = [
   { text: "Every founder should be using this. Game changer.", name: "Raj K.", role: "Tech Startup", color: "#0a7c5c", rating: 5 },
 ];
 
-// Animate number counting up
 function useCountUp(target: number, trigger: boolean) {
   const [value, setValue] = useState(0);
   useEffect(() => {
@@ -136,7 +135,6 @@ export default function Home() {
   const [outputText, setOutputText] = useState("");
   const [outputCharIndex, setOutputCharIndex] = useState(0);
 
-  // Custom cursor
   const cursorRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const mousePos = useRef({ x: 0, y: 0 });
@@ -145,10 +143,8 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     const countInterval = setInterval(() => setLiveCount(c => c + Math.floor(Math.random() * 3) - 1), 2500);
-
     const onMove = (e: MouseEvent) => { mousePos.current = { x: e.clientX, y: e.clientY }; };
     window.addEventListener("mousemove", onMove);
-
     let raf: number;
     function animCursor() {
       if (cursorRef.current && ringRef.current) {
@@ -162,7 +158,6 @@ export default function Home() {
       raf = requestAnimationFrame(animCursor);
     }
     raf = requestAnimationFrame(animCursor);
-
     return () => { clearInterval(countInterval); window.removeEventListener("mousemove", onMove); cancelAnimationFrame(raf); };
   }, []);
 
@@ -213,7 +208,6 @@ export default function Home() {
 
       <main style={{ background: cream, minHeight: "100vh", color: "#0a0a0a", overflowX: "hidden", cursor: "none", fontFamily: "'DM Sans', 'Inter', sans-serif" }}>
 
-        {/* Google Font import */}
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
           @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
@@ -261,7 +255,7 @@ export default function Home() {
               fontFamily: "monospace", fontSize: 11, letterSpacing: "2px", textTransform: "uppercase",
               color: accentColor, border: `1px solid ${accentColor}`, padding: "6px 14px",
             }}>
-              <span>●</span> Replacing $10K/month agencies
+              <span>●</span> The AI agency killer
             </div>
 
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(72px, 8vw, 116px)", lineHeight: 0.92, letterSpacing: "-1px", color: "#0a0a0a", marginBottom: 16 }}>
@@ -272,15 +266,15 @@ export default function Home() {
             </h1>
 
             <p style={{ fontSize: 17, lineHeight: 1.7, color: "#666", maxWidth: 440, marginBottom: 40, fontWeight: 300 }}>
-              One AI. 11 modules. Complete marketing output.{" "}
-              <strong style={{ color: "#0a0a0a", fontWeight: 500 }}>Built for founders who move fast.</strong>
+              One AI. 11 modules. Your entire marketing stack.{" "}
+              <strong style={{ color: "#0a0a0a", fontWeight: 500 }}>Built for founders who ship fast.</strong>
             </p>
 
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 40, flexWrap: "wrap" }}>
               <button onClick={() => router.push("/sign-up")} style={{
                 background: "#0a0a0a", color: cream, padding: "16px 32px", fontSize: 15, fontWeight: 600,
                 border: "2px solid #0a0a0a", cursor: "none", letterSpacing: 0.5, position: "relative", overflow: "hidden",
-                transition: "border-color 0.2s",
+                transition: "background 0.2s, border-color 0.2s",
               }}
                 onMouseEnter={e => { e.currentTarget.style.background = accentColor; e.currentTarget.style.borderColor = accentColor; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "#0a0a0a"; e.currentTarget.style.borderColor = "#0a0a0a"; }}>
@@ -384,11 +378,11 @@ export default function Home() {
           <section style={{ padding: "120px 48px", maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: accentColor, marginBottom: 32, display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ width: 32, height: 1, background: accentColor, display: "inline-block" }} />
-              The Problem
+              Why founders are switching
             </div>
             <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 5.5vw, 80px)", lineHeight: 1.05, letterSpacing: "-0.5px" }}>
-              <span style={{ color: "#ccc" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
-              {" "}<strong style={{ color: "#0a0a0a", fontWeight: "normal" }}>Start shipping in minutes.</strong>
+              <span style={{ color: "#ccc" }}>Your agency charges $10K/month, takes 2 weeks, and sends you a PDF.</span>
+              {" "}<strong style={{ color: "#0a0a0a", fontWeight: "normal" }}>We do it in 10 seconds.</strong>
             </p>
           </section>
         </RevealSection>
@@ -398,9 +392,9 @@ export default function Home() {
           <RevealSection>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 60 }}>
               <div>
-                <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: "#444", marginBottom: 12 }}>What's Inside</div>
+                <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: "#666", marginBottom: 12 }}>Everything you need</div>
                 <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 5vw, 64px)", color: "#f5f0e8", lineHeight: 1, letterSpacing: "-0.5px" }}>
-                  11 MODULES.<br />ONE SYSTEM.
+                  11 MODULES.<br />ZERO EXCUSES.
                 </h2>
               </div>
               <div style={{ fontFamily: "monospace", fontSize: 12, color: "#333", letterSpacing: 2 }}>11 / 11 LIVE</div>
@@ -421,11 +415,14 @@ export default function Home() {
           <RevealSection>
             <div style={{ marginBottom: 64 }}>
               <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: accentColor, marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ width: 32, height: 1, background: accentColor, display: "inline-block" }} /> Social Proof
+                <span style={{ width: 32, height: 1, background: accentColor, display: "inline-block" }} /> Real results. Real founders.
               </div>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 5vw, 68px)", lineHeight: 1, letterSpacing: "-0.5px" }}>
-                FOUNDERS LOVE IT.
+                THEY DITCHED<br />THE AGENCY.
               </h2>
+              <p style={{ fontSize: 16, color: "#888", fontWeight: 300, marginTop: 16, maxWidth: 480 }}>
+                Over 2,800 founders have already made the switch. Here's what they're saying.
+              </p>
             </div>
           </RevealSection>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
@@ -441,10 +438,13 @@ export default function Home() {
         <section style={{ background: "#0a0a0a", padding: "120px 48px" }}>
           <RevealSection>
             <div>
-              <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: "#444", marginBottom: 12 }}>Pricing</div>
+              <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: "#666", marginBottom: 12 }}>Pricing</div>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 5vw, 64px)", color: "#f5f0e8", lineHeight: 1, letterSpacing: "-0.5px" }}>
                 SIMPLE.<br />TRANSPARENT.
               </h2>
+              <p style={{ fontFamily: "monospace", fontSize: 13, color: "#555", marginTop: 16, letterSpacing: 0.5 }}>
+                No hidden fees. No agency markup. Just results.
+              </p>
             </div>
           </RevealSection>
 
@@ -468,17 +468,19 @@ export default function Home() {
           </div>
           <RevealSection>
             <div style={{ position: "relative" }}>
-              <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: accentColor, marginBottom: 24 }}>Ready?</div>
+              <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "3px", textTransform: "uppercase", color: accentColor, marginBottom: 24 }}>
+                Stop waiting. Start shipping.
+              </div>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(56px, 8vw, 108px)", lineHeight: 0.9, letterSpacing: "-2px", color: "#0a0a0a", marginBottom: 32 }}>
-                YOUR AGENCY<br />IS SLEEPING.<br />YOUR AI ISN'T.
+                YOUR AGENCY<br />IS ASLEEP.<br />YOUR AI ISN'T.
               </h2>
               <p style={{ fontSize: 17, color: "#666", fontWeight: 300, marginBottom: 44 }}>
-                Join {liveCount.toLocaleString()}+ founders who ditched the agency.
+                Join {liveCount.toLocaleString()}+ founders already saving $10K/month.
               </p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
                 <button onClick={() => router.push("/sign-up")} style={{
                   background: "#0a0a0a", color: cream, padding: "18px 40px", fontSize: 16, fontWeight: 600,
-                  border: "2px solid #0a0a0a", cursor: "none",
+                  border: "2px solid #0a0a0a", cursor: "none", transition: "background 0.2s, border-color 0.2s",
                 }}
                   onMouseEnter={e => { e.currentTarget.style.background = accentColor; e.currentTarget.style.borderColor = accentColor; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "#0a0a0a"; e.currentTarget.style.borderColor = "#0a0a0a"; }}>
@@ -503,14 +505,12 @@ export default function Home() {
           <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: 3, color: "#333" }}>
             AI<span style={{ color: accentColor }}>·</span>COPILOT
           </div>
-          <div style={{ fontFamily: "monospace", fontSize: 11, color: "#333" }}>© 2026 AI Marketing Co-Pilot · Built for modern businesses</div>
+          <div style={{ fontFamily: "monospace", fontSize: 11, color: "#333" }}>© 2026 AI·COPILOT · Replace your agency. Keep your budget.</div>
         </footer>
       </main>
     </>
   );
 }
-
-// Sub-components
 
 function ModuleCard({ f, accentColor, onClick }: { f: typeof features[0]; accentColor: string; onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
@@ -532,7 +532,7 @@ function ModuleCard({ f, accentColor, onClick }: { f: typeof features[0]; accent
       )}
       <div style={{ fontSize: 26, marginBottom: 20 }}>{f.icon}</div>
       <div style={{ fontSize: 16, fontWeight: 500, color: "#f5f0e8", marginBottom: 8 }}>{f.title}</div>
-      <div style={{ fontFamily: "monospace", fontSize: 12, color: "#555", lineHeight: 1.6 }}>{f.desc}</div>
+      <div style={{ fontFamily: "monospace", fontSize: 12, color: "#888", lineHeight: 1.6 }}>{f.desc}</div>
     </div>
   );
 }
