@@ -256,7 +256,7 @@ export default function Dashboard() {
             style={{ background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.3)", color: "#c084fc" }}>
             💬 AI Chat
           </button>
-          <button onClick={() => signOut(() => router.push("/"))
+            <button onClick={() => signOut(() => router.push("/"))}
             className="text-sm px-3 py-2 rounded-xl transition-all hover:scale-105"
             style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
             Sign Out
