@@ -133,7 +133,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !user) return;
+    if (!isLoaded) return;
     async function loadData() {
       await user!.reload();
       const meta = user!.publicMetadata as { onboardingComplete?: boolean; answers?: Record<string, string> };
