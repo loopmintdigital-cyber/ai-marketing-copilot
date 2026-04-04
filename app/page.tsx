@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 const WORDS = ["Brand Strategy.", "Social Content.", "Email Sequences.", "Ad Campaigns.", "SEO Articles.", "Landing Pages."];
-const TICKER_ITEMS = ["🧠 Brand Strategy", "📱 Social Media", "📧 Email Marketing", "🎯 Ad Campaigns", "🔍 SEO Strategy", "✍️ Copywriting", "⚡ 10x Faster", "💰 Save $10K/month", "🚀 Ship in Minutes", "🎨 Always On-Brand"];
+const TICKER_ITEMS = ["🧠 Brand Strategy", "📱 Social Media", "📧 Email Marketing", "🎯 Ad Campaigns", "🔍 SEO Strategy", "✍️ Copywriting", "🖼️ AI Poster Maker", "🗓️ Content Planner", "🌐 Website Builder", "⚡ 10x Faster", "💰 Save $10K/month", "🚀 Ship in Minutes", "🎨 Always On-Brand"];
 
 const LIVE_OUTPUTS = [
   { module: "📱 Social Media", content: "LinkedIn Post — Day 1\n\"Most founders waste $10K/month on agencies that take 2 weeks to write a blog post. We built AI that does it in 10 seconds. Here's how →\"", color: "#3b82f6" },
@@ -12,27 +12,6 @@ const LIVE_OUTPUTS = [
   { module: "🧠 Brand Tagline", content: "\"Ship Marketing. Not Excuses.\"\n\"Your Agency Is Sleeping. Your AI Isn't.\"\n\"From Brief to Campaign in 10 Seconds.\"", color: "#a855f7" },
 ];
 
-// Hook for scroll-triggered animations
-function useScrollAnimation() {
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
-    document.querySelectorAll("[data-animate]").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-  return visibleSections;
-}
-
-// Animated counter hook
 function useCounter(target: number, duration: number = 2000, start: boolean = false) {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -69,7 +48,6 @@ export default function Home() {
   const trailIdRef = useRef(0);
   const statsRef = useRef<HTMLDivElement>(null);
 
-  // Counters
   const savedCount = useCounter(9951, 2000, statsVisible);
   const speedCount = useCounter(10, 1500, statsVisible);
   const foundersCount = useCounter(2858, 2500, statsVisible);
@@ -86,7 +64,6 @@ export default function Home() {
     return () => { clearInterval(glitchInterval); clearInterval(countInterval); };
   }, []);
 
-  // Stats observer
   useEffect(() => {
     if (!statsRef.current) return;
     const observer = new IntersectionObserver(([entry]) => {
@@ -96,7 +73,6 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  // Cursor trail
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
@@ -107,7 +83,6 @@ export default function Home() {
     return () => window.removeEventListener("mousemove", handleMouse);
   }, []);
 
-  // Clean trail
   useEffect(() => {
     const interval = setInterval(() => {
       setCursorTrail(prev => prev.slice(-8));
@@ -115,7 +90,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Typewriter for hero
   useEffect(() => {
     const word = WORDS[wordIndex];
     let timeout: NodeJS.Timeout;
@@ -132,7 +106,6 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [displayed, deleting, wordIndex]);
 
-  // Live output typewriter
   useEffect(() => {
     const output = LIVE_OUTPUTS[outputIndex];
     const fullText = output.content;
@@ -152,7 +125,6 @@ export default function Home() {
     }
   }, [outputCharIndex, outputIndex]);
 
-  // Canvas particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -160,7 +132,6 @@ export default function Home() {
     if (!ctx) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     const particles = Array.from({ length: 150 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -172,7 +143,6 @@ export default function Home() {
       pulse: Math.random() * Math.PI * 2,
       size2: Math.random() * 3 + 1,
     }));
-
     let animId: number;
     function animate() {
       if (!ctx || !canvas) return;
@@ -205,7 +175,6 @@ export default function Home() {
     return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", onResize); };
   }, []);
 
-  // 3D tilt handler
   const handleTilt = useCallback((e: React.MouseEvent<HTMLDivElement>, key: string) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
@@ -217,13 +186,19 @@ export default function Home() {
     setTiltCards(prev => ({ ...prev, [key]: { x: 0, y: 0 } }));
   }, []);
 
+  // ✅ ALL 11 MODULES
   const features = [
     { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-2" },
     { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1" },
     { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert.", glow: "#10b981", span: "col-span-1" },
     { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants.", glow: "#f59e0b", span: "col-span-1" },
     { icon: "🔍", title: "SEO Strategy", desc: "Keywords, blogs & full article drafts.", glow: "#f97316", span: "col-span-1" },
-    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product.", glow: "#ec4899", span: "col-span-2" },
+    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product.", glow: "#ec4899", span: "col-span-1" },
+    { icon: "🖼️", title: "AI Poster Maker", desc: "Generate & design stunning posters with AI.", glow: "#f43f5e", span: "col-span-1" },
+    { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1" },
+    { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
+    { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
+    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-2" },
   ];
 
   return (
@@ -232,46 +207,11 @@ export default function Home() {
 
       {/* Aurora background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Aurora wave 1 — purple */}
-        <div style={{
-          position: "absolute", width: "180%", height: "60%",
-          top: "-10%", left: "-20%",
-          background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.55) 0%, rgba(88,28,220,0.25) 40%, transparent 70%)",
-          animation: "aurora1 12s ease-in-out infinite alternate",
-          filter: "blur(70px)",
-        }} />
-        {/* Aurora wave 2 — green */}
-        <div style={{
-          position: "absolute", width: "150%", height: "50%",
-          top: "20%", left: "-10%",
-          background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.20) 40%, transparent 70%)",
-          animation: "aurora2 16s ease-in-out infinite alternate",
-          filter: "blur(80px)",
-        }} />
-        {/* Aurora wave 3 — pink */}
-        <div style={{
-          position: "absolute", width: "130%", height: "70%",
-          top: "40%", right: "-10%",
-          background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.40) 0%, rgba(190,24,93,0.18) 40%, transparent 70%)",
-          animation: "aurora3 14s ease-in-out infinite alternate",
-          filter: "blur(75px)",
-        }} />
-        {/* Aurora wave 4 — blue */}
-        <div style={{
-          position: "absolute", width: "80%", height: "40%",
-          bottom: "0%", left: "10%",
-          background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.35) 0%, transparent 70%)",
-          animation: "aurora4 18s ease-in-out infinite alternate",
-          filter: "blur(90px)",
-        }} />
-        {/* Top shimmer line */}
-        <div style={{
-          position: "absolute", width: "100%", height: "1px",
-          top: "35%",
-          background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(16,185,129,0.3), rgba(236,72,153,0.3), transparent)",
-          animation: "aurora-line 8s ease-in-out infinite alternate",
-          filter: "blur(2px)",
-        }} />
+        <div style={{ position: "absolute", width: "180%", height: "60%", top: "-10%", left: "-20%", background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.55) 0%, rgba(88,28,220,0.25) 40%, transparent 70%)", animation: "aurora1 12s ease-in-out infinite alternate", filter: "blur(70px)" }} />
+        <div style={{ position: "absolute", width: "150%", height: "50%", top: "20%", left: "-10%", background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.20) 40%, transparent 70%)", animation: "aurora2 16s ease-in-out infinite alternate", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", width: "130%", height: "70%", top: "40%", right: "-10%", background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.40) 0%, rgba(190,24,93,0.18) 40%, transparent 70%)", animation: "aurora3 14s ease-in-out infinite alternate", filter: "blur(75px)" }} />
+        <div style={{ position: "absolute", width: "80%", height: "40%", bottom: "0%", left: "10%", background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.35) 0%, transparent 70%)", animation: "aurora4 18s ease-in-out infinite alternate", filter: "blur(90px)" }} />
+        <div style={{ position: "absolute", width: "100%", height: "1px", top: "35%", background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(16,185,129,0.3), rgba(236,72,153,0.3), transparent)", animation: "aurora-line 8s ease-in-out infinite alternate", filter: "blur(2px)" }} />
       </div>
 
       {/* Floating orbs */}
@@ -282,13 +222,7 @@ export default function Home() {
           { w: 300, h: 300, top: "30%", right: "30%", color: "59,130,246", dur: "10s" },
           { w: 200, h: 200, top: "80%", left: "20%", color: "16,185,129", dur: "14s" },
         ].map((orb, i) => (
-          <div key={i} className="absolute rounded-full" style={{
-            width: orb.w, height: orb.h,
-            top: orb.top, left: (orb as any).left, right: (orb as any).right,
-            background: `radial-gradient(circle, rgba(${orb.color},0.06) 0%, transparent 70%)`,
-            animation: `float ${orb.dur} ease-in-out infinite alternate`,
-            animationDelay: `${i * 2}s`,
-          }} />
+          <div key={i} className="absolute rounded-full" style={{ width: orb.w, height: orb.h, top: orb.top, left: (orb as any).left, right: (orb as any).right, background: `radial-gradient(circle, rgba(${orb.color},0.06) 0%, transparent 70%)`, animation: `float ${orb.dur} ease-in-out infinite alternate`, animationDelay: `${i * 2}s` }} />
         ))}
       </div>
 
@@ -297,15 +231,7 @@ export default function Home() {
 
       {/* Cursor trail */}
       {cursorTrail.map((dot, i) => (
-        <div key={dot.id} className="fixed pointer-events-none z-20 rounded-full" style={{
-          width: Math.max(2, (i / cursorTrail.length) * 10),
-          height: Math.max(2, (i / cursorTrail.length) * 10),
-          left: dot.x - 5, top: dot.y - 5,
-          background: `rgba(168,85,247,${(i / cursorTrail.length) * 0.6})`,
-          boxShadow: `0 0 ${i * 2}px rgba(168,85,247,0.4)`,
-          transform: "translate(-50%,-50%)",
-          transition: "all 0.05s linear",
-        }} />
+        <div key={dot.id} className="fixed pointer-events-none z-20 rounded-full" style={{ width: Math.max(2, (i / cursorTrail.length) * 10), height: Math.max(2, (i / cursorTrail.length) * 10), left: dot.x - 5, top: dot.y - 5, background: `rgba(168,85,247,${(i / cursorTrail.length) * 0.6})`, boxShadow: `0 0 ${i * 2}px rgba(168,85,247,0.4)`, transform: "translate(-50%,-50%)", transition: "all 0.05s linear" }} />
       ))}
 
       {/* Nav */}
@@ -336,13 +262,11 @@ export default function Home() {
       {/* HERO */}
       <section className="relative min-h-screen flex items-center z-10 px-8 pt-20">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left */}
           <div className={`transition-all duration-1000 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"}`}>
             <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-bold uppercase tracking-widest" style={{ background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.2)", color: "#a78bfa" }}>
               <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
               Live · Replacing $10K/month agencies
             </div>
-
             <h1 className="font-black leading-none tracking-tighter mb-2" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
               <span className={`block text-white transition-all duration-75 ${glitch ? "translate-x-0.5 opacity-90 text-purple-100" : ""}`}>AI That</span>
               <span className={`block text-white transition-all duration-75 ${glitch ? "-translate-x-0.5 opacity-90" : ""}`}>Writes Your</span>
@@ -350,18 +274,15 @@ export default function Home() {
             <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", background: "linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", minHeight: "1.3em" }}>
               {displayed}<span className="animate-pulse" style={{ WebkitTextFillColor: "#a855f7" }}>|</span>
             </h1>
-
             <p className="text-gray-500 mb-10 max-w-lg leading-relaxed" style={{ fontSize: "1.1rem" }}>
-              One AI. Six modules. Complete marketing output.
+              One AI. 11 modules. Complete marketing output.
               <span className="text-gray-300 font-semibold"> Built for founders who move fast.</span>
             </p>
-
             <div className="flex items-center gap-4 mb-12">
               <button onClick={() => router.push("/sign-up")}
                 className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95 relative overflow-hidden group"
                 style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2)" }}>
                 <span className="relative z-10">Start for Free →</span>
-                {/* Shimmer */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
               </button>
               <button onClick={() => router.push("/dashboard")}
@@ -370,14 +291,12 @@ export default function Home() {
                 View Dashboard
               </button>
             </div>
-
-            {/* Animated stats */}
             <div ref={statsRef} className="flex items-center gap-8">
               {[
-                { v: "$49", l: "per month", static: true },
-                { v: "10x", l: "faster", static: true },
-                { v: "6", l: "AI modules", static: true },
-                { v: "24/7", l: "always on", static: true }
+                { v: "$49", l: "per month" },
+                { v: "10x", l: "faster" },
+                { v: "11", l: "AI modules" },
+                { v: "24/7", l: "always on" }
               ].map((s) => (
                 <div key={s.l} className="group cursor-default">
                   <div className="text-2xl font-black transition-transform duration-300 group-hover:scale-110" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
@@ -389,13 +308,8 @@ export default function Home() {
 
           {/* Right — Live AI Output */}
           <div className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}`}>
-            <div className="relative"
-              onMouseMove={(e) => handleTilt(e, "hero-card")}
-              onMouseLeave={() => resetTilt("hero-card")}
-              style={{
-                transform: `perspective(1000px) rotateX(${tiltCards["hero-card"]?.x || 0}deg) rotateY(${tiltCards["hero-card"]?.y || 0}deg)`,
-                transition: "transform 0.1s ease",
-              }}>
+            <div className="relative" onMouseMove={(e) => handleTilt(e, "hero-card")} onMouseLeave={() => resetTilt("hero-card")}
+              style={{ transform: `perspective(1000px) rotateX(${tiltCards["hero-card"]?.x || 0}deg) rotateY(${tiltCards["hero-card"]?.y || 0}deg)`, transition: "transform 0.1s ease" }}>
               <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
                 <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.1)", background: "rgba(0,0,0,0.3)" }}>
                   <div className="w-3 h-3 rounded-full bg-red-500 opacity-70"></div>
@@ -451,23 +365,17 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Bold statement — scroll animated */}
+      {/* Bold statement */}
       <section className="relative z-10 px-8 py-32 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div data-animate id="bold-statement" style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "translateY(0)" : "translateY(40px)",
-            transition: "all 1s ease",
-          }}>
-            <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
-              <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
-              {" "}<span className="text-white">Start shipping in minutes.</span>
-            </p>
-          </div>
+          <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
+            <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
+            {" "}<span className="text-white">Start shipping in minutes.</span>
+          </p>
         </div>
       </section>
 
-      {/* Animated counters section */}
+      {/* Animated counters */}
       <section className="relative z-10 px-8 py-16">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-3 gap-6">
@@ -489,13 +397,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Bento grid with 3D tilt */}
+      {/* ✅ BENTO GRID — ALL 11 MODULES */}
       <section className="relative z-10 px-8 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <p className="text-xs uppercase tracking-widest text-purple-400 font-bold mb-3">What's inside</p>
             <h2 className="font-black tracking-tighter" style={{ fontSize: "clamp(36px, 5vw, 64px)" }}>
-              <span className="text-white">6 modules.</span>
+              <span className="text-white">11 modules.</span>
               <span style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> One system.</span>
             </h2>
           </div>
@@ -503,13 +411,7 @@ export default function Home() {
             {features.map((f, i) => (
               <div key={f.title}
                 className={`group relative overflow-hidden rounded-3xl p-8 cursor-pointer ${f.span}`}
-                style={{
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                  minHeight: 200,
-                  transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`,
-                  transition: "transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease",
-                }}
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", minHeight: 180, transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`, transition: "transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease" }}
                 onClick={() => router.push("/sign-up")}
                 onMouseMove={(e) => handleTilt(e, f.title)}
                 onMouseEnter={(e) => {
@@ -525,7 +427,6 @@ export default function Home() {
                   el.style.background = "rgba(255,255,255,0.02)";
                   resetTilt(f.title);
                 }}>
-                {/* Glow orb inside card */}
                 <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}20 0%, transparent 70%)` }} />
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10">{f.icon}</div>
                 <h3 className="text-white font-black text-xl mb-2 relative z-10">{f.title}</h3>
@@ -537,7 +438,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social proof marquee */}
+      {/* Social proof */}
       <div className="relative z-10 py-8 overflow-hidden">
         <p className="text-center text-xs uppercase tracking-widest text-gray-700 font-bold mb-6">What founders are saying</p>
         <div className="flex gap-4 overflow-hidden">
@@ -570,8 +471,6 @@ export default function Home() {
           <div className="relative overflow-hidden rounded-[40px] p-20 group"
             style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
             <div className="absolute inset-0 rounded-[40px] overflow-hidden opacity-10" style={{ backgroundImage: "linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-            {/* Animated border glow */}
-            <div className="absolute inset-0 rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" style={{ boxShadow: "inset 0 0 80px rgba(124,58,237,0.1)" }} />
             <div className="relative z-10">
               <div className="text-8xl mb-8" style={{ animation: "float 3s ease-in-out infinite alternate" }}>⚡</div>
               <h2 className="font-black tracking-tighter mb-4" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>
@@ -605,31 +504,11 @@ export default function Home() {
         @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
         @keyframes float { from { transform: translateY(0px) } to { transform: translateY(-20px) } }
         @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(200%) } }
-        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.3) } 50% { box-shadow: 0 0 60px rgba(124,58,237,0.8) } }
-        @keyframes aurora1 {
-          0% { transform: translateX(-5%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.8; }
-          50% { transform: translateX(5%) translateY(5%) scaleX(1.1) scaleY(0.9); opacity: 1; }
-          100% { transform: translateX(2%) translateY(-5%) scaleX(0.95) scaleY(1.1); opacity: 0.7; }
-        }
-        @keyframes aurora2 {
-          0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.6; }
-          50% { transform: translateX(-8%) translateY(-3%) scaleX(1.15) scaleY(0.85); opacity: 0.9; }
-          100% { transform: translateX(5%) translateY(8%) scaleX(0.9) scaleY(1.2); opacity: 0.5; }
-        }
-        @keyframes aurora3 {
-          0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.7; }
-          50% { transform: translateX(6%) translateY(-6%) scaleX(0.9) scaleY(1.15); opacity: 1; }
-          100% { transform: translateX(-4%) translateY(4%) scaleX(1.1) scaleY(0.9); opacity: 0.6; }
-        }
-        @keyframes aurora4 {
-          0% { transform: translateX(0%) scaleX(1); opacity: 0.5; }
-          100% { transform: translateX(10%) scaleX(1.2); opacity: 0.8; }
-        }
-        @keyframes aurora-line {
-          0% { transform: translateX(-10%) scaleX(0.8); opacity: 0.3; }
-          50% { opacity: 0.8; }
-          100% { transform: translateX(10%) scaleX(1.2); opacity: 0.3; }
-        }
+        @keyframes aurora1 { 0% { transform: translateX(-5%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.8; } 50% { transform: translateX(5%) translateY(5%) scaleX(1.1) scaleY(0.9); opacity: 1; } 100% { transform: translateX(2%) translateY(-5%) scaleX(0.95) scaleY(1.1); opacity: 0.7; } }
+        @keyframes aurora2 { 0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.6; } 50% { transform: translateX(-8%) translateY(-3%) scaleX(1.15) scaleY(0.85); opacity: 0.9; } 100% { transform: translateX(5%) translateY(8%) scaleX(0.9) scaleY(1.2); opacity: 0.5; } }
+        @keyframes aurora3 { 0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.7; } 50% { transform: translateX(6%) translateY(-6%) scaleX(0.9) scaleY(1.15); opacity: 1; } 100% { transform: translateX(-4%) translateY(4%) scaleX(1.1) scaleY(0.9); opacity: 0.6; } }
+        @keyframes aurora4 { 0% { transform: translateX(0%) scaleX(1); opacity: 0.5; } 100% { transform: translateX(10%) scaleX(1.2); opacity: 0.8; } }
+        @keyframes aurora-line { 0% { transform: translateX(-10%) scaleX(0.8); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateX(10%) scaleX(1.2); opacity: 0.3; } }
       `}</style>
     </main>
   );
