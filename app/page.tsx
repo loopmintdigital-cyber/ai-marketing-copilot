@@ -410,28 +410,39 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-3">
             {features.map((f, i) => (
               <div key={f.title}
-                className={`group relative overflow-hidden rounded-3xl p-8 cursor-pointer ${f.span}`}
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", minHeight: 180, transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`, transition: "transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease" }}
+                className={`group relative overflow-hidden rounded-3xl p-7 cursor-pointer ${f.span}`}
+                style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", minHeight: 190, boxShadow: `0 0 30px ${f.glow}15, inset 0 1px 0 rgba(255,255,255,0.08)`, transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`, transition: "transform 0.15s ease, box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease" }}
                 onClick={() => router.push("/sign-up")}
                 onMouseMove={(e) => handleTilt(e, f.title)}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.boxShadow = `0 0 60px ${f.glow}30`;
-                  el.style.borderColor = `${f.glow}40`;
-                  el.style.background = `${f.glow}08`;
+                  el.style.background = "rgba(255,255,255,0.06)";
+                  el.style.boxShadow = `0 20px 60px rgba(0,0,0,0.4), 0 0 80px ${f.glow}25, inset 0 1px 0 rgba(255,255,255,0.15)`;
+                  el.style.borderColor = `${f.glow}50`;
+                  el.style.transform = `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg) translateY(-6px)`;
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.boxShadow = "none";
-                  el.style.borderColor = "rgba(255,255,255,0.05)";
-                  el.style.background = "rgba(255,255,255,0.02)";
+                  el.style.background = "rgba(255,255,255,0.03)";
+                  el.style.boxShadow = `0 0 30px ${f.glow}15, inset 0 1px 0 rgba(255,255,255,0.08)`;
+                  el.style.borderColor = "rgba(255,255,255,0.08)";
+                  el.style.transform = "perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px)";
                   resetTilt(f.title);
                 }}>
-                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}20 0%, transparent 70%)` }} />
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10">{f.icon}</div>
-                <h3 className="text-white font-black text-xl mb-2 relative z-10">{f.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed relative z-10">{f.desc}</p>
-                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 relative z-10" style={{ color: f.glow }}>Open module →</div>
+                <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)" }} />
+                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}40 0%, transparent 65%)`, filter: "blur(20px)" }} />
+                <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}30 0%, transparent 65%)`, filter: "blur(15px)" }} />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(90deg, transparent, ${f.glow}, transparent)` }} />
+                <div className="flex items-center justify-between mb-5 relative z-10">
+                  <span className="text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest" style={{ background: `${f.glow}15`, color: f.glow, border: `1px solid ${f.glow}25` }}>{f.tag}</span>
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: `${f.glow}20`, border: `1px solid ${f.glow}30` }}>
+                    <span className="text-xs font-bold" style={{ color: f.glow }}>→</span>
+                  </div>
+                </div>
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10" style={{ filter: `drop-shadow(0 0 12px ${f.glow}70)` }}>{f.icon}</div>
+                <h3 className="font-black text-xl mb-2 relative z-10" style={{ color: "rgba(255,255,255,0.95)" }}>{f.title}</h3>
+                <p className="text-sm leading-relaxed relative z-10" style={{ color: "rgba(255,255,255,0.4)" }}>{f.desc}</p>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%, rgba(255,255,255,0.02) 100%)" }} />
               </div>
             ))}
           </div>
