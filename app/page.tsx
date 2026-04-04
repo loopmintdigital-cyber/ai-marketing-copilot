@@ -3,12 +3,12 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 const WORDS = ["Brand Strategy.", "Social Content.", "Email Sequences.", "Ad Campaigns.", "SEO Articles.", "Landing Pages."];
-const TICKER_ITEMS = ["🧠 Brand Strategy", "📱 Social Media", "📧 Email Marketing", "🎯 Ad Campaigns", "🔍 SEO Strategy", "✍️ Copywriting", "🖼️ AI Poster Maker", "🗓️ Content Planner", "🌐 Website Builder", "⚡ 10x Faster", "💰 Save $10K/month", "🚀 Ship in Minutes", "🎨 Always On-Brand"];
+const TICKER_ITEMS = ["🧠 Brand Strategy", "📱 Social Media", "📧 Email Marketing", "🎯 Ad Campaigns", "🔍 SEO Strategy", "✍️ Copywriting", "🖼️ AI Poster Maker", "🗓️ Content Planner", "🌐 Website Builder", "⚡ 10x Faster", "💰 Save $10K/month", "🚀 Ship in Minutes"];
 
 const LIVE_OUTPUTS = [
-  { module: "📱 Social Media", content: "LinkedIn Post — Day 1\n\"Most founders waste $10K/month on agencies that take 2 weeks to write a blog post. We built AI that does it in 10 seconds. Here's how →\"", color: "#3b82f6" },
-  { module: "📧 Email Subject Lines", content: "Subject: You're leaving $10K on the table\nSubject: Your competitors aren't waiting\nSubject: 10 seconds to your entire marketing strategy", color: "#10b981" },
-  { module: "🎯 Google Ad Copy", content: "Headline 1: AI Marketing in 10 Seconds\nHeadline 2: Replace Your $10K Agency\nDescription: Full brand strategy, social posts, ads & SEO — all trained on YOUR product.", color: "#f59e0b" },
+  { module: "📱 Social Media", content: "LinkedIn Post — Day 1\n\"Most founders waste $10K/month on agencies that take 2 weeks to write a blog post. We built AI that does it in 10 seconds. Here's how →\"", color: "#a855f7" },
+  { module: "📧 Email Subject Lines", content: "Subject: You're leaving $10K on the table\nSubject: Your competitors aren't waiting\nSubject: 10 seconds to your entire marketing strategy", color: "#a855f7" },
+  { module: "🎯 Google Ad Copy", content: "Headline 1: AI Marketing in 10 Seconds\nHeadline 2: Replace Your $10K Agency\nDescription: Full brand strategy, social posts, ads & SEO — all trained on YOUR product.", color: "#a855f7" },
   { module: "🧠 Brand Tagline", content: "\"Ship Marketing. Not Excuses.\"\n\"Your Agency Is Sleeping. Your AI Isn't.\"\n\"From Brief to Campaign in 10 Seconds.\"", color: "#a855f7" },
 ];
 
@@ -35,33 +35,39 @@ export default function Home() {
   const [wordIndex, setWordIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
-  const [glitch, setGlitch] = useState(false);
   const [liveCount, setLiveCount] = useState(2847);
   const [outputIndex, setOutputIndex] = useState(0);
   const [outputText, setOutputText] = useState("");
   const [outputCharIndex, setOutputCharIndex] = useState(0);
   const [statsVisible, setStatsVisible] = useState(false);
-  const [tiltCards, setTiltCards] = useState<Record<string, { x: number; y: number }>>({});
-  const [cursorTrail, setCursorTrail] = useState<{ x: number; y: number; id: number }[]>([]);
-  const trailIdRef = useRef(0);
   const statsRef = useRef<HTMLDivElement>(null);
 
   const savedCount = useCounter(9951, 2000, statsVisible);
   const speedCount = useCounter(10, 1500, statsVisible);
   const foundersCount = useCounter(2858, 2500, statsVisible);
 
+  const features = [
+    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds." },
+    { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform." },
+    { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert." },
+    { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants." },
+    { icon: "🔍", title: "SEO Strategy", desc: "Keywords, blogs & full article drafts." },
+    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product." },
+    { icon: "🖼️", title: "AI Poster Maker", desc: "Generate & design stunning posters with AI." },
+    { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts." },
+    { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds." },
+    { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy." },
+    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history." },
+    { icon: "🔗", title: "Meta Auto-Poster", desc: "Auto-post to Instagram & Facebook. Coming soon!" },
+  ];
+
   useEffect(() => {
     setMounted(true);
-    const glitchInterval = setInterval(() => {
-      setGlitch(true);
-      setTimeout(() => setGlitch(false), 100);
-    }, 4000);
     const countInterval = setInterval(() => {
       setLiveCount(c => c + Math.floor(Math.random() * 3));
     }, 2000);
-    return () => { clearInterval(glitchInterval); clearInterval(countInterval); };
+    return () => clearInterval(countInterval);
   }, []);
 
   useEffect(() => {
@@ -71,23 +77,6 @@ export default function Home() {
     }, { threshold: 0.3 });
     observer.observe(statsRef.current);
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-      const id = trailIdRef.current++;
-      setCursorTrail(prev => [...prev.slice(-12), { x: e.clientX, y: e.clientY, id }]);
-    };
-    window.addEventListener("mousemove", handleMouse);
-    return () => window.removeEventListener("mousemove", handleMouse);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCursorTrail(prev => prev.slice(-8));
-    }, 50);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -132,40 +121,26 @@ export default function Home() {
     if (!ctx) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const particles = Array.from({ length: 150 }, () => ({
+    const particles = Array.from({ length: 60 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 0.3,
-      speedX: (Math.random() - 0.5) * 0.4,
-      speedY: (Math.random() - 0.5) * 0.4,
-      opacity: Math.random() * 0.9 + 0.1,
-      color: ["147,51,234","236,72,153","59,130,246","16,185,129","251,191,36","239,68,68"][Math.floor(Math.random() * 6)],
+      size: Math.random() * 1.5 + 0.3,
+      speedX: (Math.random() - 0.5) * 0.2,
+      speedY: (Math.random() - 0.5) * 0.2,
+      opacity: Math.random() * 0.3 + 0.05,
       pulse: Math.random() * Math.PI * 2,
-      size2: Math.random() * 3 + 1,
     }));
     let animId: number;
     function animate() {
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p: any) => {
-        p.x += p.speedX; p.y += p.speedY; p.pulse += 0.02;
+        p.x += p.speedX; p.y += p.speedY; p.pulse += 0.01;
         if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
-        const op = p.opacity * (0.5 + 0.5 * Math.sin(p.pulse));
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size2 * 5);
-        g.addColorStop(0, `rgba(${p.color},${op})`);
-        g.addColorStop(1, `rgba(${p.color},0)`);
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.size2 * 5, 0, Math.PI * 2);
-        ctx.fillStyle = g; ctx.fill();
+        const op = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.color},${op})`; ctx.fill();
-        particles.forEach((p2: any) => {
-          const d = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (d < 100) {
-            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(147,51,234,${0.05*(1-d/100)})`; ctx.lineWidth = 0.5; ctx.stroke();
-          }
-        });
+        ctx.fillStyle = `rgba(124,58,237,${op})`; ctx.fill();
       });
       animId = requestAnimationFrame(animate);
     }
@@ -175,86 +150,32 @@ export default function Home() {
     return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", onResize); };
   }, []);
 
-  const handleTilt = useCallback((e: React.MouseEvent<HTMLDivElement>, key: string) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
-    const y = -((e.clientX - rect.left) / rect.width - 0.5) * 20;
-    setTiltCards(prev => ({ ...prev, [key]: { x, y } }));
-  }, []);
-
-  const resetTilt = useCallback((key: string) => {
-    setTiltCards(prev => ({ ...prev, [key]: { x: 0, y: 0 } }));
-  }, []);
-
-  // ✅ ALL 11 MODULES
-  const features = [
-    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-1" },
-    { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1" },
-    { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert.", glow: "#10b981", span: "col-span-1" },
-    { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants.", glow: "#f59e0b", span: "col-span-1" },
-    { icon: "🔍", title: "SEO Strategy", desc: "Keywords, blogs & full article drafts.", glow: "#f97316", span: "col-span-1" },
-    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product.", glow: "#ec4899", span: "col-span-1" },
-    { icon: "🖼️", title: "AI Poster Maker", desc: "Generate & design stunning posters with AI.", glow: "#f43f5e", span: "col-span-1" },
-    { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1" },
-    { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
-    { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
-    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-1" },
-    { icon: "🔗", title: "Meta Auto-Poster", desc: "Schedule & auto-post directly to Instagram & Facebook. Coming soon!", glow: "#f97316", span: "col-span-1" },
-  ];
   return (
-    <main className="text-white overflow-x-hidden" style={{ background: "#020008", minHeight: "100vh" }}>
+    <main className="text-white overflow-x-hidden" style={{ background: "#08080c", minHeight: "100vh" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      {/* Aurora background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div style={{ position: "absolute", width: "180%", height: "60%", top: "-10%", left: "-20%", background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.55) 0%, rgba(88,28,220,0.25) 40%, transparent 70%)", animation: "aurora1 12s ease-in-out infinite alternate", filter: "blur(70px)" }} />
-        <div style={{ position: "absolute", width: "150%", height: "50%", top: "20%", left: "-10%", background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.20) 40%, transparent 70%)", animation: "aurora2 16s ease-in-out infinite alternate", filter: "blur(80px)" }} />
-        <div style={{ position: "absolute", width: "130%", height: "70%", top: "40%", right: "-10%", background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.40) 0%, rgba(190,24,93,0.18) 40%, transparent 70%)", animation: "aurora3 14s ease-in-out infinite alternate", filter: "blur(75px)" }} />
-        <div style={{ position: "absolute", width: "80%", height: "40%", bottom: "0%", left: "10%", background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.35) 0%, transparent 70%)", animation: "aurora4 18s ease-in-out infinite alternate", filter: "blur(90px)" }} />
-        <div style={{ position: "absolute", width: "100%", height: "1px", top: "35%", background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(16,185,129,0.3), rgba(236,72,153,0.3), transparent)", animation: "aurora-line 8s ease-in-out infinite alternate", filter: "blur(2px)" }} />
+      {/* Subtle purple glow — top only */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div style={{ position: "absolute", width: "80%", height: "40%", top: "-10%", left: "10%", background: "radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%)", filter: "blur(80px)" }} />
       </div>
-
-      {/* Floating orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {[
-          { w: 600, h: 600, top: "10%", left: "5%", color: "124,58,237", dur: "8s" },
-          { w: 400, h: 400, top: "60%", right: "10%", color: "236,72,153", dur: "12s" },
-          { w: 300, h: 300, top: "30%", right: "30%", color: "59,130,246", dur: "10s" },
-          { w: 200, h: 200, top: "80%", left: "20%", color: "16,185,129", dur: "14s" },
-        ].map((orb, i) => (
-          <div key={i} className="absolute rounded-full" style={{ width: orb.w, height: orb.h, top: orb.top, left: (orb as any).left, right: (orb as any).right, background: `radial-gradient(circle, rgba(${orb.color},0.06) 0%, transparent 70%)`, animation: `float ${orb.dur} ease-in-out infinite alternate`, animationDelay: `${i * 2}s` }} />
-        ))}
-      </div>
-
-      {/* Cursor glow */}
-      <div className="fixed pointer-events-none z-10 transition-all duration-100" style={{ width: 500, height: 500, borderRadius: "50%", left: mousePos.x - 250, top: mousePos.y - 250, background: "radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 60%)" }} />
-
-      {/* Cursor trail */}
-      {cursorTrail.map((dot, i) => (
-        <div key={dot.id} className="fixed pointer-events-none z-20 rounded-full" style={{ width: Math.max(2, (i / cursorTrail.length) * 10), height: Math.max(2, (i / cursorTrail.length) * 10), left: dot.x - 5, top: dot.y - 5, background: `rgba(168,85,247,${(i / cursorTrail.length) * 0.6})`, boxShadow: `0 0 ${i * 2}px rgba(168,85,247,0.4)`, transform: "translate(-50%,-50%)", transition: "all 0.05s linear" }} />
-      ))}
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(1,0,3,0.5)", backdropFilter: "blur(30px)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(8,8,12,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(124,58,237,0.08)" }}>
         <div className="flex items-center gap-3">
-          <div className="relative w-3 h-3">
-            <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-30"></div>
-            <div className="relative w-3 h-3 bg-purple-500 rounded-full shadow-lg shadow-purple-500"></div>
-          </div>
+          <div className="w-2 h-2 bg-purple-500 rounded-full" style={{ boxShadow: "0 0 8px rgba(124,58,237,0.8)" }} />
           <span className="font-black text-white tracking-tight text-lg">AI Marketing Co-Pilot</span>
         </div>
         <div className="flex items-center gap-6">
-          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-            <span className="text-green-400 font-bold">{liveCount.toLocaleString()}</span>
+          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}>
+            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
+            <span className="text-purple-400 font-bold">{liveCount.toLocaleString()}</span>
             <span className="text-gray-600">using now</span>
           </div>
-          <button onClick={() => router.push("/dashboard")} className="text-gray-600 hover:text-white text-sm transition-colors font-medium">Dashboard</button>
+          <button onClick={() => router.push("/dashboard")} className="text-gray-500 hover:text-white text-sm transition-colors">Dashboard</button>
           <button onClick={() => router.push("/sign-up")}
-            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105 relative overflow-hidden group"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
-            <span className="relative z-10">Get Started →</span>
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "linear-gradient(135deg, #9333ea, #f472b6)" }} />
+            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
+            style={{ background: "#7c3aed", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
+            Get Started →
           </button>
         </div>
       </nav>
@@ -263,16 +184,16 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center z-10 px-8 pt-20">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className={`transition-all duration-1000 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"}`}>
-            <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-bold uppercase tracking-widest" style={{ background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.2)", color: "#a78bfa" }}>
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-              Live · Replacing $10K/month agencies
+            <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-medium" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)", color: "#a78bfa" }}>
+              <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
+              Replacing $10K/month agencies
             </div>
-            <h1 className="font-black leading-none tracking-tighter mb-2" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
-              <span className={`block text-white transition-all duration-75 ${glitch ? "translate-x-0.5 opacity-90 text-purple-100" : ""}`}>AI That</span>
-              <span className={`block text-white transition-all duration-75 ${glitch ? "-translate-x-0.5 opacity-90" : ""}`}>Writes Your</span>
+            <h1 className="font-black leading-none tracking-tighter mb-2 text-white" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
+              <span className="block">AI That</span>
+              <span className="block">Writes Your</span>
             </h1>
-            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", background: "linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", minHeight: "1.3em" }}>
-              {displayed}<span className="animate-pulse" style={{ WebkitTextFillColor: "#a855f7" }}>|</span>
+            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", color: "#7c3aed", minHeight: "1.3em" }}>
+              {displayed}<span className="animate-pulse text-purple-500">|</span>
             </h1>
             <p className="text-gray-500 mb-10 max-w-lg leading-relaxed" style={{ fontSize: "1.1rem" }}>
               One AI. 11 modules. Complete marketing output.
@@ -280,13 +201,12 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-4 mb-12">
               <button onClick={() => router.push("/sign-up")}
-                className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95 relative overflow-hidden group"
-                style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2)" }}>
-                <span className="relative z-10">Start for Free →</span>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
+                className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95"
+                style={{ background: "#7c3aed", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
+                Start for Free →
               </button>
               <button onClick={() => router.push("/dashboard")}
-                className="text-gray-400 font-semibold px-8 py-5 rounded-2xl text-lg transition-all hover:text-white hover:scale-105"
+                className="text-gray-400 font-semibold px-8 py-5 rounded-2xl text-lg transition-all hover:text-white"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 View Dashboard
               </button>
@@ -298,228 +218,199 @@ export default function Home() {
                 { v: "11", l: "AI modules" },
                 { v: "24/7", l: "always on" }
               ].map((s) => (
-                <div key={s.l} className="group cursor-default">
-                  <div className="text-2xl font-black transition-transform duration-300 group-hover:scale-110" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
-                  <div className="text-gray-700 text-xs font-medium">{s.l}</div>
+                <div key={s.l} className="cursor-default">
+                  <div className="text-2xl font-black text-purple-400">{s.v}</div>
+                  <div className="text-gray-600 text-xs font-medium">{s.l}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right — Live AI Output */}
+          {/* Live output card */}
           <div className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}`}>
-            <div className="relative" onMouseMove={(e) => handleTilt(e, "hero-card")} onMouseLeave={() => resetTilt("hero-card")}
-              style={{ transform: `perspective(1000px) rotateX(${tiltCards["hero-card"]?.x || 0}deg) rotateY(${tiltCards["hero-card"]?.y || 0}deg)`, transition: "transform 0.1s ease" }}>
-              <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
-                <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.1)", background: "rgba(0,0,0,0.3)" }}>
-                  <div className="w-3 h-3 rounded-full bg-red-500 opacity-70"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-70"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500 opacity-70"></div>
-                  <span className="ml-3 text-gray-600 text-xs font-mono">ai-marketing-copilot · live output</span>
-                  <div className="ml-auto flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                    <span className="text-green-400 text-xs font-bold">LIVE</span>
-                  </div>
+            <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
+              <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.3)" }}>
+                <div className="w-3 h-3 rounded-full bg-red-500 opacity-60" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-60" />
+                <div className="w-3 h-3 rounded-full bg-green-500 opacity-60" />
+                <span className="ml-3 text-gray-600 text-xs font-mono">ai-marketing-copilot · live output</span>
+                <div className="ml-auto flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
+                  <span className="text-purple-400 text-xs font-bold">LIVE</span>
                 </div>
-                <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
-                  {LIVE_OUTPUTS.map((o, i) => (
-                    <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
-                      className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium hover:scale-105"
-                      style={{ background: i === outputIndex ? `${o.color}20` : "rgba(255,255,255,0.03)", color: i === outputIndex ? o.color : "#6b7280", border: `1px solid ${i === outputIndex ? o.color + "30" : "rgba(255,255,255,0.05)"}` }}>
-                      {o.module}
-                    </button>
+              </div>
+              <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
+                {LIVE_OUTPUTS.map((o, i) => (
+                  <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
+                    className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium"
+                    style={{ background: i === outputIndex ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.03)", color: i === outputIndex ? "#a78bfa" : "#6b7280", border: `1px solid ${i === outputIndex ? "rgba(124,58,237,0.3)" : "rgba(255,255,255,0.05)"}` }}>
+                    {o.module}
+                  </button>
+                ))}
+              </div>
+              <div className="p-6 font-mono text-sm" style={{ minHeight: 200 }}>
+                <pre className="whitespace-pre-wrap leading-relaxed text-purple-300" style={{ fontSize: "0.85rem" }}>
+                  {outputText}<span className="animate-pulse text-white">█</span>
+                </pre>
+              </div>
+              <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.2)" }}>
+                <span className="text-gray-700 text-xs font-mono">Generated in 8.3s</span>
+                <div className="flex gap-2">
+                  {["Copy", "Export", "Refine"].map((a) => (
+                    <button key={a} className="text-xs px-3 py-1 rounded-lg transition-all font-medium" style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.15)" }}>{a}</button>
                   ))}
                 </div>
-                <div className="p-6 font-mono text-sm" style={{ minHeight: 200 }}>
-                  <pre className="whitespace-pre-wrap leading-relaxed" style={{ color: LIVE_OUTPUTS[outputIndex].color, fontSize: "0.85rem" }}>
-                    {outputText}<span className="animate-pulse text-white">█</span>
-                  </pre>
-                </div>
-                <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.2)" }}>
-                  <span className="text-gray-700 text-xs font-mono">Generated in 8.3s</span>
-                  <div className="flex gap-2">
-                    {["Copy", "Export", "Refine"].map((a) => (
-                      <button key={a} className="text-xs px-3 py-1 rounded-lg transition-all hover:scale-105 font-medium" style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}>{a}</button>
-                    ))}
-                  </div>
-                </div>
               </div>
-              <div className="absolute -top-5 -right-5 px-4 py-2 rounded-2xl text-sm font-bold text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.6)", animation: "float 3s ease-in-out infinite alternate" }}>
-                ⚡ 10 seconds
-              </div>
-              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.45)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)", animation: "float 4s ease-in-out infinite alternate-reverse" }}>
-                <div className="text-green-400 font-bold text-sm">${savedCount.toLocaleString()} saved</div>
-                <div className="text-gray-600 text-xs">vs hiring an agency</div>
-              </div>
+            </div>
+            <div className="absolute -top-4 -right-4 px-4 py-2 rounded-xl text-sm font-bold text-white" style={{ background: "#7c3aed", boxShadow: "0 0 20px rgba(124,58,237,0.5)" }}>
+              ⚡ 10 seconds
             </div>
           </div>
         </div>
       </section>
 
-      {/* Marquee ticker */}
-      <div className="relative z-10 py-6 overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", borderTop: "1px solid rgba(124,58,237,0.1)", borderBottom: "1px solid rgba(124,58,237,0.1)" }}>
-        <div className="flex gap-8 whitespace-nowrap" style={{ animation: "marquee 20s linear infinite" }}>
+      {/* Ticker */}
+      <div className="relative z-10 py-5 overflow-hidden" style={{ borderTop: "1px solid rgba(124,58,237,0.08)", borderBottom: "1px solid rgba(124,58,237,0.08)" }}>
+        <div className="flex gap-8 whitespace-nowrap" style={{ animation: "marquee 25s linear infinite" }}>
           {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-            <span key={i} className="text-sm font-bold px-4" style={{ color: "#6b21a8" }}>{item}</span>
+            <span key={i} className="text-sm font-medium px-4 text-gray-600">{item}</span>
           ))}
         </div>
       </div>
 
       {/* Bold statement */}
-      <section className="relative z-10 px-8 py-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
-            <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
+      <section className="relative z-10 px-8 py-28">
+        <div className="max-w-5xl mx-auto">
+          <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 4vw, 64px)" }}>
+            <span style={{ color: "rgba(255,255,255,0.1)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
             {" "}<span className="text-white">Start shipping in minutes.</span>
           </p>
         </div>
       </section>
 
-      {/* Animated counters */}
-      <section className="relative z-10 px-8 py-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-3 gap-6">
-            {[
-              { value: `$${savedCount.toLocaleString()}`, label: "Saved vs agencies", color: "#10b981", icon: "💰" },
-              { value: `${speedCount}s`, label: "To full strategy", color: "#a855f7", icon: "⚡" },
-              { value: foundersCount.toLocaleString(), label: "Founders using now", color: "#3b82f6", icon: "🚀" },
-            ].map((stat, i) => (
-              <div key={i} className="rounded-3xl p-8 text-center group hover:scale-105 transition-all duration-300 cursor-default"
-                style={{ background: `${stat.color}08`, border: `1px solid ${stat.color}20`, boxShadow: `0 0 40px ${stat.color}10` }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 60px ${stat.color}30`; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${stat.color}10`; }}>
-                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{stat.icon}</div>
-                <div className="font-black text-5xl mb-2" style={{ color: stat.color }}>{stat.value}</div>
-                <div className="text-gray-600 text-sm font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+      {/* Stats */}
+      <section className="relative z-10 px-8 py-12">
+        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-4">
+          {[
+            { value: `$${savedCount.toLocaleString()}`, label: "Saved vs agencies", icon: "💰" },
+            { value: `${speedCount}s`, label: "To full strategy", icon: "⚡" },
+            { value: foundersCount.toLocaleString(), label: "Founders using now", icon: "🚀" },
+          ].map((stat, i) => (
+            <div key={i} className="rounded-2xl p-8 text-center"
+              style={{ background: "rgba(124,58,237,0.04)", border: "1px solid rgba(124,58,237,0.1)" }}>
+              <div className="text-3xl mb-3">{stat.icon}</div>
+              <div className="font-black text-4xl mb-2 text-purple-400">{stat.value}</div>
+              <div className="text-gray-600 text-sm">{stat.label}</div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ✅ BENTO GRID — ALL 11 MODULES */}
-      <section className="relative z-10 px-8 py-24">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-16">
-            <p className="text-xs uppercase tracking-widest text-purple-400 font-bold mb-3">What's inside</p>
-            <h2 className="font-black tracking-tighter" style={{ fontSize: "clamp(36px, 5vw, 64px)" }}>
-              <span className="text-white">11 modules.</span>
-              <span style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> One system.</span>
+      {/* Modules grid */}
+      <section className="relative z-10 px-8 py-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-12">
+            <p className="text-xs uppercase tracking-widest text-purple-500 font-bold mb-3">What's inside</p>
+            <h2 className="font-black tracking-tighter text-white" style={{ fontSize: "clamp(32px, 4vw, 56px)" }}>
+              11 modules. One system.
             </h2>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            {features.map((f, i) => (
-              <div key={f.title}
-                className={`group relative overflow-hidden rounded-3xl p-7 cursor-pointer ${f.span}`}
-                style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", minHeight: 190, boxShadow: `0 0 30px ${f.glow}15, inset 0 1px 0 rgba(255,255,255,0.08)`, transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`, transition: "transform 0.15s ease, box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease" }}
-                onClick={() => router.push("/sign-up")}
-                onMouseMove={(e) => handleTilt(e, f.title)}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.background = "rgba(255,255,255,0.06)";
-                  el.style.boxShadow = `0 20px 60px rgba(0,0,0,0.4), 0 0 80px ${f.glow}25, inset 0 1px 0 rgba(255,255,255,0.15)`;
-                  el.style.borderColor = `${f.glow}50`;
-                  el.style.transform = `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg) translateY(-6px)`;
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.background = "rgba(255,255,255,0.03)";
-                  el.style.boxShadow = `0 0 30px ${f.glow}15, inset 0 1px 0 rgba(255,255,255,0.08)`;
-                  el.style.borderColor = "rgba(255,255,255,0.08)";
-                  el.style.transform = "perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0px)";
-                  resetTilt(f.title);
-                }}>
-                <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)" }} />
-                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}40 0%, transparent 65%)`, filter: "blur(20px)" }} />
-                <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}30 0%, transparent 65%)`, filter: "blur(15px)" }} />
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(90deg, transparent, ${f.glow}, transparent)` }} />
-                <div className="flex items-center justify-between mb-5 relative z-10">
-                  <span className="text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest" style={{ background: `${f.glow}15`, color: f.glow, border: `1px solid ${f.glow}25` }}>{f.title}</span>
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: `${f.glow}20`, border: `1px solid ${f.glow}30` }}>
-                    <span className="text-xs font-bold" style={{ color: f.glow }}>→</span>
+            {features.map((f, i) => {
+              const isComingSoon = f.title === "Meta Auto-Poster";
+              return (
+                <div key={f.title}
+                  className="group relative overflow-hidden rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(124,58,237,0.1)",
+                    opacity: isComingSoon ? 0.6 : 1,
+                  }}
+                  onClick={() => !isComingSoon && router.push("/sign-up")}
+                  onMouseEnter={(e) => {
+                    if (isComingSoon) return;
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = "rgba(124,58,237,0.06)";
+                    el.style.borderColor = "rgba(124,58,237,0.25)";
+                    el.style.boxShadow = "0 0 30px rgba(124,58,237,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = "rgba(255,255,255,0.02)";
+                    el.style.borderColor = "rgba(124,58,237,0.1)";
+                    el.style.boxShadow = "none";
+                  }}>
+                  <div className="text-3xl mb-3">{f.icon}</div>
+                  <h3 className="text-white font-bold text-base mb-1">{f.title}
+                    {isComingSoon && <span className="ml-2 text-xs px-2 py-0.5 rounded-full align-middle" style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}>SOON</span>}
+                  </h3>
+                  <p className="text-gray-600 text-xs leading-relaxed">{f.desc}</p>
+                  <div className="mt-4 text-xs font-bold text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    {!isComingSoon && "Open →"}
                   </div>
                 </div>
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10" style={{ filter: `drop-shadow(0 0 12px ${f.glow}70)` }}>{f.icon}</div>
-                <h3 className="font-black text-xl mb-2 relative z-10" style={{ color: "rgba(255,255,255,0.95)" }}>{f.title}{f.title === "Meta Auto-Poster" && <span className="ml-2 text-xs px-2 py-0.5 rounded-full align-middle" style={{ background: "rgba(249,115,22,0.2)", color: "#fb923c", border: "1px solid rgba(249,115,22,0.3)" }}>COMING SOON</span>}</h3>
-                <p className="text-sm leading-relaxed relative z-10" style={{ color: "rgba(255,255,255,0.4)" }}>{f.desc}</p>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%, rgba(255,255,255,0.02) 100%)" }} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Social proof */}
-      <div className="relative z-10 py-8 overflow-hidden">
-        <p className="text-center text-xs uppercase tracking-widest text-gray-700 font-bold mb-6">What founders are saying</p>
+      {/* Testimonials */}
+      <div className="relative z-10 py-12 overflow-hidden">
+        <p className="text-center text-xs uppercase tracking-widest text-gray-700 font-bold mb-8">What founders are saying</p>
         <div className="flex gap-4 overflow-hidden">
           <div className="flex gap-4" style={{ animation: "marquee 30s linear infinite" }}>
             {[
-              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
-              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
-              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
-              { text: "This is what I needed. Fast, on-brand, no agency BS.", name: "James L., Freelancer", color: "#10b981" },
-              { text: "The ad copy is better than what my agency produced.", name: "Alex R., D2C Brand", color: "#f59e0b" },
-              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
-              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
-              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
+              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder" },
+              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce" },
+              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO" },
+              { text: "This is what I needed. Fast, on-brand, no agency BS.", name: "James L., Freelancer" },
+              { text: "The ad copy is better than what my agency produced.", name: "Alex R., D2C Brand" },
+              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder" },
+              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce" },
+              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO" },
             ].map((t, i) => (
-              <div key={i} className="flex-shrink-0 w-96 rounded-2xl p-6 hover:scale-105 transition-all duration-300 cursor-default"
-                style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${t.color}40`; (e.currentTarget as HTMLElement).style.background = `${t.color}08`; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${t.color}20`; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)"; }}>
-                <p className="text-gray-200 text-base mb-6 leading-relaxed">"{t.text}"</p>
-                <p className="text-xs font-bold" style={{ color: t.color }}>— {t.name}</p>
+              <div key={i} className="flex-shrink-0 w-80 rounded-2xl p-5 cursor-default transition-all duration-300"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(124,58,237,0.08)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.2)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.08)"; }}>
+                <p className="text-gray-300 text-sm mb-4 leading-relaxed">"{t.text}"</p>
+                <p className="text-purple-600 text-xs font-bold">— {t.name}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Final CTA */}
-      <section className="relative z-10 px-8 py-32">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="relative overflow-hidden rounded-[40px] p-20 group"
-            style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
-            <div className="absolute inset-0 rounded-[40px] overflow-hidden opacity-10" style={{ backgroundImage: "linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-            <div className="relative z-10">
-              <div className="text-8xl mb-8" style={{ animation: "float 3s ease-in-out infinite alternate" }}>⚡</div>
-              <h2 className="font-black tracking-tighter mb-4" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>
-                Your competitors
-                <span className="block" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                  are already using AI.
-                </span>
-              </h2>
-              <p className="text-gray-500 text-xl mb-4 max-w-lg mx-auto">Don't get left behind.</p>
-              <div className="flex items-center justify-center gap-2 mb-10">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                <span className="text-green-400 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
-              </div>
-              <button onClick={() => router.push("/sign-up")}
-                className="text-white font-black px-16 py-6 rounded-2xl text-2xl transition-all hover:scale-105 active:scale-95 inline-block relative overflow-hidden group"
-                style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 60px rgba(124,58,237,0.6), 0 0 120px rgba(124,58,237,0.3)" }}>
-                <span className="relative z-10">Get Started Free →</span>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
-              </button>
-              <p className="text-gray-700 text-sm mt-6">$49/month · No credit card · Cancel anytime</p>
+      {/* CTA */}
+      <section className="relative z-10 px-8 py-28">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="rounded-3xl p-16" style={{ background: "rgba(124,58,237,0.05)", border: "1px solid rgba(124,58,237,0.12)" }}>
+            <h2 className="font-black tracking-tighter text-white mb-4" style={{ fontSize: "clamp(32px, 5vw, 64px)" }}>
+              Your competitors are already using AI.
+            </h2>
+            <p className="text-gray-500 text-lg mb-4">Don't get left behind.</p>
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
+              <span className="text-purple-400 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
             </div>
+            <button onClick={() => router.push("/sign-up")}
+              className="text-white font-black px-14 py-5 rounded-2xl text-xl transition-all hover:scale-105 active:scale-95"
+              style={{ background: "#7c3aed", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
+              Get Started Free →
+            </button>
+            <p className="text-gray-700 text-sm mt-5">$49/month · No credit card · Cancel anytime</p>
           </div>
         </div>
       </section>
 
-      <footer className="relative z-10 px-8 py-10 text-center" style={{ borderTop: "1px solid rgba(124,58,237,0.06)" }}>
-        <p className="text-gray-800 text-sm font-medium">© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
+      <footer className="relative z-10 px-8 py-8 text-center" style={{ borderTop: "1px solid rgba(124,58,237,0.06)" }}>
+        <p className="text-gray-800 text-sm">© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
       </footer>
 
       <style>{`
         @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-        @keyframes float { from { transform: translateY(0px) } to { transform: translateY(-20px) } }
-        @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(200%) } }
-        @keyframes aurora1 { 0% { transform: translateX(-5%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.8; } 50% { transform: translateX(5%) translateY(5%) scaleX(1.1) scaleY(0.9); opacity: 1; } 100% { transform: translateX(2%) translateY(-5%) scaleX(0.95) scaleY(1.1); opacity: 0.7; } }
-        @keyframes aurora2 { 0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.6; } 50% { transform: translateX(-8%) translateY(-3%) scaleX(1.15) scaleY(0.85); opacity: 0.9; } 100% { transform: translateX(5%) translateY(8%) scaleX(0.9) scaleY(1.2); opacity: 0.5; } }
-        @keyframes aurora3 { 0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.7; } 50% { transform: translateX(6%) translateY(-6%) scaleX(0.9) scaleY(1.15); opacity: 1; } 100% { transform: translateX(-4%) translateY(4%) scaleX(1.1) scaleY(0.9); opacity: 0.6; } }
-        @keyframes aurora4 { 0% { transform: translateX(0%) scaleX(1); opacity: 0.5; } 100% { transform: translateX(10%) scaleX(1.2); opacity: 0.8; } }
-        @keyframes aurora-line { 0% { transform: translateX(-10%) scaleX(0.8); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateX(10%) scaleX(1.2); opacity: 0.3; } }
       `}</style>
     </main>
   );
