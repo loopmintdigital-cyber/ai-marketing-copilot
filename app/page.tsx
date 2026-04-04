@@ -198,8 +198,7 @@ export default function Home() {
     { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1" },
     { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
     { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
-    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-1" },
-    { icon: "🔗", title: "Meta Auto-Poster", desc: "Schedule & auto-post directly to Instagram & Facebook.", glow: "#f97316", span: "col-span-1" },
+    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-2" },
   ];
 
   return (
