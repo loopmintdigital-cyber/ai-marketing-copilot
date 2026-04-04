@@ -94,6 +94,14 @@ const modules = [
     grad: "linear-gradient(135deg, #1e1b4b, #3730a3)",
     tag: "HISTORY",
   },
+  {
+    title: "Meta Auto-Poster",
+    description: "Schedule & auto-post directly to Instagram & Facebook",
+    icon: "🔗", href: "#",
+    glow: "#f97316", accent: "#fb923c",
+    grad: "linear-gradient(135deg, #431407, #9a3412)",
+    tag: "COMING SOON",
+  },
 ];
 
 const moduleColors: Record<string, string> = {
