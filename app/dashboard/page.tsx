@@ -154,7 +154,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!isLoaded || checking) return (
+  if (!isLoaded) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f0f0f 0%, #1a0533 50%, #0f0f0f 100%)" }}>
       <div className="text-center">
         <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
