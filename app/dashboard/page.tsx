@@ -203,7 +203,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!isLoaded || checking) return (
+  if (!isLoaded) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#020008" }}>
       <div className="text-center">
         <div className="w-16 h-16 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" style={{ boxShadow: "0 0 30px rgba(124,58,237,0.5)" }} />
