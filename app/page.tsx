@@ -140,7 +140,7 @@ export default function Home() {
         if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
         const op = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(124,58,237,${op})`; ctx.fill();
+        ctx.fillStyle = `rgba(109,40,217,${op})`; ctx.fill();
       });
       animId = requestAnimationFrame(animate);
     }
@@ -156,25 +156,25 @@ export default function Home() {
 
       {/* Subtle purple glow — top only */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div style={{ position: "absolute", width: "80%", height: "40%", top: "-10%", left: "10%", background: "radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%)", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", width: "80%", height: "40%", top: "-10%", left: "10%", background: "radial-gradient(ellipse, rgba(109,40,217,0.08) 0%, transparent 70%)", filter: "blur(80px)" }} />
       </div>
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(8,8,12,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(124,58,237,0.08)" }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(8,8,12,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(109,40,217,0.08)" }}>
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 bg-purple-500 rounded-full" style={{ boxShadow: "0 0 8px rgba(124,58,237,0.8)" }} />
+          <div className="w-2 h-2 bg-purple-500 rounded-full" style={{ boxShadow: "0 0 8px rgba(109,40,217,0.8)" }} />
           <span className="font-black text-white tracking-tight text-lg">AI Marketing Co-Pilot</span>
         </div>
         <div className="flex items-center gap-6">
-          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}>
-            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
-            <span className="text-purple-400 font-bold">{liveCount.toLocaleString()}</span>
+          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(109,40,217,0.08)", border: "1px solid rgba(109,40,217,0.15)" }}>
+            <span className="w-1.5 h-1.5 bg-purple-700 rounded-full animate-pulse" />
+            <span className="text-purple-600 font-bold">{liveCount.toLocaleString()}</span>
             <span className="text-gray-600">using now</span>
           </div>
           <button onClick={() => router.push("/dashboard")} className="text-gray-500 hover:text-white text-sm transition-colors">Dashboard</button>
           <button onClick={() => router.push("/sign-up")}
             className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105"
-            style={{ background: "#7c3aed", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
+            style={{ background: "#6d28d9", boxShadow: "0 0 20px rgba(109,40,217,0.3)" }}>
             Get Started →
           </button>
         </div>
@@ -184,15 +184,15 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center z-10 px-8 pt-20">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className={`transition-all duration-1000 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"}`}>
-            <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-medium" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)", color: "#a78bfa" }}>
-              <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
+            <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-medium" style={{ background: "rgba(109,40,217,0.08)", border: "1px solid rgba(109,40,217,0.15)", color: "#8b5cf6" }}>
+              <span className="w-1.5 h-1.5 bg-purple-700 rounded-full animate-pulse" />
               Replacing $10K/month agencies
             </div>
             <h1 className="font-black leading-none tracking-tighter mb-2 text-white" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
               <span className="block">AI That</span>
               <span className="block">Writes Your</span>
             </h1>
-            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", color: "#7c3aed", minHeight: "1.3em" }}>
+            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", color: "#6d28d9", minHeight: "1.3em" }}>
               {displayed}<span className="animate-pulse text-purple-500">|</span>
             </h1>
             <p className="text-gray-500 mb-10 max-w-lg leading-relaxed" style={{ fontSize: "1.1rem" }}>
@@ -202,7 +202,7 @@ export default function Home() {
             <div className="flex items-center gap-4 mb-12">
               <button onClick={() => router.push("/sign-up")}
                 className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95"
-                style={{ background: "#7c3aed", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
+                style={{ background: "#6d28d9", boxShadow: "0 0 40px rgba(109,40,217,0.4)" }}>
                 Start for Free →
               </button>
               <button onClick={() => router.push("/dashboard")}
@@ -219,7 +219,7 @@ export default function Home() {
                 { v: "24/7", l: "always on" }
               ].map((s) => (
                 <div key={s.l} className="cursor-default">
-                  <div className="text-2xl font-black text-purple-400">{s.v}</div>
+                  <div className="text-2xl font-black text-purple-600">{s.v}</div>
                   <div className="text-gray-600 text-xs font-medium">{s.l}</div>
                 </div>
               ))}
@@ -228,22 +228,22 @@ export default function Home() {
 
           {/* Live output card */}
           <div className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}`}>
-            <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
-              <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.3)" }}>
+            <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(109,40,217,0.15)", backdropFilter: "blur(20px)" }}>
+              <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(109,40,217,0.08)", background: "rgba(0,0,0,0.3)" }}>
                 <div className="w-3 h-3 rounded-full bg-red-500 opacity-60" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-60" />
                 <div className="w-3 h-3 rounded-full bg-green-500 opacity-60" />
                 <span className="ml-3 text-gray-600 text-xs font-mono">ai-marketing-copilot · live output</span>
                 <div className="ml-auto flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
-                  <span className="text-purple-400 text-xs font-bold">LIVE</span>
+                  <span className="w-1.5 h-1.5 bg-purple-700 rounded-full animate-pulse" />
+                  <span className="text-purple-600 text-xs font-bold">LIVE</span>
                 </div>
               </div>
-              <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
+              <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(109,40,217,0.08)" }}>
                 {LIVE_OUTPUTS.map((o, i) => (
                   <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
                     className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium"
-                    style={{ background: i === outputIndex ? "rgba(124,58,237,0.15)" : "rgba(255,255,255,0.03)", color: i === outputIndex ? "#a78bfa" : "#6b7280", border: `1px solid ${i === outputIndex ? "rgba(124,58,237,0.3)" : "rgba(255,255,255,0.05)"}` }}>
+                    style={{ background: i === outputIndex ? "rgba(109,40,217,0.15)" : "rgba(255,255,255,0.03)", color: i === outputIndex ? "#a78bfa" : "#6b7280", border: `1px solid ${i === outputIndex ? "rgba(109,40,217,0.3)" : "rgba(255,255,255,0.05)"}` }}>
                     {o.module}
                   </button>
                 ))}
@@ -253,16 +253,16 @@ export default function Home() {
                   {outputText}<span className="animate-pulse text-white">█</span>
                 </pre>
               </div>
-              <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.2)" }}>
+              <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(109,40,217,0.08)", background: "rgba(0,0,0,0.2)" }}>
                 <span className="text-gray-700 text-xs font-mono">Generated in 8.3s</span>
                 <div className="flex gap-2">
                   {["Copy", "Export", "Refine"].map((a) => (
-                    <button key={a} className="text-xs px-3 py-1 rounded-lg transition-all font-medium" style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.15)" }}>{a}</button>
+                    <button key={a} className="text-xs px-3 py-1 rounded-lg transition-all font-medium" style={{ background: "rgba(109,40,217,0.1)", color: "#8b5cf6", border: "1px solid rgba(109,40,217,0.15)" }}>{a}</button>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="absolute -top-4 -right-4 px-4 py-2 rounded-xl text-sm font-bold text-white" style={{ background: "#7c3aed", boxShadow: "0 0 20px rgba(124,58,237,0.5)" }}>
+            <div className="absolute -top-4 -right-4 px-4 py-2 rounded-xl text-sm font-bold text-white" style={{ background: "#6d28d9", boxShadow: "0 0 20px rgba(109,40,217,0.5)" }}>
               ⚡ 10 seconds
             </div>
           </div>
@@ -270,7 +270,7 @@ export default function Home() {
       </section>
 
       {/* Ticker */}
-      <div className="relative z-10 py-5 overflow-hidden" style={{ borderTop: "1px solid rgba(124,58,237,0.08)", borderBottom: "1px solid rgba(124,58,237,0.08)" }}>
+      <div className="relative z-10 py-5 overflow-hidden" style={{ borderTop: "1px solid rgba(109,40,217,0.08)", borderBottom: "1px solid rgba(109,40,217,0.08)" }}>
         <div className="flex gap-8 whitespace-nowrap" style={{ animation: "marquee 25s linear infinite" }}>
           {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
             <span key={i} className="text-sm font-medium px-4 text-gray-600">{item}</span>
@@ -297,9 +297,9 @@ export default function Home() {
             { value: foundersCount.toLocaleString(), label: "Founders using now", icon: "🚀" },
           ].map((stat, i) => (
             <div key={i} className="rounded-2xl p-8 text-center"
-              style={{ background: "rgba(124,58,237,0.04)", border: "1px solid rgba(124,58,237,0.1)" }}>
+              style={{ background: "rgba(109,40,217,0.04)", border: "1px solid rgba(109,40,217,0.1)" }}>
               <div className="text-3xl mb-3">{stat.icon}</div>
-              <div className="font-black text-4xl mb-2 text-purple-400">{stat.value}</div>
+              <div className="font-black text-4xl mb-2 text-purple-600">{stat.value}</div>
               <div className="text-gray-600 text-sm">{stat.label}</div>
             </div>
           ))}
@@ -324,26 +324,26 @@ export default function Home() {
                   style={{
                     background: "rgba(255,255,255,0.02)",
                     backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(124,58,237,0.1)",
+                    border: "1px solid rgba(109,40,217,0.1)",
                     opacity: isComingSoon ? 0.6 : 1,
                   }}
                   onClick={() => !isComingSoon && router.push("/sign-up")}
                   onMouseEnter={(e) => {
                     if (isComingSoon) return;
                     const el = e.currentTarget as HTMLElement;
-                    el.style.background = "rgba(124,58,237,0.06)";
-                    el.style.borderColor = "rgba(124,58,237,0.25)";
-                    el.style.boxShadow = "0 0 30px rgba(124,58,237,0.1)";
+                    el.style.background = "rgba(109,40,217,0.06)";
+                    el.style.borderColor = "rgba(109,40,217,0.25)";
+                    el.style.boxShadow = "0 0 30px rgba(109,40,217,0.1)";
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.background = "rgba(255,255,255,0.02)";
-                    el.style.borderColor = "rgba(124,58,237,0.1)";
+                    el.style.borderColor = "rgba(109,40,217,0.1)";
                     el.style.boxShadow = "none";
                   }}>
                   <div className="text-3xl mb-3">{f.icon}</div>
                   <h3 className="text-white font-bold text-base mb-1">{f.title}
-                    {isComingSoon && <span className="ml-2 text-xs px-2 py-0.5 rounded-full align-middle" style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}>SOON</span>}
+                    {isComingSoon && <span className="ml-2 text-xs px-2 py-0.5 rounded-full align-middle" style={{ background: "rgba(109,40,217,0.15)", color: "#8b5cf6", border: "1px solid rgba(109,40,217,0.2)" }}>SOON</span>}
                   </h3>
                   <p className="text-gray-600 text-xs leading-relaxed">{f.desc}</p>
                   <div className="mt-4 text-xs font-bold text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -372,9 +372,9 @@ export default function Home() {
               { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO" },
             ].map((t, i) => (
               <div key={i} className="flex-shrink-0 w-80 rounded-2xl p-5 cursor-default transition-all duration-300"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(124,58,237,0.08)" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.2)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.08)"; }}>
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(109,40,217,0.08)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(109,40,217,0.2)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(109,40,217,0.08)"; }}>
                 <p className="text-gray-300 text-sm mb-4 leading-relaxed">"{t.text}"</p>
                 <p className="text-purple-600 text-xs font-bold">— {t.name}</p>
               </div>
@@ -386,18 +386,18 @@ export default function Home() {
       {/* CTA */}
       <section className="relative z-10 px-8 py-28">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="rounded-3xl p-16" style={{ background: "rgba(124,58,237,0.05)", border: "1px solid rgba(124,58,237,0.12)" }}>
+          <div className="rounded-3xl p-16" style={{ background: "rgba(109,40,217,0.05)", border: "1px solid rgba(109,40,217,0.12)" }}>
             <h2 className="font-black tracking-tighter text-white mb-4" style={{ fontSize: "clamp(32px, 5vw, 64px)" }}>
               Your competitors are already using AI.
             </h2>
             <p className="text-gray-500 text-lg mb-4">Don't get left behind.</p>
             <div className="flex items-center justify-center gap-2 mb-8">
-              <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
-              <span className="text-purple-400 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
+              <span className="w-1.5 h-1.5 bg-purple-700 rounded-full animate-pulse" />
+              <span className="text-purple-600 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
             </div>
             <button onClick={() => router.push("/sign-up")}
               className="text-white font-black px-14 py-5 rounded-2xl text-xl transition-all hover:scale-105 active:scale-95"
-              style={{ background: "#7c3aed", boxShadow: "0 0 40px rgba(124,58,237,0.4)" }}>
+              style={{ background: "#6d28d9", boxShadow: "0 0 40px rgba(109,40,217,0.4)" }}>
               Get Started Free →
             </button>
             <p className="text-gray-700 text-sm mt-5">$49/month · No credit card · Cancel anytime</p>
@@ -405,7 +405,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="relative z-10 px-8 py-8 text-center" style={{ borderTop: "1px solid rgba(124,58,237,0.06)" }}>
+      <footer className="relative z-10 px-8 py-8 text-center" style={{ borderTop: "1px solid rgba(109,40,217,0.06)" }}>
         <p className="text-gray-800 text-sm">© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
       </footer>
 
