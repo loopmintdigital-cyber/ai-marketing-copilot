@@ -1,75 +1,129 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useClerk, useUser } from "@clerk/nextjs";
 
-type HistoryItem = { id: string; module: string; result: string; createdAt: string; };
+const WORDS = ["Brand Strategy.", "Social Content.", "Email Sequences.", "Ad Campaigns.", "SEO Articles.", "Landing Pages."];
+const TICKER_ITEMS = ["🧠 Brand Strategy", "📱 Social Media", "📧 Email Marketing", "🎯 Ad Campaigns", "🔍 SEO Strategy", "✍️ Copywriting", "🖼️ AI Poster Maker", "🗓️ Content Planner", "🌐 Website Builder", "⚡ 10x Faster", "💰 Save $10K/month", "🚀 Ship in Minutes", "🎨 Always On-Brand"];
 
-const modules = [
-  { title: "Social Media Manager", description: "7-day post calendar for LinkedIn, Twitter & Instagram", icon: "📱", href: "/social", glow: "#3b82f6", accent: "#60a5fa", grad: "linear-gradient(135deg, #1e3a5f, #1e40af)", tag: "7-DAY CALENDAR" },
-  { title: "Content & Copywriting", description: "Landing pages, hero copy, feature copy & more", icon: "✍️", href: "/content", glow: "#ec4899", accent: "#f472b6", grad: "linear-gradient(135deg, #4a1942, #be185d)", tag: "COPY ENGINE" },
-  { title: "Email Marketing", description: "Onboarding sequences, newsletters & cold outreach", icon: "📧", href: "/email-marketing", glow: "#10b981", accent: "#34d399", grad: "linear-gradient(135deg, #064e3b, #065f46)", tag: "EMAIL SEQUENCES" },
-  { title: "Ad Campaign Generator", description: "Google RSA + Meta ad copy with A/B variants", icon: "🎯", href: "/ads", glow: "#f59e0b", accent: "#fbbf24", grad: "linear-gradient(135deg, #451a03, #92400e)", tag: "GOOGLE + META" },
-  { title: "SEO & Blog Strategy", description: "Keyword clusters, blog calendars & full article drafts", icon: "🔍", href: "/seo", glow: "#f97316", accent: "#fb923c", grad: "linear-gradient(135deg, #431407, #9a3412)", tag: "SEO POWER" },
-  { title: "Brand Strategy Engine", description: "Your brand positioning, voice guide & ICP personas", icon: "🧠", href: "/brand-strategy", glow: "#a855f7", accent: "#c084fc", grad: "linear-gradient(135deg, #3b0764, #6d28d9)", tag: "BRAND DNA" },
-  { title: "AI Poster Maker", description: "Generate & design stunning posters with AI + drag & drop editor", icon: "🖼️", href: "/poster", glow: "#f43f5e", accent: "#fb7185", grad: "linear-gradient(135deg, #4c0519, #9f1239)", tag: "POSTER AI" },
-  { title: "Content Planner", description: "Visual calendar to plan, schedule & track all posts", icon: "🗓️", href: "/planner", glow: "#14b8a6", accent: "#2dd4bf", grad: "linear-gradient(135deg, #042f2e, #0f766e)", tag: "SCHEDULE" },
-  { title: "Brand Profile", description: "View and edit your brand data & strategy", icon: "⚡", href: "/brand-profile", glow: "#8b5cf6", accent: "#a78bfa", grad: "linear-gradient(135deg, #2e1065, #4c1d95)", tag: "BRAND HQ" },
-  { title: "Content Calendar", description: "View all your generated content history", icon: "📅", href: "/content-calendar", glow: "#6366f1", accent: "#818cf8", grad: "linear-gradient(135deg, #1e1b4b, #3730a3)", tag: "HISTORY" },
-  { title: "Website Builder", description: "Generate a complete branded website in seconds", icon: "🌐", href: "/website-builder", glow: "#06b6d4", accent: "#22d3ee", grad: "linear-gradient(135deg, #0c4a6e, #0369a1)", tag: "FULL WEBSITE" },
-  { title: "Meta Auto-Poster", description: "Schedule & auto-post directly to Instagram & Facebook", icon: "🔗", href: "#", glow: "#f97316", accent: "#fb923c", grad: "linear-gradient(135deg, #431407, #9a3412)", tag: "COMING SOON" },
+const LIVE_OUTPUTS = [
+  { module: "📱 Social Media", content: "LinkedIn Post — Day 1\n\"Most founders waste $10K/month on agencies that take 2 weeks to write a blog post. We built AI that does it in 10 seconds. Here's how →\"", color: "#3b82f6" },
+  { module: "📧 Email Subject Lines", content: "Subject: You're leaving $10K on the table\nSubject: Your competitors aren't waiting\nSubject: 10 seconds to your entire marketing strategy", color: "#10b981" },
+  { module: "🎯 Google Ad Copy", content: "Headline 1: AI Marketing in 10 Seconds\nHeadline 2: Replace Your $10K Agency\nDescription: Full brand strategy, social posts, ads & SEO — all trained on YOUR product.", color: "#f59e0b" },
+  { module: "🧠 Brand Tagline", content: "\"Ship Marketing. Not Excuses.\"\n\"Your Agency Is Sleeping. Your AI Isn't.\"\n\"From Brief to Campaign in 10 Seconds.\"", color: "#a855f7" },
 ];
 
-const moduleColors: Record<string, string> = {
-  social: "bg-blue-900 text-blue-300",
-  email: "bg-green-900 text-green-300",
-  ads: "bg-yellow-900 text-yellow-300",
-  content: "bg-pink-900 text-pink-300",
-  seo: "bg-orange-900 text-orange-300",
-  poster: "bg-rose-900 text-rose-300",
-};
+function useCounter(target: number, duration: number = 2000, start: boolean = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number;
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [start, target, duration]);
+  return count;
+}
 
-export default function Dashboard() {
+export default function Home() {
   const router = useRouter();
-  const { signOut } = useClerk();
-  const { user, isLoaded } = useUser();
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selected, setSelected] = useState<HistoryItem | null>(null);
-  const [checking, setChecking] = useState(true);
-  const [hoveredModule, setHoveredModule] = useState<string | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [time, setTime] = useState(new Date());
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+  const [glitch, setGlitch] = useState(false);
+  const [liveCount, setLiveCount] = useState(2847);
+  const [outputIndex, setOutputIndex] = useState(0);
+  const [outputText, setOutputText] = useState("");
+  const [outputCharIndex, setOutputCharIndex] = useState(0);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [tiltCards, setTiltCards] = useState<Record<string, { x: number; y: number }>>({});
+  const [cursorTrail, setCursorTrail] = useState<{ x: number; y: number; id: number }[]>([]);
+  const trailIdRef = useRef(0);
+  const statsRef = useRef<HTMLDivElement>(null);
+
+  const savedCount = useCounter(9951, 2000, statsVisible);
+  const speedCount = useCounter(10, 1500, statsVisible);
+  const foundersCount = useCounter(2858, 2500, statsVisible);
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    setMounted(true);
+    const glitchInterval = setInterval(() => {
+      setGlitch(true);
+      setTimeout(() => setGlitch(false), 100);
+    }, 4000);
+    const countInterval = setInterval(() => {
+      setLiveCount(c => c + Math.floor(Math.random() * 3));
+    }, 2000);
+    return () => { clearInterval(glitchInterval); clearInterval(countInterval); };
   }, []);
 
   useEffect(() => {
-    const handleMouse = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    if (!statsRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setStatsVisible(true);
+    }, { threshold: 0.3 });
+    observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleMouse = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      const id = trailIdRef.current++;
+      setCursorTrail(prev => [...prev.slice(-12), { x: e.clientX, y: e.clientY, id }]);
+    };
     window.addEventListener("mousemove", handleMouse);
     return () => window.removeEventListener("mousemove", handleMouse);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !user) return;
-    async function loadData() {
-      await user!.reload();
-      const meta = user!.publicMetadata as { onboardingComplete?: boolean; answers?: Record<string, string> };
-      const localAnswers = localStorage.getItem("answers");
-      const hasLocalData = localAnswers && JSON.parse(localAnswers).productName;
-      if (!meta?.onboardingComplete && !hasLocalData) { router.push("/onboarding"); return; }
-      if (meta?.answers) { setAnswers(meta.answers); localStorage.setItem("answers", JSON.stringify(meta.answers)); }
-      else if (localAnswers) setAnswers(JSON.parse(localAnswers));
-      const savedHistory = localStorage.getItem("contentHistory");
-      if (savedHistory) setHistory(JSON.parse(savedHistory));
-      setChecking(false);
+    const interval = setInterval(() => {
+      setCursorTrail(prev => prev.slice(-8));
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const word = WORDS[wordIndex];
+    let timeout: NodeJS.Timeout;
+    if (!deleting && displayed.length < word.length) {
+      timeout = setTimeout(() => setDisplayed(word.slice(0, displayed.length + 1)), 70);
+    } else if (!deleting && displayed.length === word.length) {
+      timeout = setTimeout(() => setDeleting(true), 2000);
+    } else if (deleting && displayed.length > 0) {
+      timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 35);
+    } else {
+      setDeleting(false);
+      setWordIndex((i) => (i + 1) % WORDS.length);
     }
-    loadData();
-  }, [isLoaded, user]);
+    return () => clearTimeout(timeout);
+  }, [displayed, deleting, wordIndex]);
+
+  useEffect(() => {
+    const output = LIVE_OUTPUTS[outputIndex];
+    const fullText = output.content;
+    if (outputCharIndex < fullText.length) {
+      const timeout = setTimeout(() => {
+        setOutputText(fullText.slice(0, outputCharIndex + 1));
+        setOutputCharIndex(i => i + 1);
+      }, 25);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setOutputIndex((i) => (i + 1) % LIVE_OUTPUTS.length);
+        setOutputText("");
+        setOutputCharIndex(0);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [outputCharIndex, outputIndex]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -78,30 +132,40 @@ export default function Dashboard() {
     if (!ctx) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const particles = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      size: Math.random() * 1.5 + 0.3,
-      speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.6 + 0.1,
-      color: ["147,51,234","236,72,153","59,130,246","16,185,129"][Math.floor(Math.random() * 4)],
+    const particles = Array.from({ length: 150 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 2 + 0.3,
+      speedX: (Math.random() - 0.5) * 0.4,
+      speedY: (Math.random() - 0.5) * 0.4,
+      opacity: Math.random() * 0.9 + 0.1,
+      color: ["147,51,234","236,72,153","59,130,246","16,185,129","251,191,36","239,68,68"][Math.floor(Math.random() * 6)],
       pulse: Math.random() * Math.PI * 2,
+      size2: Math.random() * 3 + 1,
     }));
     let animId: number;
     function animate() {
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p: any) => {
-        p.x += p.speedX; p.y += p.speedY; p.pulse += 0.015;
+        p.x += p.speedX; p.y += p.speedY; p.pulse += 0.02;
         if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
-        const op = p.opacity * (0.6 + 0.4 * Math.sin(p.pulse));
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+        const op = p.opacity * (0.5 + 0.5 * Math.sin(p.pulse));
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size2 * 5);
         g.addColorStop(0, `rgba(${p.color},${op})`);
         g.addColorStop(1, `rgba(${p.color},0)`);
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size2 * 5, 0, Math.PI * 2);
         ctx.fillStyle = g; ctx.fill();
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${p.color},${op})`; ctx.fill();
+        particles.forEach((p2: any) => {
+          const d = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (d < 100) {
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(147,51,234,${0.05*(1-d/100)})`; ctx.lineWidth = 0.5; ctx.stroke();
+          }
+        });
       });
       animId = requestAnimationFrame(animate);
     }
@@ -111,217 +175,341 @@ export default function Dashboard() {
     return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", onResize); };
   }, []);
 
-  function renderContent(content: string) {
-    return (
-      <div className="space-y-1">
-        {content.split('\n').slice(0, 20).map((line, i) => {
-          if (line.startsWith('# ')) return <h2 key={i} className="text-base font-bold text-white mt-2">{line.replace('# ', '')}</h2>;
-          if (line.startsWith('## ')) return <h3 key={i} className="text-sm font-bold text-purple-400 mt-2">{line.replace('## ', '')}</h3>;
-          if (line.startsWith('---')) return <hr key={i} className="border-gray-700 my-2" />;
-          if (line.trim() === '') return <div key={i} className="h-1" />;
-          return <p key={i} className="text-gray-300 text-xs">{line.replace(/\*\*(.*?)\*\*/g, '$1')}</p>;
-        })}
-      </div>
-    );
-  }
+  const handleTilt = useCallback((e: React.MouseEvent<HTMLDivElement>, key: string) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
+    const y = -((e.clientX - rect.left) / rect.width - 0.5) * 20;
+    setTiltCards(prev => ({ ...prev, [key]: { x, y } }));
+  }, []);
 
-  if (!isLoaded || checking) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#020008" }}>
-      <div className="text-center">
-        <div className="w-16 h-16 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" style={{ boxShadow: "0 0 30px rgba(124,58,237,0.5)" }} />
-        <div className="text-purple-400 text-sm animate-pulse">Launching your workspace...</div>
-      </div>
-    </div>
-  );
+  const resetTilt = useCallback((key: string) => {
+    setTiltCards(prev => ({ ...prev, [key]: { x: 0, y: 0 } }));
+  }, []);
 
-  const greeting = time.getHours() < 12 ? "Good morning" : time.getHours() < 17 ? "Good afternoon" : "Good evening";
+  // ✅ ALL 11 MODULES
+  const features = [
+    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-2" },
+    { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1" },
+    { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert.", glow: "#10b981", span: "col-span-1" },
+    { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants.", glow: "#f59e0b", span: "col-span-1" },
+    { icon: "🔍", title: "SEO Strategy", desc: "Keywords, blogs & full article drafts.", glow: "#f97316", span: "col-span-1" },
+    { icon: "✍️", title: "Copywriting", desc: "Landing pages trained on your product.", glow: "#ec4899", span: "col-span-1" },
+    { icon: "🖼️", title: "AI Poster Maker", desc: "Generate & design stunning posters with AI.", glow: "#f43f5e", span: "col-span-1" },
+    { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1" },
+    { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
+    { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
+    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-2" },
+  ];
 
   return (
-    <main className="min-h-screen text-white relative overflow-x-hidden" style={{ background: "#020008" }}>
+    <main className="text-white overflow-x-hidden" style={{ background: "#020008", minHeight: "100vh" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div style={{ position: "absolute", width: "60%", height: "50%", top: "-5%", left: "-10%", background: "radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%)", filter: "blur(60px)" }} />
-        <div style={{ position: "absolute", width: "50%", height: "40%", top: "30%", right: "-5%", background: "radial-gradient(ellipse, rgba(236,72,153,0.08) 0%, transparent 70%)", filter: "blur(60px)" }} />
+      {/* Aurora background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div style={{ position: "absolute", width: "180%", height: "60%", top: "-10%", left: "-20%", background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(124,58,237,0.55) 0%, rgba(88,28,220,0.25) 40%, transparent 70%)", animation: "aurora1 12s ease-in-out infinite alternate", filter: "blur(70px)" }} />
+        <div style={{ position: "absolute", width: "150%", height: "50%", top: "20%", left: "-10%", background: "radial-gradient(ellipse 60% 40% at 40% 60%, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.20) 40%, transparent 70%)", animation: "aurora2 16s ease-in-out infinite alternate", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", width: "130%", height: "70%", top: "40%", right: "-10%", background: "radial-gradient(ellipse 50% 50% at 60% 40%, rgba(236,72,153,0.40) 0%, rgba(190,24,93,0.18) 40%, transparent 70%)", animation: "aurora3 14s ease-in-out infinite alternate", filter: "blur(75px)" }} />
+        <div style={{ position: "absolute", width: "80%", height: "40%", bottom: "0%", left: "10%", background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.35) 0%, transparent 70%)", animation: "aurora4 18s ease-in-out infinite alternate", filter: "blur(90px)" }} />
+        <div style={{ position: "absolute", width: "100%", height: "1px", top: "35%", background: "linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(16,185,129,0.3), rgba(236,72,153,0.3), transparent)", animation: "aurora-line 8s ease-in-out infinite alternate", filter: "blur(2px)" }} />
       </div>
 
-      <div className="fixed pointer-events-none z-10" style={{ width: 400, height: 400, borderRadius: "50%", left: mousePos.x - 200, top: mousePos.y - 200, background: "radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 60%)", transition: "left 0.1s, top 0.1s" }} />
+      {/* Floating orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {[
+          { w: 600, h: 600, top: "10%", left: "5%", color: "124,58,237", dur: "8s" },
+          { w: 400, h: 400, top: "60%", right: "10%", color: "236,72,153", dur: "12s" },
+          { w: 300, h: 300, top: "30%", right: "30%", color: "59,130,246", dur: "10s" },
+          { w: 200, h: 200, top: "80%", left: "20%", color: "16,185,129", dur: "14s" },
+        ].map((orb, i) => (
+          <div key={i} className="absolute rounded-full" style={{ width: orb.w, height: orb.h, top: orb.top, left: (orb as any).left, right: (orb as any).right, background: `radial-gradient(circle, rgba(${orb.color},0.06) 0%, transparent 70%)`, animation: `float ${orb.dur} ease-in-out infinite alternate`, animationDelay: `${i * 2}s` }} />
+        ))}
+      </div>
 
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4"
-        style={{ background: "rgba(2,0,8,0.7)", backdropFilter: "blur(30px)", borderBottom: "1px solid rgba(124,58,237,0.1)" }}>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="w-3 h-3 bg-purple-500 rounded-full animate-ping opacity-40 absolute" />
-            <div className="w-3 h-3 bg-purple-500 rounded-full relative" style={{ boxShadow: "0 0 10px #7c3aed" }} />
-          </div>
-          <span className="font-black text-white text-lg tracking-tight">AI Marketing Co-Pilot</span>
-          <span className="hidden md:block text-xs px-3 py-1 rounded-full font-bold" style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
-            {answers.productName}
-          </span>
-        </div>
+      {/* Cursor glow */}
+      <div className="fixed pointer-events-none z-10 transition-all duration-100" style={{ width: 500, height: 500, borderRadius: "50%", left: mousePos.x - 250, top: mousePos.y - 250, background: "radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 60%)" }} />
+
+      {/* Cursor trail */}
+      {cursorTrail.map((dot, i) => (
+        <div key={dot.id} className="fixed pointer-events-none z-20 rounded-full" style={{ width: Math.max(2, (i / cursorTrail.length) * 10), height: Math.max(2, (i / cursorTrail.length) * 10), left: dot.x - 5, top: dot.y - 5, background: `rgba(168,85,247,${(i / cursorTrail.length) * 0.6})`, boxShadow: `0 0 ${i * 2}px rgba(168,85,247,0.4)`, transform: "translate(-50%,-50%)", transition: "all 0.05s linear" }} />
+      ))}
+
+      {/* Nav */}
+      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between" style={{ background: "rgba(1,0,3,0.5)", backdropFilter: "blur(30px)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.15)" }}>
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-green-400 font-mono font-bold">{time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+          <div className="relative w-3 h-3">
+            <div className="absolute inset-0 bg-purple-500 rounded-full animate-ping opacity-30"></div>
+            <div className="relative w-3 h-3 bg-purple-500 rounded-full shadow-lg shadow-purple-500"></div>
           </div>
-          <button onClick={() => setSidebarOpen(true)}
-            className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl transition-all hover:scale-105"
-            style={{ background: "rgba(26,5,51,0.8)", border: "1px solid rgba(124,58,237,0.2)", color: "#c084fc" }}>
-            📚 History {history.length > 0 && <span className="bg-purple-600 text-white text-xs px-1.5 py-0.5 rounded-full">{history.length}</span>}
-          </button>
-          <button onClick={() => router.push("/chat")}
-            className="text-sm px-4 py-2 rounded-xl font-bold transition-all hover:scale-105"
-            style={{ background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.3)", color: "#c084fc" }}>
-            💬 AI Chat
-          </button>
-          <button onClick={() => signOut(() => router.push("/sign-in"))}
-            className="text-sm px-3 py-2 rounded-xl transition-all hover:scale-105"
-            style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
-            Sign Out
+          <span className="font-black text-white tracking-tight text-lg">AI Marketing Co-Pilot</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+            <span className="text-green-400 font-bold">{liveCount.toLocaleString()}</span>
+            <span className="text-gray-600">using now</span>
+          </div>
+          <button onClick={() => router.push("/dashboard")} className="text-gray-600 hover:text-white text-sm transition-colors font-medium">Dashboard</button>
+          <button onClick={() => router.push("/sign-up")}
+            className="text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:scale-105 relative overflow-hidden group"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 20px rgba(124,58,237,0.3)" }}>
+            <span className="relative z-10">Get Started →</span>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "linear-gradient(135deg, #9333ea, #f472b6)" }} />
           </button>
         </div>
       </nav>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-16">
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-full mb-6 font-bold uppercase tracking-widest"
-            style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.2)", color: "#a78bfa" }}>
-            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
-            AI-Powered Marketing Suite • 11 Modules Active
-          </div>
-          <h1 className="font-black tracking-tighter leading-none mb-3" style={{ fontSize: "clamp(32px, 5vw, 64px)" }}>
-            <span className="text-gray-500">{greeting}, </span>
-            <span style={{ background: "linear-gradient(135deg, #a855f7, #ec4899, #3b82f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {answers.productName}
-            </span>
-            <span className="text-white"> 👋</span>
-          </h1>
-          <p className="text-gray-500 text-lg">Your AI marketing engine is ready. What are we building today?</p>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4 mb-12">
-          {[
-            { label: "AI Modules", value: "11", icon: "⚡", color: "#a855f7", glow: "rgba(168,85,247,0.3)" },
-            { label: "Content Generated", value: history.length.toString(), icon: "📄", color: "#10b981", glow: "rgba(16,185,129,0.3)" },
-            { label: "Brand Voice", value: answers.brandVoice?.split(" ")[0] || "Set", icon: "🎨", color: "#f59e0b", glow: "rgba(245,158,11,0.3)" },
-            { label: "Status", value: "LIVE", icon: "🚀", color: "#ec4899", glow: "rgba(236,72,153,0.3)" },
-          ].map((stat, i) => (
-            <div key={stat.label} className="rounded-2xl p-5 text-center cursor-default transition-all duration-500 hover:scale-105"
-              style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${stat.glow}`, boxShadow: `0 0 30px ${stat.glow}` }}
-              onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.boxShadow = `0 0 60px ${stat.glow}`}
-              onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.boxShadow = `0 0 30px ${stat.glow}`}>
-              <div className="text-3xl mb-2">{stat.icon}</div>
-              <div className="text-2xl font-black" style={{ color: stat.color }}>{stat.value}</div>
-              <div className="text-gray-600 text-xs mt-1 font-medium">{stat.label}</div>
+      {/* HERO */}
+      <section className="relative min-h-screen flex items-center z-10 px-8 pt-20">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className={`transition-all duration-1000 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"}`}>
+            <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-bold uppercase tracking-widest" style={{ background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.2)", color: "#a78bfa" }}>
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+              Live · Replacing $10K/month agencies
             </div>
+            <h1 className="font-black leading-none tracking-tighter mb-2" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
+              <span className={`block text-white transition-all duration-75 ${glitch ? "translate-x-0.5 opacity-90 text-purple-100" : ""}`}>AI That</span>
+              <span className={`block text-white transition-all duration-75 ${glitch ? "-translate-x-0.5 opacity-90" : ""}`}>Writes Your</span>
+            </h1>
+            <h1 className="font-black leading-none tracking-tighter mb-8" style={{ fontSize: "clamp(44px, 7vw, 88px)", background: "linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", minHeight: "1.3em" }}>
+              {displayed}<span className="animate-pulse" style={{ WebkitTextFillColor: "#a855f7" }}>|</span>
+            </h1>
+            <p className="text-gray-500 mb-10 max-w-lg leading-relaxed" style={{ fontSize: "1.1rem" }}>
+              One AI. 11 modules. Complete marketing output.
+              <span className="text-gray-300 font-semibold"> Built for founders who move fast.</span>
+            </p>
+            <div className="flex items-center gap-4 mb-12">
+              <button onClick={() => router.push("/sign-up")}
+                className="text-white font-black px-10 py-5 rounded-2xl text-lg transition-all hover:scale-105 active:scale-95 relative overflow-hidden group"
+                style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2)" }}>
+                <span className="relative z-10">Start for Free →</span>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
+              </button>
+              <button onClick={() => router.push("/dashboard")}
+                className="text-gray-400 font-semibold px-8 py-5 rounded-2xl text-lg transition-all hover:text-white hover:scale-105"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                View Dashboard
+              </button>
+            </div>
+            <div ref={statsRef} className="flex items-center gap-8">
+              {[
+                { v: "$49", l: "per month" },
+                { v: "10x", l: "faster" },
+                { v: "11", l: "AI modules" },
+                { v: "24/7", l: "always on" }
+              ].map((s) => (
+                <div key={s.l} className="group cursor-default">
+                  <div className="text-2xl font-black transition-transform duration-300 group-hover:scale-110" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.v}</div>
+                  <div className="text-gray-700 text-xs font-medium">{s.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — Live AI Output */}
+          <div className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"}`}>
+            <div className="relative" onMouseMove={(e) => handleTilt(e, "hero-card")} onMouseLeave={() => resetTilt("hero-card")}
+              style={{ transform: `perspective(1000px) rotateX(${tiltCards["hero-card"]?.x || 0}deg) rotateY(${tiltCards["hero-card"]?.y || 0}deg)`, transition: "transform 0.1s ease" }}>
+              <div className="rounded-3xl overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(20px)" }}>
+                <div className="flex items-center gap-2 px-5 py-4 border-b" style={{ borderColor: "rgba(124,58,237,0.1)", background: "rgba(0,0,0,0.3)" }}>
+                  <div className="w-3 h-3 rounded-full bg-red-500 opacity-70"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-70"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500 opacity-70"></div>
+                  <span className="ml-3 text-gray-600 text-xs font-mono">ai-marketing-copilot · live output</span>
+                  <div className="ml-auto flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                    <span className="text-green-400 text-xs font-bold">LIVE</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 px-5 py-3 border-b overflow-x-auto" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
+                  {LIVE_OUTPUTS.map((o, i) => (
+                    <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
+                      className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium hover:scale-105"
+                      style={{ background: i === outputIndex ? `${o.color}20` : "rgba(255,255,255,0.03)", color: i === outputIndex ? o.color : "#6b7280", border: `1px solid ${i === outputIndex ? o.color + "30" : "rgba(255,255,255,0.05)"}` }}>
+                      {o.module}
+                    </button>
+                  ))}
+                </div>
+                <div className="p-6 font-mono text-sm" style={{ minHeight: 200 }}>
+                  <pre className="whitespace-pre-wrap leading-relaxed" style={{ color: LIVE_OUTPUTS[outputIndex].color, fontSize: "0.85rem" }}>
+                    {outputText}<span className="animate-pulse text-white">█</span>
+                  </pre>
+                </div>
+                <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(124,58,237,0.08)", background: "rgba(0,0,0,0.2)" }}>
+                  <span className="text-gray-700 text-xs font-mono">Generated in 8.3s</span>
+                  <div className="flex gap-2">
+                    {["Copy", "Export", "Refine"].map((a) => (
+                      <button key={a} className="text-xs px-3 py-1 rounded-lg transition-all hover:scale-105 font-medium" style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa", border: "1px solid rgba(124,58,237,0.2)" }}>{a}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -top-5 -right-5 px-4 py-2 rounded-2xl text-sm font-bold text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.6)", animation: "float 3s ease-in-out infinite alternate" }}>
+                ⚡ 10 seconds
+              </div>
+              <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-2xl" style={{ background: "rgba(16,185,129,0.45)", border: "1px solid rgba(16,185,129,0.25)", backdropFilter: "blur(10px)", animation: "float 4s ease-in-out infinite alternate-reverse" }}>
+                <div className="text-green-400 font-bold text-sm">${savedCount.toLocaleString()} saved</div>
+                <div className="text-gray-600 text-xs">vs hiring an agency</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marquee ticker */}
+      <div className="relative z-10 py-6 overflow-hidden" style={{ background: "rgba(124,58,237,0.06)", borderTop: "1px solid rgba(124,58,237,0.1)", borderBottom: "1px solid rgba(124,58,237,0.1)" }}>
+        <div className="flex gap-8 whitespace-nowrap" style={{ animation: "marquee 20s linear infinite" }}>
+          {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={i} className="text-sm font-bold px-4" style={{ color: "#6b21a8" }}>{item}</span>
           ))}
         </div>
+      </div>
 
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xs uppercase tracking-widest text-gray-600 font-bold">Your Marketing Arsenal</h2>
-          <span className="text-xs text-gray-700">11 modules • Click to launch</span>
+      {/* Bold statement */}
+      <section className="relative z-10 px-8 py-32 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(28px, 5vw, 72px)" }}>
+            <span style={{ color: "rgba(255,255,255,0.12)" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
+            {" "}<span className="text-white">Start shipping in minutes.</span>
+          </p>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {modules.map((mod, i) => {
-            const isComingSoon = mod.tag === "COMING SOON";
-            return (
-              <button key={mod.title}
-                onClick={() => !isComingSoon && router.push(mod.href)}
-                onMouseEnter={() => setHoveredModule(mod.title)}
-                onMouseLeave={() => setHoveredModule(null)}
-                className="text-left rounded-2xl p-6 relative overflow-hidden group transition-all duration-500"
-                style={{
-                  background: isComingSoon ? "rgba(255,255,255,0.01)" : hoveredModule === mod.title ? mod.grad : "rgba(255,255,255,0.02)",
-                  border: `1px solid ${isComingSoon ? "rgba(255,255,255,0.04)" : hoveredModule === mod.title ? mod.glow + "60" : "rgba(255,255,255,0.06)"}`,
-                  boxShadow: hoveredModule === mod.title && !isComingSoon ? `0 0 60px ${mod.glow}30, 0 20px 40px rgba(0,0,0,0.4)` : "none",
-                  transform: hoveredModule === mod.title && !isComingSoon ? "translateY(-4px) scale(1.02)" : "translateY(0) scale(1)",
-                  opacity: isComingSoon ? 0.5 : 1,
-                  cursor: isComingSoon ? "not-allowed" : "pointer",
+      {/* Animated counters */}
+      <section className="relative z-10 px-8 py-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-3 gap-6">
+            {[
+              { value: `$${savedCount.toLocaleString()}`, label: "Saved vs agencies", color: "#10b981", icon: "💰" },
+              { value: `${speedCount}s`, label: "To full strategy", color: "#a855f7", icon: "⚡" },
+              { value: foundersCount.toLocaleString(), label: "Founders using now", color: "#3b82f6", icon: "🚀" },
+            ].map((stat, i) => (
+              <div key={i} className="rounded-3xl p-8 text-center group hover:scale-105 transition-all duration-300 cursor-default"
+                style={{ background: `${stat.color}08`, border: `1px solid ${stat.color}20`, boxShadow: `0 0 40px ${stat.color}10` }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 60px ${stat.color}30`; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${stat.color}10`; }}>
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{stat.icon}</div>
+                <div className="font-black text-5xl mb-2" style={{ color: stat.color }}>{stat.value}</div>
+                <div className="text-gray-600 text-sm font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ✅ BENTO GRID — ALL 11 MODULES */}
+      <section className="relative z-10 px-8 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <p className="text-xs uppercase tracking-widest text-purple-400 font-bold mb-3">What's inside</p>
+            <h2 className="font-black tracking-tighter" style={{ fontSize: "clamp(36px, 5vw, 64px)" }}>
+              <span className="text-white">11 modules.</span>
+              <span style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}> One system.</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {features.map((f, i) => (
+              <div key={f.title}
+                className={`group relative overflow-hidden rounded-3xl p-8 cursor-pointer ${f.span}`}
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", minHeight: 180, transform: `perspective(800px) rotateX(${tiltCards[f.title]?.x || 0}deg) rotateY(${tiltCards[f.title]?.y || 0}deg)`, transition: "transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease" }}
+                onClick={() => router.push("/sign-up")}
+                onMouseMove={(e) => handleTilt(e, f.title)}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.boxShadow = `0 0 60px ${f.glow}30`;
+                  el.style.borderColor = `${f.glow}40`;
+                  el.style.background = `${f.glow}08`;
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.boxShadow = "none";
+                  el.style.borderColor = "rgba(255,255,255,0.05)";
+                  el.style.background = "rgba(255,255,255,0.02)";
+                  resetTilt(f.title);
                 }}>
-                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{ background: `radial-gradient(circle, ${mod.glow}30 0%, transparent 70%)` }} />
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-widest"
-                    style={{ background: `${mod.glow}20`, color: mod.accent, border: `1px solid ${mod.glow}30` }}>
-                    {mod.tag}
-                  </span>
-                  {!isComingSoon && <span className="text-gray-700 group-hover:text-gray-400 transition-colors text-xs">→</span>}
-                </div>
-                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300 inline-block"
-                  style={{ filter: hoveredModule === mod.title && !isComingSoon ? `drop-shadow(0 0 12px ${mod.glow})` : "none" }}>
-                  {mod.icon}
-                </div>
-                <h3 className="font-black text-white text-base mb-1.5">{mod.title}</h3>
-                <p className="text-gray-600 text-xs leading-relaxed group-hover:text-gray-400 transition-colors">{mod.description}</p>
-                {!isComingSoon && (
-                  <div className="mt-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                    <span className="text-xs font-bold" style={{ color: mod.accent }}>Launch Module</span>
-                    <span style={{ color: mod.accent }}>→</span>
-                  </div>
-                )}
+                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}20 0%, transparent 70%)` }} />
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10">{f.icon}</div>
+                <h3 className="text-white font-black text-xl mb-2 relative z-10">{f.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed relative z-10">{f.desc}</p>
+                <div className="mt-6 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 relative z-10" style={{ color: f.glow }}>Open module →</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Social proof */}
+      <div className="relative z-10 py-8 overflow-hidden">
+        <p className="text-center text-xs uppercase tracking-widest text-gray-700 font-bold mb-6">What founders are saying</p>
+        <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4" style={{ animation: "marquee 30s linear infinite" }}>
+            {[
+              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
+              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
+              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
+              { text: "This is what I needed. Fast, on-brand, no agency BS.", name: "James L., Freelancer", color: "#10b981" },
+              { text: "The ad copy is better than what my agency produced.", name: "Alex R., D2C Brand", color: "#f59e0b" },
+              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K., SaaS Founder", color: "#7c3aed" },
+              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T., E-commerce", color: "#ec4899" },
+              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M., Startup CEO", color: "#3b82f6" },
+            ].map((t, i) => (
+              <div key={i} className="flex-shrink-0 w-96 rounded-2xl p-6 hover:scale-105 transition-all duration-300 cursor-default"
+                style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${t.color}20` }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${t.color}40`; (e.currentTarget as HTMLElement).style.background = `${t.color}08`; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${t.color}20`; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)"; }}>
+                <p className="text-gray-200 text-base mb-6 leading-relaxed">"{t.text}"</p>
+                <p className="text-xs font-bold" style={{ color: t.color }}>— {t.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Final CTA */}
+      <section className="relative z-10 px-8 py-32">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="relative overflow-hidden rounded-[40px] p-20 group"
+            style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.12), rgba(236,72,153,0.08))", border: "1px solid rgba(124,58,237,0.15)", boxShadow: "0 0 120px rgba(124,58,237,0.15)" }}>
+            <div className="absolute inset-0 rounded-[40px] overflow-hidden opacity-10" style={{ backgroundImage: "linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+            <div className="relative z-10">
+              <div className="text-8xl mb-8" style={{ animation: "float 3s ease-in-out infinite alternate" }}>⚡</div>
+              <h2 className="font-black tracking-tighter mb-4" style={{ fontSize: "clamp(40px, 6vw, 80px)" }}>
+                Your competitors
+                <span className="block" style={{ background: "linear-gradient(135deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                  are already using AI.
+                </span>
+              </h2>
+              <p className="text-gray-500 text-xl mb-4 max-w-lg mx-auto">Don't get left behind.</p>
+              <div className="flex items-center justify-center gap-2 mb-10">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span className="text-green-400 font-bold text-sm">{liveCount.toLocaleString()} founders using right now</span>
+              </div>
+              <button onClick={() => router.push("/sign-up")}
+                className="text-white font-black px-16 py-6 rounded-2xl text-2xl transition-all hover:scale-105 active:scale-95 inline-block relative overflow-hidden group"
+                style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 60px rgba(124,58,237,0.6), 0 0 120px rgba(124,58,237,0.3)" }}>
+                <span className="relative z-10">Get Started Free →</span>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", animation: "shimmer 1.5s infinite" }} />
               </button>
-            );
-          })}
+              <p className="text-gray-700 text-sm mt-6">$49/month · No credit card · Cancel anytime</p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-12 rounded-3xl p-8 relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.1), rgba(236,72,153,0.06))", border: "1px solid rgba(124,58,237,0.15)" }}>
-          <div className="relative z-10 flex items-center justify-between">
-            <div>
-              <p className="text-white font-black text-xl mb-1">Ready to launch? 🚀</p>
-              <p className="text-gray-500 text-sm">Add Stripe payments and start making money today</p>
-            </div>
-            <button className="text-white font-black px-8 py-3 rounded-2xl transition-all hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)", boxShadow: "0 0 30px rgba(124,58,237,0.4)" }}>
-              💳 Add Payments →
-            </button>
-          </div>
-        </div>
-      </div>
+      <footer className="relative z-10 px-8 py-10 text-center" style={{ borderTop: "1px solid rgba(124,58,237,0.06)" }}>
+        <p className="text-gray-800 text-sm font-medium">© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
+      </footer>
 
-      {sidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-70 z-40" onClick={() => { setSidebarOpen(false); setSelected(null); }} />}
-      <div className={`fixed top-0 right-0 h-full w-96 z-50 transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "translate-x-full"}`}
-        style={{ background: "rgba(5,0,15,0.98)", backdropFilter: "blur(30px)", borderLeft: "1px solid rgba(124,58,237,0.15)" }}>
-        <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "rgba(124,58,237,0.1)" }}>
-          <h2 className="font-black text-white">📚 Content History</h2>
-          <button onClick={() => { setSidebarOpen(false); setSelected(null); }} className="text-gray-600 hover:text-white text-xl transition-colors">✕</button>
-        </div>
-        {selected ? (
-          <div className="flex flex-col h-full">
-            <div className="px-6 py-3 border-b" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
-              <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-white text-sm transition-colors">← Back</button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              <span className={`text-xs px-2 py-1 rounded-full capitalize mb-4 inline-block ${moduleColors[selected.module] || "bg-purple-900 text-purple-300"}`}>{selected.module}</span>
-              <p className="text-gray-600 text-xs mb-4">{new Date(selected.createdAt).toLocaleString()}</p>
-              {renderContent(selected.result)}
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto">
-            {history.length === 0 ? (
-              <div className="px-6 py-16 text-center">
-                <div className="text-5xl mb-4">📭</div>
-                <p className="text-gray-500 text-sm">No history yet</p>
-              </div>
-            ) : (
-              <div className="divide-y" style={{ borderColor: "rgba(124,58,237,0.08)" }}>
-                {history.map((item) => (
-                  <button key={item.id} onClick={() => setSelected(item)}
-                    className="w-full text-left px-6 py-4 transition-all hover:bg-purple-900 hover:bg-opacity-15">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${moduleColors[item.module] || "bg-purple-900 text-purple-300"}`}>{item.module}</span>
-                      <span className="text-gray-700 text-xs">{new Date(item.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-gray-400 text-xs truncate">{item.result.slice(0, 80)}...</p>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <style>{`
+        @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        @keyframes float { from { transform: translateY(0px) } to { transform: translateY(-20px) } }
+        @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(200%) } }
+        @keyframes aurora1 { 0% { transform: translateX(-5%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.8; } 50% { transform: translateX(5%) translateY(5%) scaleX(1.1) scaleY(0.9); opacity: 1; } 100% { transform: translateX(2%) translateY(-5%) scaleX(0.95) scaleY(1.1); opacity: 0.7; } }
+        @keyframes aurora2 { 0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.6; } 50% { transform: translateX(-8%) translateY(-3%) scaleX(1.15) scaleY(0.85); opacity: 0.9; } 100% { transform: translateX(5%) translateY(8%) scaleX(0.9) scaleY(1.2); opacity: 0.5; } }
+        @keyframes aurora3 { 0% { transform: translateX(0%) translateY(0%) scaleX(1) scaleY(1); opacity: 0.7; } 50% { transform: translateX(6%) translateY(-6%) scaleX(0.9) scaleY(1.15); opacity: 1; } 100% { transform: translateX(-4%) translateY(4%) scaleX(1.1) scaleY(0.9); opacity: 0.6; } }
+        @keyframes aurora4 { 0% { transform: translateX(0%) scaleX(1); opacity: 0.5; } 100% { transform: translateX(10%) scaleX(1.2); opacity: 0.8; } }
+        @keyframes aurora-line { 0% { transform: translateX(-10%) scaleX(0.8); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateX(10%) scaleX(1.2); opacity: 0.3; } }
+      `}</style>
     </main>
   );
 }
