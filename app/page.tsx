@@ -199,8 +199,9 @@ export default function Home() {
     { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
     { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
     { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-1" },
+  ,
+  { icon: "🔗", title: "Meta Auto-Poster", desc: "Schedule & auto-post directly to Instagram & Facebook.", glow: "#f97316", span: "col-span-1" }
   ];
-
   return (
     <main className="text-white overflow-x-hidden" style={{ background: "#020008", minHeight: "100vh" }}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
@@ -440,7 +441,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block relative z-10" style={{ filter: `drop-shadow(0 0 12px ${f.glow}70)` }}>{f.icon}</div>
-                <h3 className="font-black text-xl mb-2 relative z-10" style={{ color: "rgba(255,255,255,0.95)" }}>{f.title}</h3>
+                <h3 className="font-black text-xl mb-2 relative z-10" style={{ color: "rgba(255,255,255,0.95)" }}>{f.title}{f.title === "Meta Auto-Poster" && <span className="ml-2 text-xs px-2 py-0.5 rounded-full align-middle" style={{ background: "rgba(249,115,22,0.2)", color: "#fb923c", border: "1px solid rgba(249,115,22,0.3)" }}>COMING SOON</span>}</h3>
                 <p className="text-sm leading-relaxed relative z-10" style={{ color: "rgba(255,255,255,0.4)" }}>{f.desc}</p>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%, rgba(255,255,255,0.02) 100%)" }} />
               </div>
