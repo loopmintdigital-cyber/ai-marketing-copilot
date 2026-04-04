@@ -188,7 +188,7 @@ export default function Home() {
 
   // ✅ ALL 11 MODULES
   const features = [
-    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-2" },
+    { icon: "🧠", title: "Brand Strategy", desc: "Full positioning & voice guide in 10 seconds.", glow: "#7c3aed", span: "col-span-1" },
     { icon: "📱", title: "Social Media", desc: "7-day calendars for every platform.", glow: "#3b82f6", span: "col-span-1" },
     { icon: "📧", title: "Email Marketing", desc: "Sequences that actually convert.", glow: "#10b981", span: "col-span-1" },
     { icon: "🎯", title: "Ad Campaigns", desc: "Google + Meta copy with A/B variants.", glow: "#f59e0b", span: "col-span-1" },
@@ -198,7 +198,7 @@ export default function Home() {
     { icon: "🗓️", title: "Content Planner", desc: "Visual calendar to plan & track all posts.", glow: "#14b8a6", span: "col-span-1" },
     { icon: "🌐", title: "Website Builder", desc: "Generate a full branded website in seconds.", glow: "#06b6d4", span: "col-span-1" },
     { icon: "⚡", title: "Brand Profile", desc: "View and edit your brand data & strategy.", glow: "#8b5cf6", span: "col-span-1" },
-    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-2" },
+    { icon: "📅", title: "Content Calendar", desc: "View all your generated content history.", glow: "#6366f1", span: "col-span-1" },
   ];
 
   return (
