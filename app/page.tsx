@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const WORDS = ["Brand Strategy.", "Social Content.", "Email Sequences.", "Ad Campaigns.", "SEO Articles.", "Landing Pages."];
@@ -55,7 +55,7 @@ export default function Home() {
       timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 35);
     } else {
       setDeleting(false);
-      setWordIndex((i) => (i + 1) % WORDS.length);
+      setWordIndex(i => (i + 1) % WORDS.length);
     }
     return () => clearTimeout(timeout);
   }, [displayed, deleting, wordIndex]);
@@ -70,253 +70,220 @@ export default function Home() {
       return () => clearTimeout(timeout);
     } else {
       const timeout = setTimeout(() => {
-        setOutputIndex((i) => (i + 1) % LIVE_OUTPUTS.length);
-        setOutputText("");
-        setOutputCharIndex(0);
+        setOutputIndex(i => (i + 1) % LIVE_OUTPUTS.length);
+        setOutputText(""); setOutputCharIndex(0);
       }, 3000);
       return () => clearTimeout(timeout);
     }
   }, [outputCharIndex, outputIndex]);
 
   return (
-    <main className="text-white overflow-x-hidden" style={{ background: "#0a0a0a", minHeight: "100vh" }}>
+    <main style={{ background: "#0a0a0a", minHeight: "100vh", color: "white", overflowX: "hidden", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-4 flex items-center justify-between" style={{ background: "rgba(10,10,10,0.95)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-white" />
-          <span className="font-black text-white tracking-tight text-base">AI Marketing Co-Pilot</span>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, padding: "16px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(10,10,10,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white" }} />
+          <span style={{ fontWeight: 900, fontSize: 16, letterSpacing: "-0.5px" }}>AI Marketing Co-Pilot</span>
         </div>
-        <div className="flex items-center gap-6">
-          <div className="hidden md:flex items-center gap-2 text-xs" style={{ color: "#666" }}>
-            <span className="w-1.5 h-1.5 bg-white rounded-full opacity-60 animate-pulse" />
-            <span className="text-white font-medium">{liveCount.toLocaleString()}</span>
-            <span>using now</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#555" }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", opacity: 0.4, display: "inline-block" }} />
+            <span style={{ color: "white", fontWeight: 600 }}>{liveCount.toLocaleString()}</span> using now
           </div>
-          <button onClick={() => router.push("/dashboard")} className="text-sm transition-colors" style={{ color: "#666" }}
-            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.color = "#fff"}
-            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.color = "#666"}>
-            Dashboard
-          </button>
-          <button onClick={() => router.push("/sign-up")}
-            className="text-black font-bold px-5 py-2 rounded-lg text-sm transition-all hover:scale-105 bg-white">
+          <button onClick={() => router.push("/dashboard")} style={{ fontSize: 14, color: "#555", background: "none", border: "none", cursor: "pointer" }}>Dashboard</button>
+          <button onClick={() => router.push("/sign-up")} style={{ background: "white", color: "black", fontWeight: 800, padding: "10px 24px", borderRadius: 10, fontSize: 14, border: "none", cursor: "pointer" }}>
             Get Started →
           </button>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="relative min-h-screen flex items-center px-8 pt-20">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className={`transition-all duration-1000 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full mb-8 font-medium" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#999" }}>
-              <span className="w-1.5 h-1.5 bg-white rounded-full opacity-60 animate-pulse" />
-              Replacing $10K/month agencies
-            </div>
+      {/* HERO — Full screen massive text */}
+      <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "120px 48px 60px", maxWidth: 1400, margin: "0 auto" }}>
+        <div style={{ marginBottom: 24 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: "#444", textTransform: "uppercase" }}>
+            ● Live · Replacing $10K/month agencies
+          </span>
+        </div>
 
-            <h1 className="font-black leading-none tracking-tighter mb-2 text-white" style={{ fontSize: "clamp(48px, 7vw, 96px)", letterSpacing: "-3px" }}>
-              <span className="block">AI That</span>
-              <span className="block">Writes Your</span>
-            </h1>
-            <h1 className="font-black leading-none tracking-tighter mb-10" style={{ fontSize: "clamp(48px, 7vw, 96px)", letterSpacing: "-3px", color: "#444", minHeight: "1.2em" }}>
-              {displayed}<span className="animate-pulse" style={{ color: "#666" }}>|</span>
-            </h1>
+        {/* MASSIVE HEADLINE */}
+        <h1 style={{ fontWeight: 900, lineHeight: 0.95, letterSpacing: "-4px", margin: "0 0 16px", fontSize: "clamp(72px, 12vw, 180px)", color: "white" }}>
+          AI That<br />Writes Your
+        </h1>
+        <h1 style={{ fontWeight: 900, lineHeight: 0.95, letterSpacing: "-4px", margin: "0 0 48px", fontSize: "clamp(72px, 12vw, 180px)", color: "#222", minHeight: "1.1em" }}>
+          {displayed}<span style={{ color: "#333", animation: "blink 1s infinite" }}>|</span>
+        </h1>
 
-            <p className="mb-10 max-w-md leading-relaxed" style={{ color: "#555", fontSize: "1.1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center", marginTop: 24 }}>
+          <div>
+            <p style={{ fontSize: 20, color: "#555", marginBottom: 40, lineHeight: 1.6, maxWidth: 480 }}>
               One AI. 11 modules. Complete marketing output.{" "}
-              <span style={{ color: "#aaa" }}>Built for founders who move fast.</span>
+              <span style={{ color: "#888" }}>Built for founders who move fast.</span>
             </p>
-
-            <div className="flex items-center gap-4 mb-14">
-              <button onClick={() => router.push("/sign-up")}
-                className="text-black font-black px-10 py-4 rounded-xl text-lg transition-all hover:scale-105 bg-white"
-                style={{ boxShadow: "0 0 40px rgba(255,255,255,0.1)" }}>
+            <div style={{ display: "flex", gap: 16, marginBottom: 56 }}>
+              <button onClick={() => router.push("/sign-up")} style={{ background: "white", color: "black", fontWeight: 900, padding: "18px 48px", borderRadius: 14, fontSize: 18, border: "none", cursor: "pointer", boxShadow: "0 0 60px rgba(255,255,255,0.08)" }}>
                 Start for Free →
               </button>
-              <button onClick={() => router.push("/dashboard")}
-                className="font-semibold px-8 py-4 rounded-xl text-lg transition-all"
-                style={{ color: "#555", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-                onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.color = "#fff"}
-                onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.color = "#555"}>
+              <button onClick={() => router.push("/dashboard")} style={{ background: "transparent", color: "#444", fontWeight: 600, padding: "18px 32px", borderRadius: 14, fontSize: 18, border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer" }}>
                 View Dashboard
               </button>
             </div>
-
-            <div className="flex items-center gap-10">
-              {[
-                { v: "$49", l: "per month" },
-                { v: "10x", l: "faster" },
-                { v: "11", l: "modules" },
-                { v: "24/7", l: "always on" }
-              ].map((s) => (
+            <div style={{ display: "flex", gap: 48 }}>
+              {[{ v: "$49", l: "/ month" }, { v: "10x", l: "faster" }, { v: "11", l: "modules" }, { v: "24/7", l: "always on" }].map(s => (
                 <div key={s.l}>
-                  <div className="text-2xl font-black text-white">{s.v}</div>
-                  <div className="text-xs font-medium" style={{ color: "#444" }}>{s.l}</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "white" }}>{s.v}</div>
+                  <div style={{ fontSize: 12, color: "#444", fontWeight: 500 }}>{s.l}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Live output */}
-          <div className={`transition-all duration-1000 delay-300 relative ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <div className="flex items-center gap-2 px-5 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#333" }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#333" }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#333" }} />
-                <span className="ml-3 text-xs font-mono" style={{ color: "#444" }}>ai-marketing-copilot · live</span>
-                <div className="ml-auto flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full opacity-40 animate-pulse" />
-                  <span className="text-xs font-bold" style={{ color: "#666" }}>LIVE</span>
+          {/* Live output card */}
+          <div style={{ position: "relative" }}>
+            <div style={{ borderRadius: 16, overflow: "hidden", background: "#111", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "#0d0d0d" }}>
+                {["#333","#333","#333"].map((c,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
+                <span style={{ marginLeft: 12, fontSize: 11, color: "#444", fontFamily: "monospace" }}>ai-marketing-copilot · live</span>
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", opacity: 0.3, display: "inline-block" }} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#555" }}>LIVE</span>
                 </div>
               </div>
-              <div className="flex gap-2 px-5 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+              <div style={{ display: "flex", gap: 8, padding: "10px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                 {LIVE_OUTPUTS.map((o, i) => (
                   <button key={i} onClick={() => { setOutputIndex(i); setOutputText(""); setOutputCharIndex(0); }}
-                    className="text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all font-medium"
-                    style={{ background: i === outputIndex ? "rgba(255,255,255,0.08)" : "transparent", color: i === outputIndex ? "#fff" : "#444", border: `1px solid ${i === outputIndex ? "rgba(255,255,255,0.12)" : "transparent"}` }}>
+                    style={{ fontSize: 11, padding: "6px 12px", borderRadius: 8, fontWeight: 600, cursor: "pointer", border: `1px solid ${i === outputIndex ? "rgba(255,255,255,0.1)" : "transparent"}`, background: i === outputIndex ? "rgba(255,255,255,0.06)" : "transparent", color: i === outputIndex ? "#fff" : "#444" }}>
                     {o.module}
                   </button>
                 ))}
               </div>
-              <div className="p-6 font-mono" style={{ minHeight: 180 }}>
-                <pre className="whitespace-pre-wrap leading-relaxed text-sm" style={{ color: "#888" }}>
-                  {outputText}<span className="animate-pulse text-white">█</span>
+              <div style={{ padding: 24, minHeight: 160, fontFamily: "monospace" }}>
+                <pre style={{ whiteSpace: "pre-wrap", fontSize: 13, color: "#777", lineHeight: 1.7, margin: 0 }}>
+                  {outputText}<span style={{ color: "white" }}>█</span>
                 </pre>
               </div>
-              <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                <span className="text-xs font-mono" style={{ color: "#333" }}>Generated in 8.3s</span>
-                <div className="flex gap-2">
-                  {["Copy", "Export"].map((a) => (
-                    <button key={a} className="text-xs px-3 py-1 rounded-lg font-medium" style={{ background: "rgba(255,255,255,0.05)", color: "#666", border: "1px solid rgba(255,255,255,0.08)" }}>{a}</button>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <span style={{ fontSize: 11, color: "#333", fontFamily: "monospace" }}>Generated in 8.3s</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {["Copy","Export"].map(a => (
+                    <button key={a} style={{ fontSize: 11, padding: "4px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", color: "#555", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>{a}</button>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="absolute -top-3 -right-3 px-3 py-1.5 rounded-lg text-xs font-bold" style={{ background: "#fff", color: "#000" }}>
+            <div style={{ position: "absolute", top: -12, right: -12, background: "white", color: "black", fontWeight: 800, fontSize: 12, padding: "6px 14px", borderRadius: 8 }}>
               ⚡ 10 seconds
             </div>
           </div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="px-8 py-10" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-5xl mx-auto flex items-center justify-between flex-wrap gap-6">
-          {["Brand Strategy", "Social Media", "Email Marketing", "Ad Campaigns", "SEO Strategy", "Copywriting", "AI Poster Maker", "Content Planner", "Website Builder"].map((item, i) => (
-            <span key={i} className="text-sm font-medium" style={{ color: "#333" }}>{item}</span>
+      {/* Feature strip */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "20px 48px" }}>
+        <div style={{ display: "flex", gap: 40, flexWrap: "wrap", maxWidth: 1400, margin: "0 auto" }}>
+          {["Brand Strategy","Social Media","Email Marketing","Ad Campaigns","SEO Strategy","Copywriting","AI Poster Maker","Content Planner","Website Builder"].map((item,i) => (
+            <span key={i} style={{ fontSize: 13, color: "#333", fontWeight: 500 }}>{item}</span>
           ))}
         </div>
       </div>
 
-      {/* Bold statement */}
-      <section className="px-8 py-32">
-        <div className="max-w-5xl mx-auto">
-          <p className="font-black leading-tight tracking-tighter" style={{ fontSize: "clamp(32px, 5vw, 72px)", letterSpacing: "-2px" }}>
-            <span style={{ color: "#222" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
-            {" "}<span className="text-white">Start shipping in minutes.</span>
-          </p>
-        </div>
+      {/* Big statement */}
+      <section style={{ padding: "120px 48px", maxWidth: 1400, margin: "0 auto" }}>
+        <p style={{ fontWeight: 900, lineHeight: 1, letterSpacing: "-3px", fontSize: "clamp(36px, 6vw, 96px)" }}>
+          <span style={{ color: "#1a1a1a" }}>Stop paying $10,000/month to an agency that takes 2 weeks to write a blog post.</span>
+          {" "}<span style={{ color: "white" }}>Start shipping in minutes.</span>
+        </p>
       </section>
 
       {/* Stats */}
-      <section className="px-8 py-8 mb-12">
-        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-3">
+      <section style={{ padding: "0 48px 80px", maxWidth: 1400, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
           {[
             { value: "$9,951", label: "Saved vs agencies", icon: "💰" },
             { value: "10s", label: "To full strategy", icon: "⚡" },
             { value: "2,858+", label: "Founders using now", icon: "🚀" },
-          ].map((stat, i) => (
-            <div key={i} className="rounded-xl p-8 text-center" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div className="text-2xl mb-3">{stat.icon}</div>
-              <div className="font-black text-4xl mb-1 text-white">{stat.value}</div>
-              <div className="text-xs" style={{ color: "#444" }}>{stat.label}</div>
+          ].map((stat,i) => (
+            <div key={i} style={{ background: "#111", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: "40px 32px", textAlign: "center" }}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>{stat.icon}</div>
+              <div style={{ fontWeight: 900, fontSize: 52, letterSpacing: "-2px", color: "white", marginBottom: 4 }}>{stat.value}</div>
+              <div style={{ fontSize: 13, color: "#444" }}>{stat.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Modules */}
-      <section className="px-8 py-16">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-12">
-            <p className="text-xs uppercase tracking-widest font-bold mb-3" style={{ color: "#444" }}>What's inside</p>
-            <h2 className="font-black tracking-tighter text-white" style={{ fontSize: "clamp(32px, 4vw, 56px)", letterSpacing: "-2px" }}>
-              11 modules. One system.
-            </h2>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {features.map((f) => (
-              <div key={f.title}
-                className="group rounded-xl p-5 cursor-pointer transition-all duration-200"
-                style={{
-                  background: hoveredCard === f.title ? "#141414" : "transparent",
-                  border: `1px solid ${hoveredCard === f.title ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.04)"}`,
-                  opacity: f.comingSoon ? 0.4 : 1,
-                }}
-                onClick={() => !f.comingSoon && router.push("/sign-up")}
-                onMouseEnter={() => !f.comingSoon && setHoveredCard(f.title)}
-                onMouseLeave={() => setHoveredCard(null)}>
-                <div className="text-2xl mb-3">{f.icon}</div>
-                <h3 className="text-white font-bold text-sm mb-1">
-                  {f.title}
-                  {f.comingSoon && <span className="ml-2 text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.08)", color: "#555" }}>SOON</span>}
-                </h3>
-                <p className="text-xs leading-relaxed" style={{ color: "#444" }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
+      <section style={{ padding: "80px 48px", maxWidth: 1400, margin: "0 auto" }}>
+        <div style={{ marginBottom: 60 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: "#333", textTransform: "uppercase", marginBottom: 16 }}>What's inside</p>
+          <h2 style={{ fontWeight: 900, fontSize: "clamp(40px, 6vw, 80px)", letterSpacing: "-3px", color: "white", margin: 0 }}>
+            11 modules.<br /><span style={{ color: "#222" }}>One system.</span>
+          </h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          {features.map(f => (
+            <div key={f.title}
+              style={{ borderRadius: 12, padding: "24px 20px", cursor: f.comingSoon ? "default" : "pointer", transition: "all 0.2s", background: hoveredCard === f.title ? "#141414" : "transparent", border: `1px solid ${hoveredCard === f.title ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)"}`, opacity: f.comingSoon ? 0.35 : 1 }}
+              onClick={() => !f.comingSoon && router.push("/sign-up")}
+              onMouseEnter={() => !f.comingSoon && setHoveredCard(f.title)}
+              onMouseLeave={() => setHoveredCard(null)}>
+              <div style={{ fontSize: 24, marginBottom: 12 }}>{f.icon}</div>
+              <h3 style={{ fontWeight: 700, fontSize: 15, color: "white", margin: "0 0 6px" }}>
+                {f.title}
+                {f.comingSoon && <span style={{ marginLeft: 8, fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "rgba(255,255,255,0.06)", color: "#444", letterSpacing: 1 }}>SOON</span>}
+              </h3>
+              <p style={{ fontSize: 12, color: "#444", margin: 0, lineHeight: 1.6 }}>{f.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="px-8 py-16" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-5xl mx-auto">
-          <p className="text-xs uppercase tracking-widest font-bold mb-10" style={{ color: "#444" }}>What founders say</p>
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { text: "Replaced my $8K/month agency in one day.", name: "Sarah K.", role: "SaaS Founder" },
-              { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T.", role: "E-commerce" },
-              { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M.", role: "Startup CEO" },
-              { text: "Fast, on-brand, no agency BS.", name: "James L.", role: "Freelancer" },
-              { text: "Ad copy is better than what my agency produced.", name: "Alex R.", role: "D2C Brand" },
-              { text: "This is what every founder needs.", name: "Raj K.", role: "Tech Startup" },
-            ].map((t, i) => (
-              <div key={i} className="rounded-xl p-5" style={{ background: "#111", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p className="text-sm mb-4 leading-relaxed" style={{ color: "#888" }}>"{t.text}"</p>
-                <div>
-                  <p className="text-xs font-bold text-white">{t.name}</p>
-                  <p className="text-xs" style={{ color: "#444" }}>{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      <section style={{ padding: "80px 48px", borderTop: "1px solid rgba(255,255,255,0.04)", maxWidth: 1400, margin: "0 auto" }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: "#333", textTransform: "uppercase", marginBottom: 40 }}>What founders say</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          {[
+            { text: "Replaced my $8K/month agency in one day.", name: "Sarah K.", role: "SaaS Founder" },
+            { text: "Generated a full brand strategy in 10 seconds. Insane.", name: "Marcus T.", role: "E-commerce" },
+            { text: "My LinkedIn engagement went up 4x in one week.", name: "Priya M.", role: "Startup CEO" },
+            { text: "Fast, on-brand, no agency BS.", name: "James L.", role: "Freelancer" },
+            { text: "Ad copy better than what my agency produced.", name: "Alex R.", role: "D2C Brand" },
+            { text: "This is what every founder needs.", name: "Raj K.", role: "Tech Startup" },
+          ].map((t,i) => (
+            <div key={i} style={{ background: "#111", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 14, padding: "24px 20px" }}>
+              <p style={{ fontSize: 14, color: "#777", lineHeight: 1.7, margin: "0 0 20px" }}>"{t.text}"</p>
+              <p style={{ fontWeight: 700, fontSize: 13, color: "white", margin: "0 0 2px" }}>{t.name}</p>
+              <p style={{ fontSize: 12, color: "#333", margin: 0 }}>{t.role}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-8 py-28">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-black tracking-tighter text-white mb-4" style={{ fontSize: "clamp(36px, 5vw, 72px)", letterSpacing: "-2px" }}>
-            Your competitors are already using AI.
-          </h2>
-          <p className="mb-3 text-lg" style={{ color: "#444" }}>Don't get left behind.</p>
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <span className="w-1.5 h-1.5 bg-white rounded-full opacity-40 animate-pulse" />
-            <span className="text-sm font-medium" style={{ color: "#555" }}>{liveCount.toLocaleString()} founders using right now</span>
-          </div>
-          <button onClick={() => router.push("/sign-up")}
-            className="text-black font-black px-14 py-5 rounded-xl text-xl transition-all hover:scale-105 bg-white inline-block"
-            style={{ boxShadow: "0 0 60px rgba(255,255,255,0.1)" }}>
-            Get Started Free →
-          </button>
-          <p className="text-xs mt-5" style={{ color: "#333" }}>$49/month · No credit card · Cancel anytime</p>
+      {/* Final CTA */}
+      <section style={{ padding: "120px 48px", textAlign: "center", maxWidth: 1400, margin: "0 auto" }}>
+        <h2 style={{ fontWeight: 900, fontSize: "clamp(40px, 7vw, 100px)", letterSpacing: "-4px", color: "white", lineHeight: 0.95, margin: "0 0 20px" }}>
+          Your competitors<br />are already<br />using AI.
+        </h2>
+        <p style={{ fontSize: 20, color: "#444", margin: "0 0 12px" }}>Don't get left behind.</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 40 }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", opacity: 0.3, display: "inline-block" }} />
+          <span style={{ fontSize: 13, color: "#444", fontWeight: 500 }}>{liveCount.toLocaleString()} founders using right now</span>
         </div>
+        <button onClick={() => router.push("/sign-up")} style={{ background: "white", color: "black", fontWeight: 900, padding: "22px 72px", borderRadius: 16, fontSize: 20, border: "none", cursor: "pointer", boxShadow: "0 0 80px rgba(255,255,255,0.08)" }}>
+          Get Started Free →
+        </button>
+        <p style={{ fontSize: 13, color: "#2a2a2a", marginTop: 20 }}>$49/month · No credit card · Cancel anytime</p>
       </section>
 
-      <footer className="px-8 py-6 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-        <p className="text-xs" style={{ color: "#333" }}>© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
+      <footer style={{ padding: "24px 48px", borderTop: "1px solid rgba(255,255,255,0.04)", textAlign: "center" }}>
+        <p style={{ fontSize: 12, color: "#2a2a2a", margin: 0 }}>© 2026 AI Marketing Co-Pilot · Built for modern businesses</p>
       </footer>
+
+      <style>{`
+        @keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: 0 } }
+        * { box-sizing: border-box; }
+        button { font-family: inherit; }
+      `}</style>
     </main>
   );
 }
