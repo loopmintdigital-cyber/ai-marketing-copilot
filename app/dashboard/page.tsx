@@ -56,12 +56,10 @@ const modules = [
   },
   {
     title: "AI Poster Maker",
-    description: "Canva-like editor with drag & drop + PNG download",
-    icon: "🖼️", href: "/poster",
+description: "Generate & design stunning posters with AI + drag & drop editor",    icon: "🖼️", href: "/poster",
     glow: "#f43f5e", accent: "#fb7185",
     grad: "linear-gradient(135deg, #4c0519, #9f1239)",
-    tag: "CANVA-LIKE",
-  },
+tag: "POSTER AI",  },
   {
     title: "Content Planner",
     description: "Visual calendar to plan, schedule & track all posts",
