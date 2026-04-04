@@ -434,7 +434,7 @@ export default function Home() {
                 <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-500" style={{ background: `radial-gradient(circle, ${f.glow}30 0%, transparent 65%)`, filter: "blur(15px)" }} />
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(90deg, transparent, ${f.glow}, transparent)` }} />
                 <div className="flex items-center justify-between mb-5 relative z-10">
-                  <span className="text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest" style={{ background: `${f.glow}15`, color: f.glow, border: `1px solid ${f.glow}25` }}>{f.tag}</span>
+                  <span className="text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest" style={{ background: `${f.glow}15`, color: f.glow, border: `1px solid ${f.glow}25` }}>{f.title}</span>
                   <div className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: `${f.glow}20`, border: `1px solid ${f.glow}30` }}>
                     <span className="text-xs font-bold" style={{ color: f.glow }}>→</span>
                   </div>
